@@ -87,7 +87,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'church_id' , 'usergroup_id' , 'ref_id' , 'name' , 'email' , 'password' , 'mobile_no' , 'is_activated' , 'email_verification_code' , 'email_verified' , 'email_verified_at' , 'is_reset' , 'platform_token' , 'remember_token'
+        'church_id' , 'usergroup_id' , 'ref_id' , 'name' , 'email' , 'password' , 'mobile_no' , 'is_activated' , 'email_verification_code' , 'email_verified' , 'email_verified_at' , 'is_reset' , 'platform_token' , 'remember_token' , 'last_login_at'
     ];
 
     /**
@@ -106,7 +106,12 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $dates = ['deleted_at' , 'email_verified_at'];
+    protected $dates = ['deleted_at' , 'email_verified_at' , 'last_login_at'];
+
+    protected $casts = [
+        'last_login_at'      => 'datetime',
+        'email_verified_at'  => 'datetime',
+    ];
 
     public function church()
     {

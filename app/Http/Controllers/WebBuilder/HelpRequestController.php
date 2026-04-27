@@ -29,7 +29,7 @@ class HelpRequestController extends Controller
 
         Help::create([
             'church_id'       => optional($church)->id,
-            'user_id'         => null,
+            'user_id'         => auth()->id(),
             'title'           => $validated['title'],
             'description'     => $validated['description'],
             'contact_details' => $validated['contact_details'],

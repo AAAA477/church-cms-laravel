@@ -30,11 +30,6 @@ class MustBeChurchSubAdmin
             return redirect('/portal');
         }
 
-        if(\Auth::user()->usergroup_id == 6)
-        {
-            return redirect('/preacher/dashboard');
-        }
-
-        abort(404);
+        abort(403);
     }
 }

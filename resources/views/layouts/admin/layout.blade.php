@@ -5,13 +5,13 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="shortcut icon" href="{{ url(\Config::get('settings.favicon')) }}">
     <title> ChurchCMS :: Admin Panel</title>
-    @include('layouts.partials._favicon')
-
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Titillium+Web&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{{ asset('css/trix.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    @stack('styles')
 </head>
 
 <body>

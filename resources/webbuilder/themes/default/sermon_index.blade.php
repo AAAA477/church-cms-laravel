@@ -3,8 +3,15 @@
 @section('title', 'Sermons')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <h1 class="text-3xl font-bold text-gray-800 mb-10">Sermons</h1>
+@include('theme::_hero_banner', [
+    'heroTitle'   => 'Sermons',
+    'heroSubtitle' => 'Messages and teachings from our pastors and preachers',
+    'breadcrumbs' => [
+        ['label' => 'Home', 'url' => route('web.home')],
+        ['label' => 'Sermons'],
+    ],
+])
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
     @forelse($grouped as $userId => $sermons)
     @php $preacher = $sermons->first()->user; @endphp

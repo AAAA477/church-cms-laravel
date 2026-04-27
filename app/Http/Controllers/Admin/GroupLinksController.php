@@ -7,11 +7,9 @@ use Illuminate\Support\Facades\Gate;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Events\SinglePushEvent;
-use App\Models\PermissionUser;
 use Illuminate\Http\Request;
 use App\Traits\EventProcess;
 use App\Traits\LogActivity;
-use App\Models\Permission;
 use App\Models\GroupLink;
 use App\Traits\Common;
 use App\Models\Group;
@@ -44,20 +42,13 @@ class GroupLinksController extends Controller
      */
     public function index($id)
     {
-        //
         $group = Group::where('id',$id)->first();
         if(Gate::allows('group',$group))
         {
-            $array =[];
-            $permission = Permission::get();
             $users = User::where('church_id',Auth::user()->church_id)->ByRole(5)->whereHas('userprofile', function($q){
                         $q->where('membership_type','member')->where('status','active');
                     })->get();
-            $memberlist = UserResource::collection($users);
-            $array['permissionlist'] = $permission;
-            $array['memberlist'] = $memberlist;
-
-            return $array;
+            return ['memberlist' => UserResource::collection($users)];
         }
         else
         {
@@ -90,66 +81,63 @@ class GroupLinksController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request , $group_id)
+    public function store(Request $request, $group_id)
     {
-        //
-        $existing_user = Grouplink::where([['church_id',$request->church_id],['user_id',$request->user_id],['group_id',$request->group_id]])->first();
+        $churchId  = $request->church_id;
+        $role      = $request->role;
+        $userIds   = $request->user_ids ?? [];
+        $ip        = $this->getRequestIP();
+        $added     = 0;
+        $skipped   = 0;
 
-        if(!($existing_user))
-        {
-            try
-            {
-                $grouplink = new Grouplink;
+        foreach ($userIds as $userId) {
+            $exists = GroupLink::where([
+                ['church_id', $churchId],
+                ['user_id',   $userId],
+                ['group_id',  $group_id],
+            ])->exists();
 
-                $grouplink->church_id   = $request->church_id;
-                $grouplink->user_id     = $request->user_id;
-                $grouplink->group_id    = $request->group_id;
-                $grouplink->role        = $request->role;
+            if ($exists) {
+                $skipped++;
+                continue;
+            }
 
+            try {
+                $grouplink             = new GroupLink;
+                $grouplink->church_id  = $churchId;
+                $grouplink->user_id    = $userId;
+                $grouplink->group_id   = $group_id;
+                $grouplink->role       = $role;
                 $grouplink->save();
 
-                $user = User::where([['church_id',$grouplink->church_id],['id',$grouplink->user_id]])->first();
+                $user = User::where([['church_id', $churchId], ['id', $userId]])->first();
 
-                $user->attachPermissions($request->permissions);
-                if( count($request->permissions) > 0 )
-                {
-                    $this->userNotifyGroup($request->church_id,$grouplink->id,$user->mobile_no,$grouplink->created_at);
-                }
+                event(new SinglePushEvent([
+                    'church_id' => Auth::user()->church_id,
+                    'user_id'   => $user->id,
+                    'message'   => 'You have been added to this group',
+                    'type'      => 'group',
+                ]));
 
-                $data=[];
-
-                $data['church_id']  =   Auth::user()->church_id;
-                $data['user_id']    =   $user->id;
-                $data['message']    =   'You have been added to this group';
-                $data['type']       =   'group';
-
-                event(new SinglePushEvent($data));
-
-                $message=('Member Added to Group Successfully');
-
-                $ip= $this->getRequestIP();
                 $this->doActivityLog(
                     $grouplink,
                     Auth::user(),
-                    ['ip' => $ip, 'details' => $_SERVER['HTTP_USER_AGENT'] ],
+                    ['ip' => $ip, 'details' => $_SERVER['HTTP_USER_AGENT']],
                     LOGNAME_ADD_MEMBER_TO_GROUP,
-                    $message
-                    );
+                    'Member Added to Group Successfully'
+                );
 
-                $res['success']="Member Added Successfully";
-                return $res;
-            }
-            catch(Exception $e)
-            {
+                $added++;
+            } catch (Exception $e) {
                 Log::info($e->getMessage());
-
             }
         }
-        else
-        {
-            $res['success']="Member Already Exists";
-            return $res;
-        }
+
+        return [
+            'success' => "$added member(s) added" . ($skipped ? ", $skipped already in group" : '') . '.',
+            'added'   => $added,
+            'skipped' => $skipped,
+        ];
     }
 
     /**
@@ -160,13 +148,10 @@ class GroupLinksController extends Controller
      */
     public function edit($id)
     {
-        //
-        $member = GroupLink::where('id',$id)->first();
+        $member = GroupLink::with('user.userprofile')->where('id',$id)->first();
         if(Gate::allows('group',$member))
         {
-            $permissionUsers = PermissionUser::where('user_id',$member->user_id)->get();
-
-            return view('/admin/groups/editMember',['members' => $member , 'permissionUsers' => $permissionUsers]);
+            return view('/admin/groups/editMember', ['member' => $member]);
         }
         else
         {
@@ -183,36 +168,26 @@ class GroupLinksController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
         try
         {
-            $user = User::where([['church_id',$request->church_id],['id',$request->user_id]])->first();
-            $permissionUsers = PermissionUser::where('user_id',$request->user_id)->get();
+            $member = GroupLink::where('id', $id)->first();
+            $member->role = $request->role;
+            $member->save();
 
-            foreach($permissionUsers as $permissionUser)
-            {
-                $permissionUser->delete();
-            }
+            $ip = $this->getRequestIP();
+            $this->doActivityLog(
+                $member,
+                Auth::user(),
+                ['ip' => $ip, 'details' => $_SERVER['HTTP_USER_AGENT']],
+                LOGNAME_UPDATE_MEMBER_PERMISSION,
+                'Group member role updated'
+            );
 
-            $user->attachPermissions($request->permissions);
-
-            $message=('Member Permissions Updated Successfully');
-
-                $ip= $this->getRequestIP();
-                $this->doActivityLog(
-                    $user,
-                    Auth::user(),
-                    ['ip' => $ip, 'details' => $_SERVER['HTTP_USER_AGENT'] ],
-                    LOGNAME_UPDATE_MEMBER_PERMISSION,
-                    $message
-                    );
-
-            return redirect()->back()->with(['successmessage' => 'Member Permissions Updated Successfully']);
+            return redirect()->back()->with(['successmessage' => 'Member role updated successfully']);
         }
         catch(Exception $e)
         {
             Log::info($e->getMessage());
-
         }
     }
 
@@ -231,11 +206,6 @@ class GroupLinksController extends Controller
             if(Gate::allows('group',$member))
             {
                 $member->delete();
-                $permissions = PermissionUser::where('user_id',$member->user_id)->get();
-                foreach($permissions as $permission)
-                {
-                    $permission->delete();
-                }
                     $message=('Member removed from Group Successfully');
 
                     $ip= $this->getRequestIP();

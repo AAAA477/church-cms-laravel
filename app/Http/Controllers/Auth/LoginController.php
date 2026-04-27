@@ -50,6 +50,10 @@ class LoginController extends Controller
 
     public function showLoginForm()
     {
-        return view('auth.login');
+        if (config('settings.member_web_login', 1) != 1) {
+            return view('auth.login', ['blocked' => true]);
+        }
+
+        return view('auth.login', ['blocked' => false]);
     }
 }

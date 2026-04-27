@@ -250,7 +250,79 @@ class PermissionTableSeeder extends Seeder
       DB::table('permissions')->Insert([
         'name'          => 'delete-sermons',
         'display_name'  => 'Delete Sermons',
-        'description'   => 'Delete Sermons', 
+        'description'   => 'Delete Sermons',
+      ]);
+
+      DB::table('permissions')->Insert([
+        'name'          => 'read-prayers',
+        'display_name'  => 'Read Prayers',
+        'description'   => 'View prayer board',
+      ]);
+
+      DB::table('permissions')->Insert([
+        'name'          => 'update-prayers',
+        'display_name'  => 'Update Prayers',
+        'description'   => 'Moderate prayers (approve, reject, pin, mark answered, etc.)',
+      ]);
+
+      DB::table('permissions')->Insert([
+        'name'          => 'read-helps',
+        'display_name'  => 'Read Help Requests',
+        'description'   => 'View help requests list and details',
+      ]);
+
+      DB::table('permissions')->Insert([
+        'name'          => 'update-helps',
+        'display_name'  => 'Update Help Requests',
+        'description'   => 'Respond to and update help requests',
+      ]);
+
+      DB::table('permissions')->Insert([
+        'name'          => 'read-contacts',
+        'display_name'  => 'Read Contacts',
+        'description'   => 'View contact form submissions',
+      ]);
+
+      DB::table('permissions')->Insert([
+        'name'          => 'read-feedbacks',
+        'display_name'  => 'Read Feedbacks',
+        'description'   => 'View feedback submissions',
+      ]);
+
+      DB::table('permissions')->Insert([
+        'name'          => 'update-feedbacks',
+        'display_name'  => 'Update Feedbacks',
+        'description'   => 'Update feedback status',
+      ]);
+
+      DB::table('permissions')->Insert([
+        'name'          => 'read-video-conferences',
+        'display_name'  => 'Read Video Conferences',
+        'description'   => 'View video conference rooms and recordings',
+      ]);
+
+      DB::table('permissions')->Insert([
+        'name'          => 'create-video-conferences',
+        'display_name'  => 'Create Video Conferences',
+        'description'   => 'Create and manage video conference rooms',
+      ]);
+
+      DB::table('permissions')->Insert([
+        'name'          => 'delete-video-conferences',
+        'display_name'  => 'Delete Video Conferences',
+        'description'   => 'Remove video conference rooms and participants',
+      ]);
+
+      DB::table('permissions')->Insert([
+        'name'          => 'manage-email-blaster',
+        'display_name'  => 'Manage Email Blaster',
+        'description'   => 'Full access to campaigns, emails, mailing lists, subscribers, SMTP, queues, rules, and webhooks',
+      ]);
+
+      DB::table('permissions')->Insert([
+        'name'          => 'manage-cms',
+        'display_name'  => 'Manage CMS',
+        'description'   => 'Full access to pages, posts, FAQ, code snippets, and Google Analytics',
       ]);
   }
 }

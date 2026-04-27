@@ -62,22 +62,25 @@
                                     <label for="church_logo" class="text-sm font-medium text-gray-700 leading-8">Church Logo</label>
                                 </th>
                                 <td class="py-4">
-                                    <div class="flex items-start gap-5">
-                                        {{-- Current preview --}}
-                                        <div class="flex-shrink-0">
+                                    <div class="flex flex-col gap-3">
+                                        {{-- 4:1 rectangle preview --}}
+                                        <div class="flex-shrink-0" style="width:360px; height:90px;">
                                             @if($churchdetail['church_logo'])
                                                 <img src="{{ $churchdetail['church_logo'] }}"
                                                     id="church_logo_preview"
-                                                    class="w-20 h-20 rounded-full object-cover border-2 border-gray-200 shadow-sm">
+                                                    style="width:360px;height:90px;"
+                                                    class="object-contain rounded border border-gray-200 bg-gray-50 shadow-sm">
                                             @else
                                                 <div id="church_logo_preview"
-                                                    class="w-20 h-20 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-xs text-center leading-tight">
-                                                    No logo
+                                                    style="width:360px;height:90px;"
+                                                    class="rounded border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center text-gray-400 text-xs">
+                                                    No logo uploaded
                                                 </div>
                                             @endif
                                         </div>
+
                                         {{-- Upload control + help --}}
-                                        <div>
+                                        <div class="flex items-center gap-4">
                                             <label for="church_logo"
                                                 class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded text-sm text-gray-700 cursor-pointer hover:bg-gray-50 transition">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -89,13 +92,13 @@
                                                 accept="image/png,image/jpeg,image/gif,image/svg+xml"
                                                 class="sr-only"
                                                 onchange="previewImage(this, 'church_logo_preview')">
-                                            <p class="mt-2 text-xs text-gray-500 leading-relaxed">
+                                            <p class="text-xs text-gray-500 leading-relaxed">
                                                 Appears on your website header and emails.<br>
-                                                Recommended: <strong>512 &times; 512 px</strong>, PNG or SVG with transparent background.<br>
+                                                Preferred size: <strong>360 &times; 90 px</strong> (4&thinsp;:&thinsp;1 ratio), PNG or SVG with transparent background.<br>
                                                 Max file size: <strong>2 MB</strong>.
                                             </p>
-                                            <p id="church_logo_filename" class="mt-1 text-xs text-indigo-600 hidden"></p>
                                         </div>
+                                        <p id="church_logo_filename" class="text-xs text-indigo-600 hidden"></p>
                                     </div>
                                     <span class="text-red-500 text-xs font-semibold block mt-2">{{ $errors->first('church_logo') }}</span>
                                 </td>
@@ -351,6 +354,7 @@
                     img.src = e.target.result;
                     img.id = previewId;
                     img.className = preview.className;
+                    img.style.cssText = preview.style.cssText;
                     preview.parentNode.replaceChild(img, preview);
                 }
             };

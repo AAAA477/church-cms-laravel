@@ -1,300 +1,230 @@
 <template>
   <div>
-  <div v-if="this.success!=null" class="alert alert-success" id="success-alert">{{this.success}}</div>
-
-  <div class="tw-form-group w-full flex flex-wrap items-center">
-
-    <div class="mb-2 w-24">
-      <label class="tw-form-label">Search Member<span class="text-red-500">*</span></label>
-    </div>
-<div class="w-full lg:w-1/3 md:w-1/3 lg:mx-4 md:mx-4">
-    <multiselect v-model="selectedUsers" id="ajax" dusk="search" label="fullname" track-by="fullname" placeholder="Type to search" open-direction="bottom" :options="users" :custom-label="customLabel" :show-labels="false" :multiple="true" :searchable="true" :loading="isLoading" :internal-search="true" :clear-on-select="false" :close-on-select="false" :options-limit="300" :limit="5" :limit-text="limitText" :max-height="600" :show-no-results="true" :hide-selected="true" @search-change="asyncFind">
-
-        <template slot="tag" slot-scope="{ option, remove }">
-          <span class="custom__tag">
-            <span>{{ (option.fullname) }}</span>
-            <span class="custom__remove" @click="remove(option)">❌</span>
-          </span>
-        </template>
-
-        <template slot="clear" slot-scope="props">
-          <div class="multiselect__clear" v-if="selectedUsers.length" @mousedown.prevent.stop="clearAll(props.search)"></div>
-        </template>
-        
-        <template slot="option" slot-scope="props">
-        <div class="flex">
-          <img class="option__image w-10 h-10" :src="props.option.avatar">
-          <div>
-          <div class="option__desc">
-            <span class="option__name">{{ props.option.fullname }}</span>
-          </div>
-          <div class="option__desc">
-            <span class="option__small">{{ props.option.mobile_no }}</span>
-          </div>
-          </div>
-          </div>
-        </template>
-
-        <span slot="noResult">Oops! No users found.</span>
-
-    </multiselect>
+    <div v-if="success" class="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded text-sm mb-4">
+      {{ success }}
     </div>
 
-  </div>
-<!--end-->
-<!--start-->
-
-<div class="my-3">
-  <div class="flex flex-wrap items-center">
-    <div class="w-24">
-      <label class="tw-form-label">Member Role<span class="text-red-500">*</span></label>
-    </div>
-    <div class="w-full lg:w-1/3 md:w-1/3 lg:mx-4 md:mx-4 my-1 lg:my-0 md:my-0">
-      <select v-model="role" class="repeats tw-form-control w-full" placeholder = "Select role" id="role">
+    <!-- Role selector -->
+    <div class="flex items-center gap-4 mb-5">
+      <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Assign as</label>
+      <select v-model="role" class="tw-form-control w-48">
         <option value="" disabled>Select Role</option>
-        <option v-for="list in rolelist" :value="list.id">{{ list.name }}</option>
-      </select> 
-      <span v-if="errors.role"><p class="text-danger text-xs my-1">{{errors.role[0]}}</p></span>
+        <option value="group_admin">Group Admin</option>
+        <option value="member">Member</option>
+        <option value="guest">Guest</option>
+      </select>
+      <span class="text-xs text-gray-400">
+        <strong>Group Admin</strong> – manage &amp; message &nbsp;|&nbsp;
+        <strong>Member</strong> – message only &nbsp;|&nbsp;
+        <strong>Guest</strong> – view only
+      </span>
     </div>
-  </div>
-</div>
-<!--end-->
-<!--start-->
-  <div class="custom-table overflow-x-auto">
-  <table class="w-full">
-    <thead class="bg-grey-light">
-      <tr class="border-t-2 border-b-2">
-        <th class="text-left text-sm px-2 py-2 text-grey-darker">Modules</th>
-        <th class="text-left text-sm px-2 py-2 text-grey-darker">Read</th>
-        <th class="text-left text-sm px-2 py-2 text-grey-darker">Create</th>
-        <th class="text-left text-sm px-2 py-2 text-grey-darker">Update</th>
-        <th class="text-left text-sm px-2 py-2 text-grey-darker">View</th>
-        <th class="text-left text-sm px-2 py-2 text-grey-darker">Delete</th>
-      </tr>
-    </thead>
-    <tbody  class="bg-grey-light">
-      <tr class="border-t-2 border-b-2">
-        <td class="py-3 px-2"><p class="font-semibold text-xs">Members</p></td>
-        <td class="py-3 px-2"><input type="checkbox" value="read-members" id="read-members" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"><input type="checkbox" value="create-members" id="create-members" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"><input type="checkbox" value="update-members" id="update-members" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"></td>
-        <td class="py-3 px-2"></td>
-      </tr>
-      <tr class="border-t-2 border-b-2"> 
-        <td class="py-3 px-2"><p class="font-semibold text-xs">Events</p></td>
-        <td class="py-3 px-2"><input type="checkbox" value="read-events" id="read-events" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"><input type="checkbox" value="create-events" id="create-events" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"><input type="checkbox" value="update-events" id="update-events" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"></td>
-        <td class="py-3 px-2"></td>
-      </tr>
-      <tr class="border-t-2 border-b-2"> 
-        <td class="py-3 px-2"><p class="font-semibold text-xs">Gallery</p></td>
-        <td class="py-3 px-2"><input type="checkbox" value="read-gallery" id="read-gallery" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"><input type="checkbox" value="create-gallery" id="create-gallery" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"><input type="checkbox" value="update-gallery" id="update-gallery" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"></td>
-        <td class="py-3 px-2"></td>
-      </tr>
-      <!-- <tr class="border-t-2 border-b-2"> 
-        <td class="py-3 px-2"><p class="font-semibold text-xs">Files</p></td>
-        <td class="py-3 px-2"><input type="checkbox" value="read-files" id="read-files" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"><input type="checkbox" value="create-files" id="create-files" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"></td>
-        <td class="py-3 px-2"><input type="checkbox" value="view-files" id="view-files" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"></td>
-      </tr> -->
-      <tr class="border-t-2 border-b-2"> 
-        <td class="py-3 px-2"><p class="font-semibold text-xs">Videos</p></td>
-        <td class="py-3 px-2"><input type="checkbox" value="read-videos" id="read-videos" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"><input type="checkbox" value="create-videos" id="create-videos" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"></td>
-        <td class="py-3 px-2"><input type="checkbox" value="view-videos" id="view-videos" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"></td>
-      </tr>
-      <!-- <tr class="border-t-2 border-b-2"> 
-        <td class="py-3 px-2"><p class="font-semibold text-xs">Sermons</p></td>
-        <td class="py-3 px-2"><input type="checkbox" value="read-sermons" id="read-sermons" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"><input type="checkbox" value="create-sermons" id="create-sermons" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"><input type="checkbox" value="update-sermons" id="update-sermons" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"></td>
-        <td class="py-3 px-2"><input type="checkbox" value="delete-sermons" id="delete-sermons" name="permissions" v-model="permissions"></td>
-      </tr> -->
-      <tr class="border-t-2 border-b-2"> 
-        <td class="py-3 px-2"><p class="font-semibold text-xs">Bulletins</p></td>
-        <td class="py-3 px-2"><input type="checkbox" value="read-bulletins" id="read-bulletins" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"><input type="checkbox" value="create-bulletins" id="create-bulletins" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"></td>
-        <td class="py-3 px-2"><input type="checkbox" value="view-bulletins" id="view-bulletins" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"></td>
-      </tr>
-      <tr class="border-t-2 border-b-2"> 
-        <td class="py-3 px-2"><p class="font-semibold text-xs">Groups</p></td>
-        <td class="py-3 px-2"><input type="checkbox" value="read-groups" id="read-groups" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"><input type="checkbox" value="create-groups" id="create-groups" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"><input type="checkbox" value="update-groups" id="update-groups" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"></td>
-        <td class="py-3 px-2"><input type="checkbox" value="delete-groups" id="delete-groups" name="permissions" v-model="permissions"></td>
-      </tr>
-      <tr class="border-t-2 border-b-2"> 
-        <td class="py-3 px-2"><p class="font-semibold text-xs">Funds</p></td>
-        <td class="py-3 px-2"><input type="checkbox" value="read-funds" id="read-funds" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"><input type="checkbox" value="create-funds" id="create-funds" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"><input type="checkbox" value="update-funds" id="update-funds" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"><input type="checkbox" value="view-funds" id="view-funds" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"></td>
-      </tr>
-      <tr class="border-t-2 border-b-2"> 
-        <td class="py-3 px-2"><p class="font-semibold text-xs">Quotes</p></td>
-        <td class="py-3 px-2"><input type="checkbox" value="read-quotes" id="read-quotes" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"><input type="checkbox" value="create-quotes" id="create-quotes" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"><input type="checkbox" value="update-quotes" id="update-quotes" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"></td>
-        <td class="py-3 px-2"></td>
-      </tr>
-      <!-- <tr class="border-t-2 border-b-2"> 
-        <td class="py-3 px-2"><p class="font-semibold text-xs">Preachers</p></td>
-        <td class="py-3 px-2"><input type="checkbox" value="read-preachers" id="read-preachers" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"><input type="checkbox" value="create-preachers" id="create-preachers" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"><input type="checkbox" value="update-preachers" id="update-preachers" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"></td>
-        <td class="py-3 px-2"></td>
-      </tr> -->
-      <tr class="border-t-2 border-b-2"> 
-        <td class="py-3 px-2"><p class="font-semibold text-xs">Reports</p></td>
-        <td class="py-3 px-2"><input type="checkbox" value="read-reports" id="read-reports" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"></td>
-        <td class="py-3 px-2"></td>
-        <td class="py-3 px-2"><input type="checkbox" value="view-reports" id="view-reports" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"></td>
-      </tr>
-      <tr class="border-t-2 border-b-2"> 
-        <td class="py-3 px-2"><p class="font-semibold text-xs">Payments</p></td>
-        <td class="py-3 px-2"><input type="checkbox" value="read-payments" id="read-reports" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"><input type="checkbox" value="create-payments" id="create-payments" name="permissions" v-model="permissions"></td>
-        <td class="py-3 px-2"></td>
-        <td class="py-3 px-2"></td>
-        <td class="py-3 px-2"></td>
-      </tr>
-    </tbody> 
-  </table>
-  </div>
 
-  <div class="flex flex-wrap">
-    <div class="block w-full lg:w-1/4 md:w-1/4 my-2 lg:mr-2" id="show-user" v-for="selectedUser in selectedUsers">
-      <div class="shadow-md p-3">
-        <div class="flex p-2">
-          <div class="leading-loose my-1">
-            <p class="text-sm font-semibold  text-gray-800 capitalize">
-              <a :href="url+'/admin/member/show/'+selectedUser['name']">{{ selectedUser['fullname'] }}</a>
-            </p>
-            <a href="#" class="btn btn-primary submit-btn" id=add_user @click="addUser(selectedUser['id'])">Add</a>
+    <!-- Dual listbox -->
+    <div class="flex items-start gap-3">
+
+      <!-- Left: Available -->
+      <div class="flex-1 border border-gray-200 rounded-lg overflow-hidden bg-white">
+        <div class="px-3 py-2 bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-600 uppercase tracking-wide flex items-center justify-between">
+          <span>Available members</span>
+          <span class="text-gray-400 font-normal normal-case">{{ filteredAvailable.length }} shown</span>
+        </div>
+        <div class="px-3 py-2 border-b border-gray-100">
+          <div class="relative">
+            <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+            <input
+              v-model="leftSearch"
+              type="text"
+              placeholder="Search..."
+              class="tw-form-control w-full pl-7 py-1.5 text-sm"
+            >
           </div>
         </div>
+        <ul class="overflow-y-auto" style="min-height:220px;max-height:280px;">
+          <li v-if="loading" class="px-3 py-8 text-center text-sm text-gray-400">Loading…</li>
+          <li v-else-if="!filteredAvailable.length" class="px-3 py-8 text-center text-sm text-gray-400">No members available</li>
+          <li
+            v-for="user in filteredAvailable"
+            :key="user.id"
+            @click="toggleLeft(user.id)"
+            :class="['flex items-center gap-2 px-3 py-2 cursor-pointer select-none text-sm transition',
+                     leftHighlighted.includes(user.id) ? 'bg-indigo-50 text-indigo-800' : 'text-gray-700 hover:bg-gray-50']"
+          >
+            <img :src="user.avatar" class="w-7 h-7 rounded-full object-cover flex-shrink-0">
+            <span class="truncate">{{ user.fullname }}</span>
+          </li>
+        </ul>
       </div>
-    </div>
-  </div>
 
+      <!-- Transfer buttons -->
+      <div class="flex flex-col items-center justify-center gap-2 pt-24">
+        <button @click="moveAllRight" title="Add all" class="transfer-btn">»</button>
+        <button @click="moveRight"    title="Add selected" class="transfer-btn">›</button>
+        <button @click="moveLeft"     title="Remove selected" class="transfer-btn">‹</button>
+        <button @click="moveAllLeft"  title="Remove all" class="transfer-btn">«</button>
+      </div>
+
+      <!-- Right: Selected -->
+      <div class="flex-1 border border-gray-200 rounded-lg overflow-hidden bg-white">
+        <div class="px-3 py-2 bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-600 uppercase tracking-wide flex items-center justify-between">
+          <span>Selected members</span>
+          <span class="text-gray-400 font-normal normal-case">{{ selected.length }} selected</span>
+        </div>
+        <div class="px-3 py-2 border-b border-gray-100">
+          <div class="relative">
+            <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+            <input
+              v-model="rightSearch"
+              type="text"
+              placeholder="Search..."
+              class="tw-form-control w-full pl-7 py-1.5 text-sm"
+            >
+          </div>
+        </div>
+        <ul class="overflow-y-auto" style="min-height:220px;max-height:280px;">
+          <li v-if="!filteredSelected.length" class="px-3 py-8 text-center text-sm text-gray-400">No members selected</li>
+          <li
+            v-for="user in filteredSelected"
+            :key="user.id"
+            @click="toggleRight(user.id)"
+            :class="['flex items-center gap-2 px-3 py-2 cursor-pointer select-none text-sm transition',
+                     rightHighlighted.includes(user.id) ? 'bg-indigo-50 text-indigo-800' : 'text-gray-700 hover:bg-gray-50']"
+          >
+            <img :src="user.avatar" class="w-7 h-7 rounded-full object-cover flex-shrink-0">
+            <span class="truncate">{{ user.fullname }}</span>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center gap-3 mt-5">
+      <button
+        @click="submit"
+        :disabled="!selected.length || !role || saving"
+        class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded disabled:opacity-50 disabled:cursor-not-allowed transition">
+        {{ saving ? 'Adding…' : 'Add Members' }}
+      </button>
+      <a :href="url + '/admin/group/show/' + group_id" class="px-5 py-2 bg-white border border-gray-300 text-gray-600 text-sm font-medium rounded hover:bg-gray-50 transition">
+        Cancel
+      </a>
+    </div>
   </div>
 </template>
 
 <script>
-  import Multiselect from 'vue-multiselect'
-  // register globally
-  Vue.component('multiselect', Multiselect)
   export default {
-    props:['url' , 'church_id' , 'group_id'],
-  components: {
-    Multiselect
-  },
-  data () {
-    return {
-      selectedUsers: [],
-      users: [],
-      role:'',
-      isLoading: false,
-      permissions:[],
-      memberlist:[],
-      errors:[],
-      success:null,
-      rolelist:[{id : 'leader' , name : 'Leader'} , {id : 'president' , name : 'President'} , {id : 'secretary' , name : 'secretary'} , {id : 'treasurer' , name : 'Treasurer'} , {id : 'member' , name : 'Member'}],
-    }
-  },
-
-  methods: 
-  {
-    getMember(query)
-    {
-      axios.get('/admin/group/showMember/'+this.group_id+'?'+query).then(response => {
-        this.user = response.data;
-        this.setData(query); 
-      });
-    },
-
-    setData(query)
-    {
-      if(Object.keys(this.user).length>0)
-      {
-        this.users = this.user.memberlist;
-        //console.log(this.users)
-        this.isLoading = false;
+    props: ['url', 'church_id', 'group_id'],
+    data() {
+      return {
+        available: [],
+        selected: [],
+        leftSearch: '',
+        rightSearch: '',
+        leftHighlighted: [],
+        rightHighlighted: [],
+        role: '',
+        loading: true,
+        saving: false,
+        success: null,
       }
     },
-
-    limitText (count) 
-    {
-      return `and ${count} other users`
+    computed: {
+      filteredAvailable() {
+        const q = this.leftSearch.toLowerCase()
+        return q ? this.available.filter(u => u.fullname.toLowerCase().includes(q)) : this.available
+      },
+      filteredSelected() {
+        const q = this.rightSearch.toLowerCase()
+        return q ? this.selected.filter(u => u.fullname.toLowerCase().includes(q)) : this.selected
+      },
     },
-
-    customLabel ({ fullname, mobile_no }) 
-    {
-      return `${fullname} – ${mobile_no}`
+    methods: {
+      toggleLeft(id) {
+        const idx = this.leftHighlighted.indexOf(id)
+        idx >= 0 ? this.leftHighlighted.splice(idx, 1) : this.leftHighlighted.push(id)
+      },
+      toggleRight(id) {
+        const idx = this.rightHighlighted.indexOf(id)
+        idx >= 0 ? this.rightHighlighted.splice(idx, 1) : this.rightHighlighted.push(id)
+      },
+      moveRight() {
+        const moving = this.available.filter(u => this.leftHighlighted.includes(u.id))
+        this.available = this.available.filter(u => !this.leftHighlighted.includes(u.id))
+        this.selected.push(...moving)
+        this.leftHighlighted = []
+      },
+      moveAllRight() {
+        this.selected.push(...this.available)
+        this.available = []
+        this.leftHighlighted = []
+      },
+      moveLeft() {
+        const moving = this.selected.filter(u => this.rightHighlighted.includes(u.id))
+        this.selected = this.selected.filter(u => !this.rightHighlighted.includes(u.id))
+        this.available.push(...moving)
+        this.rightHighlighted = []
+      },
+      moveAllLeft() {
+        this.available.push(...this.selected)
+        this.selected = []
+        this.rightHighlighted = []
+      },
+      submit() {
+        if (!this.selected.length || !this.role) return
+        this.saving = true
+        this.success = null
+        axios.post('/admin/group/addMember/' + this.group_id, {
+          church_id: this.church_id,
+          group_id:  this.group_id,
+          role:      this.role,
+          user_ids:  this.selected.map(u => u.id),
+        }).then(response => {
+          this.success = response.data.success
+          this.selected = []
+          this.rightHighlighted = []
+          this.saving = false
+          this.loadMembers()
+        }).catch(() => { this.saving = false })
+      },
+      loadMembers() {
+        this.loading = true
+        axios.get('/admin/group/showMember/' + this.group_id).then(response => {
+          this.available = (response.data?.memberlist || []).map(u => ({
+            id: u.id,
+            fullname: u.fullname,
+            avatar: u.avatar,
+            mobile_no: u.mobile_no,
+          }))
+          this.loading = false
+        }).catch(() => { this.loading = false })
+      },
     },
-
-    clearAll () 
-    {
-      this.selectedUsers = []
+    created() {
+      this.loadMembers()
     },
-
-    asyncFind (query) 
-    {
-      //console.log(query);
-      this.isLoading = true
-      this.getMember(query);
-    },
-
-    disableUser()
-    {
-      $('#show-user').removeClass('block').addClass('hide-menu');
-    },
-
-    addUser(user_id)
-    {
-      this.errors=[];
-      this.success=null;                 
-              
-      axios.post('/admin/group/addMember/'+this.group_id,{
-                church_id: this.church_id,
-                group_id: this.group_id,
-                role:this.role,
-                user_id:user_id,
-                permissions:this.permissions
-            }).then(response => {   
-          this.success = response.data.success;
-          this.disableUser();
-        }).catch(error => {
-          this.errors = error.response.data.errors;
-        });
-    },
-  },
-
-  created()
-  {
-    this.getMember();
   }
-}
-
 </script>
 
-<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
+<style scoped>
+.transfer-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  font-size: 18px;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  line-height: 1;
+}
+.transfer-btn:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+</style>

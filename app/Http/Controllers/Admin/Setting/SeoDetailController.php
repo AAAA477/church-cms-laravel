@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin\Setting;
 use App\Http\Requests\SeoDetailAdvancedRequest;
 use App\Http\Requests\SeoDetailBasicRequest;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\ChurchDetail;
 use App\Traits\SettingProcess;
 use App\Traits\Common;
 use Exception;
@@ -127,5 +129,60 @@ class SeoDetailController extends Controller
         } catch (Exception $e) {
             Log::info($e->getMessage());
         }
+    }
+
+    public function htmlCode()
+    {
+        return view('admin.settings.htmlcode');
+    }
+
+    public function storeHtmlCode(Request $request)
+    {
+        $churchId = Auth::user()->church_id;
+        foreach (['header_code', 'footer_code'] as $key) {
+            ChurchDetail::updateOrCreate(
+                ['church_id' => $churchId, 'meta_key' => $key],
+                ['meta_value' => $request->input($key) ?? '']
+            );
+        }
+        return redirect()->back()->with('success', 'HTML/JS code saved successfully.');
+    }
+
+    public function openGraph()
+    {
+        $imagePath = fn(string $key) => \Config::get("settings.$key")
+            ? $this->getFilePath(\Config::get("settings.$key"))
+            : null;
+
+        return view('admin.settings.opengraph', [
+            'facebook_image_url' => $imagePath('facebook_image'),
+            'twitter_image_url'  => $imagePath('twitter_image'),
+        ]);
+    }
+
+    public function storeOpenGraph(Request $request)
+    {
+        $churchId = Auth::user()->church_id;
+        $fields = ['facebook_title', 'facebook_description', 'facebook_url', 'twitter_title', 'twitter_description', 'twitter_url'];
+
+        foreach ($fields as $key) {
+            ChurchDetail::updateOrCreate(
+                ['church_id' => $churchId, 'meta_key' => $key],
+                ['meta_value' => $request->input($key) ?? '']
+            );
+        }
+
+        $folder = $churchId . '/settings';
+        foreach (['facebook_image', 'twitter_image'] as $key) {
+            if ($request->hasFile($key)) {
+                $path = $this->uploadFile($folder, $request->file($key));
+                ChurchDetail::updateOrCreate(
+                    ['church_id' => $churchId, 'meta_key' => $key],
+                    ['meta_value' => $path]
+                );
+            }
+        }
+
+        return redirect()->back()->with('success', 'Open Graph settings saved successfully.');
     }
 }

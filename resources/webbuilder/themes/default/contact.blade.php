@@ -3,8 +3,16 @@
 @section('title', 'Contact Us')
 
 @section('content')
-<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <h1 class="text-3xl font-bold text-gray-800 mb-4">Contact Us</h1>
+@include('theme::_hero_banner', [
+    'heroTitle'    => 'Contact Us',
+    'heroSubtitle' => 'We\'d love to hear from you — get in touch with our parish',
+    'breadcrumbs'  => [
+        ['label' => 'Home', 'url' => route('web.home')],
+        ['label' => 'Contact Us'],
+    ],
+])
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+<div class="max-w-lg mx-auto">
 
     @if($_church)
     <div class="text-gray-500 text-sm mb-8">
@@ -64,5 +72,6 @@
             </button>
         </div>
     </form>
-</div>
+</div>{{-- max-w-lg --}}
+</div>{{-- max-w-6xl --}}
 @endsection

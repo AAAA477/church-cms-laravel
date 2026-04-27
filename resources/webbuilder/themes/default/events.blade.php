@@ -3,7 +3,15 @@
 @section('title', 'Events')
 
 @section('content')
-<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+@include('theme::_hero_banner', [
+    'heroTitle'    => 'Events',
+    'heroSubtitle' => 'Upcoming services, gatherings, and community events',
+    'breadcrumbs'  => [
+        ['label' => 'Home', 'url' => route('web.home')],
+        ['label' => 'Events'],
+    ],
+])
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
     {{-- Upcoming Events --}}
     <section class="mb-14">

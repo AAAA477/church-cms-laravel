@@ -31,15 +31,14 @@ use Illuminate\Support\Facades\Route;
         //sermon
         Route::get('/dashboard/sermon', 'DashboardController@sermon');
 
-    //contact
-        //index
-        Route::get('/contacts', 'ContactController@index');
+    // Contacts
+    Route::group(['middleware' => ['permission:read-contacts']], function () {
+        Route::get('/contacts',            'ContactController@index');
+        Route::get('/contact/show/{id}',   'ContactController@show');
+    });
 
-        //show
-        Route::get('/contact/show/{id}', 'ContactController@show');
-
-    //Campaign (admin only - email marketing)
-    Route::group(['middleware' => ['adminonly']], function() {
+    //Campaign (email blaster)
+    Route::group(['middleware' => ['permission:manage-email-blaster']], function() {
         //index
         Route::get('/campaigns', 'CampaignController@index');
         Route::get('/campaigns/list', 'CampaignController@list');
@@ -281,7 +280,7 @@ use Illuminate\Support\Facades\Route;
     });
 
     //church details
-    Route::group(['middleware' => ['adminonly']], function() {
+    Route::group(['middleware' => ['admingroup']], function() {
         //add
         Route::get('/churchdetails/add', 'ChurchDetailsController@create');
         Route::post('/churchdetails/add', 'ChurchDetailsController@store');
@@ -292,7 +291,7 @@ use Illuminate\Support\Facades\Route;
     });
 
     //master data
-    Route::group(['middleware' => ['adminonly'], 'namespace' => 'MasterData'], function () {
+    Route::group(['middleware' => ['admingroup'], 'namespace' => 'MasterData'], function () {
         Route::get('/countries',             'CountryController@index');
         Route::post('/countries/bulk',        'CountryController@bulk');
         Route::get('/country/create',        'CountryController@create');
@@ -319,42 +318,42 @@ use Illuminate\Support\Facades\Route;
 
         // AJAX helpers
         Route::get('/ajax/states',           'StateController@ajaxByCountry');
+        Route::get('/ajax/cities',           'CityController@ajaxByState');
     });
 
-    //video conference
-        //index
-        Route::get('/video-conference', 'VideoConferencesController@index');
+    // Video Conference
+    Route::group(['middleware' => ['permission:read-video-conferences']], function () {
+        Route::get('/video-conference',                     'VideoConferencesController@index');
+        Route::get('/video-conference/list',                'VideoConferencesController@list');
+        Route::get('/video-conference/{slug}',              'VideoConferencesController@show');
+        Route::get('/video-conference/editList/{id}',       'VideoConferencesController@editList');
+        Route::get('/video-conference/recordings/{id}',     'VideoConferencesController@recordings');
+        Route::get('/video-conference/manage-invites/{id}', 'VideoConferencesController@invites');
+    });
 
-        //add
-        Route::get('/video-conference/list', 'VideoConferencesController@list');
-        Route::get('/video-conference/create', 'VideoConferencesController@create');
-        Route::post('/video-conference/save', 'VideoConferencesController@store');
+    Route::group(['middleware' => ['permission:create-video-conferences']], function () {
+        Route::get('/video-conference/create',              'VideoConferencesController@create');
+        Route::post('/video-conference/save',               'VideoConferencesController@store');
+        Route::get('/video-conference/edit/{id}',           'VideoConferencesController@edit');
+        Route::post('/video-conference/edit/{id}',          'VideoConferencesController@update');
+        Route::post('/video-conference/status/{id}',        'VideoConferencesController@statusUpdate');
+        Route::get('/video-conference/add-invites/{id}',    'VideoConferencesController@addinvites');
+        Route::post('/video-conference/save-invites/{id}',  'VideoConferencesController@saveinvites');
+    });
 
-        //show
-        Route::get('/video-conference/{slug}', 'VideoConferencesController@show');
+    Route::group(['middleware' => ['permission:delete-video-conferences']], function () {
+        Route::delete('/video-conference/remove/{id}',      'VideoConferencesController@remove');
+        Route::delete('/video-conference/remove-users/{id}','VideoConferencesController@removeUsers');
+    });
 
-        //edit
-        Route::get('/video-conference/editList/{id}', 'VideoConferencesController@editList');
-        Route::get('/video-conference/edit/{id}', 'VideoConferencesController@edit');
-        Route::post('/video-conference/edit/{id}', 'VideoConferencesController@update');
-
-        //delete
-        Route::delete('/video-conference/remove/{id}', 'VideoConferencesController@remove');
-
-        //widgets
-        //index
+    //widgets (cms)
+    Route::group(['middleware' => ['permission:manage-cms']], function() {
         Route::get('/widgets', 'WidgetController@index');
         Route::get('/widgets/{id}/edit', 'WidgetController@edit');
         Route::post('/widgets/{id}/update', 'WidgetController@update');
         Route::get('/widgets/create', 'WidgetController@create');
         Route::post('/widgets/create', 'WidgetController@store');
-        //invites
-        Route::get('/video-conference/manage-invites/{id}', 'VideoConferencesController@invites');
-        Route::delete('/video-conference/remove-users/{id}', 'VideoConferencesController@removeUsers');
-        Route::post('/video-conference/status/{id}', 'VideoConferencesController@statusUpdate');
-        Route::get('/video-conference/recordings/{id}', 'VideoConferencesController@recordings');
-        Route::get('/video-conference/add-invites/{id}', 'VideoConferencesController@addinvites');
-        Route::post('/video-conference/save-invites/{id}', 'VideoConferencesController@saveinvites');
+    });
 
     //notes
 
@@ -370,7 +369,7 @@ use Illuminate\Support\Facades\Route;
     Route::get('/activity','ActivityLogController@index');
 
     //faq (admin only)
-    Route::group(['middleware' => ['adminonly']], function() {
+    Route::group(['middleware' => ['permission:manage-cms']], function() {
         // faq categories
         Route::get('/faq-categories', 'FaqCategoryController@index');
         Route::get('/faqCategory/list', 'FaqCategoryController@list');
@@ -504,29 +503,8 @@ use Illuminate\Support\Facades\Route;
         Route::get('/exportGuests', 'ExportMemberController@exportGuests');
     });
 
-    //preacher
-    Route::group(['middleware' => ['permission:read-preachers']], function() {
-        //index
-        Route::get('/preacher','PreacherController@member');
-        Route::get('/preachers','PreacherController@index');
-        Route::get('/preachers/find','PreacherController@find');
-
-        //add
-        Route::get('/preacher/add','PreacherController@create');
-        Route::post('/preacher/add','PreacherController@store');
-
-        //show
-        Route::get('/preacher/show/details/{name}','PreacherController@showDetails');
-        Route::get('/preacher/show/{name}', 'PreacherController@show');
-
-        //edit
-        Route::get('/preacher/edit/list/{name}','PreacherController@editList');
-        Route::get('/preacher/edit/{name}','PreacherController@edit');
-        Route::post('/preacher/edit/{name}','PreacherController@update');
-    });
-
     //subadmin
-    Route::group(['middleware' => ['adminonly']], function() {
+    Route::group(['middleware' => ['admingroup']], function() {
         //index
         Route::get('/subadmins/find','SubAdminController@find');
         Route::get('/subadmins','SubAdminController@index');
@@ -574,16 +552,25 @@ use Illuminate\Support\Facades\Route;
     });
 
     //Settings
-    Route::group(['middleware' => ['adminonly']], function() {
+    Route::group(['middleware' => ['admingroup']], function() {
         Route::get('/settings/generalsettings','Setting\GeneralController@create');
     Route::post('/settings/generalsettings','Setting\GeneralController@store');
+    Route::post('/settings/siteidentity','Setting\GeneralController@storeSiteIdentity');
     Route::get('/settings/maintenancesettings','Setting\MaintenanceController@create');
     Route::post('/settings/maintenancesettings','Setting\MaintenanceController@store');
 
     Route::get('/settings/seodetail','Setting\SeoDetailController@create');
-    Route::get('/settings/seo/list','Setting\SeoDetailController@list');
-    Route::post('/settings/basicseo','Setting\SeoDetailController@store');
-        Route::post('/settings/advancedseo','Setting\SeoDetailController@update');
+    Route::get('/settings/htmlcode', 'Setting\SeoDetailController@htmlCode');
+    Route::post('/settings/htmlcode', 'Setting\SeoDetailController@storeHtmlCode');
+    Route::get('/settings/opengraph', 'Setting\SeoDetailController@openGraph');
+    Route::post('/settings/opengraph', 'Setting\SeoDetailController@storeOpenGraph');
+
+    Route::get('/settings/socialmedia', 'Setting\ChurchSettingsController@socialMedia');
+    Route::post('/settings/socialmedia', 'Setting\ChurchSettingsController@storeSocialMedia');
+    Route::get('/settings/contact', 'Setting\ChurchSettingsController@contact');
+    Route::post('/settings/contact', 'Setting\ChurchSettingsController@storeContact');
+    Route::get('/settings/location', 'Setting\ChurchSettingsController@location');
+    Route::post('/settings/location', 'Setting\ChurchSettingsController@storeLocation');
     });
 
     //password and avatar
@@ -827,18 +814,23 @@ use Illuminate\Support\Facades\Route;
     });
 
     // Prayer Board
-    Route::get('/prayerboard', 'PrayerBoardController@index');
-    Route::get('/prayerboard/list/{status}', 'PrayerBoardController@list');
-    Route::get('/prayerboard/{id}', 'PrayerBoardController@show');
-    Route::post('/prayerboard/{id}/approve', 'PrayerBoardController@approve');
-    Route::post('/prayerboard/{id}/reject', 'PrayerBoardController@reject');
-    Route::post('/prayerboard/{id}/mark-answered', 'PrayerBoardController@markAnswered');
-    Route::post('/prayerboard/{id}/pin', 'PrayerBoardController@pin');
-    Route::post('/prayerboard/{id}/unpin', 'PrayerBoardController@unpin');
-    Route::post('/prayerboard/{id}/extend', 'PrayerBoardController@extend');
-    Route::post('/prayerboard/{id}/unpublish', 'PrayerBoardController@unpublish');
+    Route::group(['middleware' => ['permission:read-prayers']], function () {
+        Route::get('/prayerboard', 'PrayerBoardController@index');
+        Route::get('/prayerboard/list/{status}', 'PrayerBoardController@list');
+        Route::get('/prayerboard/{id}', 'PrayerBoardController@show');
+    });
 
-    // Prayer Categories
+    Route::group(['middleware' => ['permission:update-prayers']], function () {
+        Route::post('/prayerboard/{id}/approve',      'PrayerBoardController@approve');
+        Route::post('/prayerboard/{id}/reject',       'PrayerBoardController@reject');
+        Route::post('/prayerboard/{id}/mark-answered','PrayerBoardController@markAnswered');
+        Route::post('/prayerboard/{id}/pin',          'PrayerBoardController@pin');
+        Route::post('/prayerboard/{id}/unpin',        'PrayerBoardController@unpin');
+        Route::post('/prayerboard/{id}/extend',       'PrayerBoardController@extend');
+        Route::post('/prayerboard/{id}/unpublish',    'PrayerBoardController@unpublish');
+    });
+
+    // Prayer Categories — admin-only, no sub-admin access needed
     Route::get('/prayercategories', 'PrayerCategoryController@index');
     Route::get('/prayercategory/create', 'PrayerCategoryController@create');
     Route::post('/prayercategory/create', 'PrayerCategoryController@store');
@@ -846,22 +838,20 @@ use Illuminate\Support\Facades\Route;
     Route::post('/prayercategory/edit/{id}', 'PrayerCategoryController@update');
     Route::delete('/prayercategory/delete/{id}', 'PrayerCategoryController@destroy');
 
-    //helps
-        //index
-        Route::get('/help/list/{status}','HelpsController@list');
-        Route::get('/helps','HelpsController@index');
+    // Help Requests
+    Route::group(['middleware' => ['permission:read-helps']], function () {
+        Route::get('/helps',                  'HelpsController@index');
+        Route::get('/help/list/{status}',     'HelpsController@list');
+        Route::get('/help/show/{id}',         'HelpsController@show');
+        Route::get('/help/showDetails/{id}',  'HelpsController@showDetails');
+        Route::get('/help/create',            'HelpAddController@create');
+        Route::post('/help/create',           'HelpAddController@store');
+    });
 
-        //add
-        Route::get('/help/create','HelpAddController@create');
-        Route::post('/help/create', 'HelpAddController@store');
-
-        //show
-        Route::get('/help/show/{id}','HelpsController@show');
-
-        //edit
-        Route::get('/help/showDetails/{id}','HelpsController@showDetails');
-        Route::get('/help/edit/{id}','HelpsController@edit');
-        Route::post('/help/update/{id}', 'HelpsController@update');
+    Route::group(['middleware' => ['permission:update-helps']], function () {
+        Route::get('/help/edit/{id}',         'HelpsController@edit');
+        Route::post('/help/update/{id}',      'HelpsController@update');
+    });
 
     //attendance
     Route::group(['middleware' => ['permission:read-members']], function() {
@@ -875,20 +865,9 @@ use Illuminate\Support\Facades\Route;
     Route::post('/event/{event_id}/attendance','AttendancesController@saveAttendance');
     });
 
-    //botman (admin only)
-    Route::group(['middleware' => ['adminonly']], function() {
-        Route::get('/botman/index', 'BotmanMasterController@index');
-        Route::get('/botman/create', 'BotmanMasterController@create');
-        Route::post('/botman/create', 'BotmanMasterController@store');
-        Route::get('/botman/{id}/edit', 'BotmanMasterController@edit');
-        Route::post('/botman/{id}/update', 'BotmanMasterController@update');
-        Route::delete('/botman/remove/{id}', 'BotmanMasterController@remove');
-        Route::get('/botman/messages', 'BotmanMasterController@getMessages');
-        Route::get('/botman/details/{id}/{type}', 'BotmanMasterController@getDetails');
-    });
 
     //page (admin only)
-    Route::group(['middleware' => ['adminonly']], function() {
+    Route::group(['middleware' => ['permission:manage-cms']], function() {
         // page categories
         Route::get( '/page-categories', 'PageCategoryController@index' );
         Route::get( '/pageCategory/list', 'PageCategoryController@list' );
@@ -970,16 +949,19 @@ use Illuminate\Support\Facades\Route;
         Route::get( '/blogs', 'BlogsController@index' );
     });
 
-    //feedbacks
-        //index
-        Route::get( '/feedbacks', 'FeedbackController@index' );
+    // Feedbacks
+    Route::group(['middleware' => ['permission:read-feedbacks']], function () {
+        Route::get('/feedbacks',                      'FeedbackController@index');
+        Route::get('/feedback/edit/{feedbackid}',     'FeedbackController@edit');
+    });
 
-        //reply
-        Route::get( '/feedback/edit/{feedbackid}', 'FeedbackController@edit' );
-        Route::post( '/feedback/updateStatus/{id}', 'FeedbackController@updateStatus' );
+    Route::group(['middleware' => ['permission:update-feedbacks']], function () {
+        Route::post('/feedback/updateStatus/{id}',    'FeedbackController@updateStatus');
+    });
 
-    //index
-    Route::get('/google-analytics', 'GoogleAnalyticsController@index');
+    Route::group(['middleware' => ['permission:manage-cms']], function() {
+        Route::get('/google-analytics', 'GoogleAnalyticsController@index');
+    });
 
 
 

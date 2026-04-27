@@ -126,4 +126,12 @@ class CityController extends Controller
         City::findOrFail($id)->delete();
         return redirect('/admin/cities')->with('success', 'City deleted.');
     }
+
+    public function ajaxByState(Request $request)
+    {
+        $cities = City::where('state_id', $request->state_id)
+                      ->orderBy('name')
+                      ->get(['id', 'name']);
+        return response()->json($cities);
+    }
 }

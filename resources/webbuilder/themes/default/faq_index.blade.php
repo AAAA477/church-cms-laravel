@@ -8,9 +8,15 @@
     $active   = $categories->firstWhere('id', $activeId) ?? $categories->first();
 @endphp
 
-<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-
-    <h1 class="text-3xl font-bold text-gray-800 mb-8">Frequently Asked Questions</h1>
+@include('theme::_hero_banner', [
+    'heroTitle'    => 'Frequently Asked Questions',
+    'heroSubtitle' => 'Find answers to common questions about our parish',
+    'breadcrumbs'  => [
+        ['label' => 'Home', 'url' => route('web.home')],
+        ['label' => 'FAQ'],
+    ],
+])
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
     @if($categories->isEmpty())
         <p class="text-gray-500">No FAQs available.</p>

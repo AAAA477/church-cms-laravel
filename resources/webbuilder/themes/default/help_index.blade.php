@@ -3,13 +3,21 @@
 @section('title', 'Help Requests')
 
 @section('content')
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <h1 class="text-3xl font-bold text-gray-800 mb-10">Help Requests</h1>
+@include('theme::_hero_banner', [
+    'heroTitle'    => 'Help Requests',
+    'heroSubtitle' => 'Let the community know how they can support you',
+    'breadcrumbs'  => [
+        ['label' => 'Home', 'url' => route('web.home')],
+        ['label' => 'Help Requests'],
+    ],
+])
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
     {{-- Submit Form --}}
     <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-12">
         <h2 class="text-xl font-semibold text-yellow-900 mb-4">Submit a Help Request</h2>
 
+        @auth
         @if(session('success'))
             <div class="bg-green-100 text-green-800 px-4 py-3 rounded mb-4 text-sm">
                 {{ session('success') }}
@@ -49,6 +57,21 @@
                 Submit Request
             </button>
         </form>
+        @else
+        <div class="text-center py-4 space-y-3">
+            <p class="text-yellow-800 text-sm">You need to be logged in to submit a help request.</p>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <a href="{{ route('web.guest.register') }}"
+                   class="px-5 py-2 rounded-lg font-semibold bg-yellow-600 text-white hover:bg-yellow-700 text-sm text-center">
+                    Register Free
+                </a>
+                <a href="{{ route('web.guest.login') }}"
+                   class="px-5 py-2 rounded-lg font-semibold border border-yellow-500 text-yellow-800 hover:bg-yellow-100 text-sm text-center">
+                    Login
+                </a>
+            </div>
+        </div>
+        @endauth
     </div>
 
     {{-- Approved Requests --}}

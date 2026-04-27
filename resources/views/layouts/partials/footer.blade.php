@@ -17,8 +17,7 @@
                          <li class="font-semibold"><a href="{{ url('/swotanalysis') }}"
                                  class="hover:text-blue-700">{!! __('faq.swotanalysis') !!}</a></li>
                          <!-- <li class="font-semibold"><a href="{{ url('/') }}" class="hover:text-blue-700">{!! __('faq.contact') !!}</a></li> -->
-                         <li class="font-semibold"><a href="{{ url('/privacypolicy') }}"
-                                 class="hover:text-blue-700">{!! __('faq.privacypolicy') !!}</a></li>
+
                          <li class="font-semibold"><a href="{{ url('/church-websites') }}"
                                  class="hover:text-blue-700">Church Template</a></li>
 

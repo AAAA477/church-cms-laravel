@@ -3,8 +3,15 @@
 @section('title', 'Gallery')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <h1 class="text-3xl font-bold text-gray-800 mb-8">Gallery</h1>
+@include('theme::_hero_banner', [
+    'heroTitle'    => 'Gallery',
+    'heroSubtitle' => 'A glimpse into our community life and celebrations',
+    'breadcrumbs'  => [
+        ['label' => 'Home', 'url' => route('web.home')],
+        ['label' => 'Gallery'],
+    ],
+])
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         @forelse($galleries as $album)

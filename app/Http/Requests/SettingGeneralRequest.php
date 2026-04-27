@@ -24,28 +24,18 @@ class SettingGeneralRequest extends FormRequest
     public function rules()
     {
         return [
-
-             'sitetitle'=>'required',
-             'sitename'=>'required',
-             //'sitelogo'=>'required|mimes:jpeg,png|max:2048',
-            // 'favicon'=>'required|mimes:jpeg,png|max:2048',
-
-
+            'church_full_name'  => 'required|string|max:255',
+            'church_short_name' => 'nullable|string|max:100',
+            'church_logo'       => 'nullable|image|mimes:jpeg,png,gif,svg|max:2048',
+            'favicon'           => 'nullable|image|mimes:png|max:2048',
         ];
     }
 
-     public function messages()
-     {
-        return[
-
-           'sitetitle.required'=> 'Site Title Required',
-           'sitename.required'=> 'Site Name Required',
-           //'sitelogo.required'=>__('sites.sitelogo'),
-           //'sitelogo.mimes'=>__('sites.sitelogo_mimes'),
-           //'favicon.required'=>__('sites.favicon'),
-           //'favicon.mimes'=>__('sites.favicon_mimes'),
-
-
+    public function messages()
+    {
+        return [
+            'church_full_name.required' => 'Church Full Name is required.',
+            'favicon.mimes'             => 'Favicon must be a PNG file.',
         ];
-     }
+    }
 }

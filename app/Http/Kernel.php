@@ -40,6 +40,7 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\WebCmsContext::class,
         ],
 
         'api' => [
@@ -67,14 +68,9 @@ class Kernel extends HttpKernel
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'churchmember' => \App\Http\Middleware\MustBeChurchMember::class,
-        'siteadmin' => \App\Http\Middleware\MustBeSiteAdmin::class,
-        'sitesubadmin' => \App\Http\Middleware\MustBeSiteSubAdmin::class,
         'churchadmin' => \App\Http\Middleware\MustBeChurchAdmin::class,
-        'adminonly' => \App\Http\Middleware\AdminOnly::class,
-        'churchsubadmin' => \App\Http\Middleware\MustBeChurchSubAdmin::class,
-        'preacher' => \App\Http\Middleware\MustBePreacher::class,
-        'role' => \Laratrust\Middleware\LaratrustRole::class,
-        'permission' => \Laratrust\Middleware\LaratrustPermission::class,
-        'ability' => \Laratrust\Middleware\LaratrustAbility::class,
+        'admingroup' => \App\Http\Middleware\AdminOnly::class,
+        'permission' => \App\Http\Middleware\AdminOrPermission::class,
+        'webguest'   => \App\Http\Middleware\WebGuestAuth::class,
     ];
 }

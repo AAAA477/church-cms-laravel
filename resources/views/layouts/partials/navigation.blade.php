@@ -1,14 +1,10 @@
 <nav class="navbar bg-white w-full flex  lg:flex-row px-4 lg:px-8 pt-2 justify-between items-center">
     <div class="nav-brand flex items-baseline">
         <a href="{{ url('/admin/dashboard') }}">
-             @if(\Auth::user()->ChurchLogo['meta_value'] != '-')
-                    <img src="{{ \Auth::user()->ChurchLogoPath }}"  class="w-auto h-10 mr-2" alt="{{ ucwords(\Auth::user()->church->name) }}"> <!-- changed for demo -->
-                @else
-                    <p class=""><strong>{{ ucwords(\Auth::user()->church->name) }}</strong></p>
-                @endif
-             </a>
+            <img src="{{ asset('uploads/admin/churchcms_admin_logo.png') }}" alt="ChurchCMS Admin Logo" class="w-auto h-10 mr-2">
+        </a>
 
-       <!-- <img src="{{ asset('uploads/admin/churchcms_admin_logo.png') }}" alt="ChurchCMS Admin Logo" class="w-auto h-10 mr-2"> -->
+
 
     </div>
     <div class="flex flex-col">

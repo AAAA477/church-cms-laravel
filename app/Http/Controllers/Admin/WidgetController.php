@@ -59,6 +59,8 @@ class WidgetController extends Controller
         $insertWidget = new Widget();
         $insertWidget->slug = $uuid;
         $insertWidget->church_id = Auth::user()->church_id;
+        $insertWidget->page = $request->input('page', 'home');
+        $insertWidget->display_order = $request->input('display_order', 0);
         $insertWidget->content = $request->content;
         $insertWidget->created_by = Auth::user()->id;
         $insertWidget->save();
@@ -104,6 +106,8 @@ class WidgetController extends Controller
     {
         $updateWidget = Widget::find($id);
         $updateWidget->church_id = Auth::user()->church_id;
+        $updateWidget->page = $request->input('page', 'home');
+        $updateWidget->display_order = $request->input('display_order', 0);
         $updateWidget->content = $request->content;
         $updateWidget->updated_by = Auth::user()->id;
         $updateWidget->save();

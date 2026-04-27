@@ -12,6 +12,15 @@
 @section('content')
 @php $layout = $page->layout_template ?? 'left-sidebar'; @endphp
 
+@include('theme::_hero_banner', [
+    'heroTitle'   => $page->page_name,
+    'breadcrumbs' => [
+        ['label' => 'Home',    'url' => route('web.home')],
+        ['label' => $page->pageCategory->name ?? 'Pages', 'url' => route('web.pages')],
+        ['label' => $page->page_name],
+    ],
+])
+
 {{-- Custom page CSS --}}
 @if($page->content && !empty($page->content['css']))
 <style>.page-content { {!! $page->content['css'] !!} }</style>

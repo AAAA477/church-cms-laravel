@@ -4,65 +4,70 @@ namespace App\Http\Controllers\Admin\Setting;
 
 use App\Http\Requests\SettingGeneralRequest;
 use App\Http\Controllers\Controller;
-use App\Traits\SettingProcess;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\ChurchDetail;
 use App\Traits\Common;
 use Exception;
 use Log;
 
-/**
- * GeneralController
- *
- * Manages general church settings and configuration.
- * Handles display and update of church general settings.
- * Uses SettingProcess trait for centralized settings management.
- *
- * @package App\Http\Controllers\Admin\Setting
- */
 class GeneralController extends Controller
 {
-    use SettingProcess;
     use Common;
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
         return view('admin.settings.generalsettings');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(SettingGeneralRequest $request)
     {
         try {
-            $this->updatesettings('sitetitle', $request->sitetitle);
-            $this->updatesettings('sitename', $request->sitename);
+            $churchId = Auth::user()->church_id;
 
-            if (($request->sitelogo) === null) {
-                $this->updatesettings('sitelogo', (\config::get('settings.sitelogo')));
-            } else {
-                $name = $request->sitelogo->getClientOriginalName();
-                $sitelogopath = $this->uploadFile('uploads/settings', $request->sitelogo, $name);
-                $this->updatesettings('sitelogo', $sitelogopath);
+            $this->saveField($churchId, 'church_full_name',  $request->church_full_name);
+            $this->saveField($churchId, 'church_short_name', $request->church_short_name ?? '-');
+
+            if ($request->hasFile('church_logo')) {
+                $path = $this->uploadFile($churchId . '/church_logo', $request->file('church_logo'));
+                $this->saveField($churchId, 'church_logo', $path);
             }
 
-            if (($request->favicon) === null) {
-                $this->updatesettings('favicon', (\config::get('settings.favicon')));
-            } else {
-                $name = $request->favicon->getClientOriginalName();
-                $faviconpath = $this->uploadFile('uploads/settings', $request->favicon, $name);
-                $this->updatesettings('favicon', $faviconpath);
+            if ($request->hasFile('favicon')) {
+                $path = $this->uploadFile('uploads/settings', $request->file('favicon'));
+                $this->saveField($churchId, 'favicon', $path);
             }
-            return redirect()->back();
+
+            return redirect()->back()->with('successmessage', 'General settings updated.');
         } catch (Exception $e) {
-            Log::info($e->getMessage());
+            Log::error($e->getMessage());
+            return redirect()->back()->with('errormessage', 'Something went wrong.');
         }
+    }
+
+    public function storeSiteIdentity(Request $request)
+    {
+        $request->validate([
+            'sitetitle' => 'required|string|max:255',
+            'sitename'  => 'required|string|max:255',
+        ]);
+
+        try {
+            $churchId = Auth::user()->church_id;
+            $this->saveField($churchId, 'sitetitle', $request->sitetitle);
+            $this->saveField($churchId, 'sitename',  $request->sitename);
+            return redirect()->back()->with('successmessage', 'Site identity updated.');
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return redirect()->back()->with('errormessage', 'Something went wrong.');
+        }
+    }
+
+    private function saveField(int $churchId, string $key, string $value): void
+    {
+        ChurchDetail::updateOrCreate(
+            ['church_id' => $churchId, 'meta_key' => $key],
+            ['meta_value' => $value ?: '-']
+        );
     }
 }

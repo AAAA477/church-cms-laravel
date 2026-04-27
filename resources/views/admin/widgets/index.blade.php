@@ -2,20 +2,12 @@
 @section('content')
 <div class="relative admin-page-wrapper overflow-x-hidden">
 
-    {{-- ── Page Header ──────────────────────────────────────────────────── --}}
-    <div class="flex flex-wrap items-center justify-between mb-6">
-        <div>
-            <h1 class="admin-h1">Code Snippets</h1>
-            <p class="text-sm text-gray-500 mt-1">Define reusable HTML blocks once, embed them anywhere with a tag.</p>
-        </div>
-        <a href="{{ url('/admin/widgets/create') }}"
-            class="no-underline inline-flex items-center gap-2 text-white px-4 py-2 custom-green rounded shadow text-sm font-semibold">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 fill-current" viewBox="0 0 409.6 409.6">
-                <path d="M392.533,187.733H221.867V17.067C221.867,7.641,214.226,0,204.8,0s-17.067,7.641-17.067,17.067v170.667H17.067 C7.641,187.733,0,195.374,0,204.8s7.641,17.067,17.067,17.067h170.667v170.667c0,9.426,7.641,17.067,17.067,17.067 s17.067-7.641,17.067-17.067V221.867h170.667c9.426,0,17.067-7.641,17.067-17.067S401.959,187.733,392.533,187.733z"/>
-            </svg>
-            Add Snippet
-        </a>
-    </div>
+    @include('partials._page_header', [
+        'pageTitle'    => 'Code Snippets',
+        'pageSubtitle' => 'Define reusable HTML blocks once, embed them anywhere with a tag.',
+        'addUrl'       => url('/admin/widgets/create'),
+        'addLabel'     => 'Add Snippet',
+    ])
 
     <div class="my-3">
         @include('partials.message')
@@ -40,6 +32,9 @@
                                 </svg>
                             </span>
                             <span class="text-sm font-semibold text-gray-700 truncate">{{ $widgetData->slug }}</span>
+                            <span class="inline-flex items-center gap-1 text-xs text-gray-500 bg-gray-100 rounded px-2 py-0.5">
+                                {{ ucfirst($widgetData->page) }} &middot; #{{ $widgetData->display_order }}
+                            </span>
                         </div>
                         <div class="flex items-center gap-2 flex-shrink-0 ml-4">
                             <span class="text-xs text-gray-400">

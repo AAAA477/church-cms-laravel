@@ -3,73 +3,52 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Validator;
 
 class BulletinRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
     public function authorize()
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
     public function rules()
     {
-        Validator::extend('check_name', function ($attribute, $value, $parameters, $validator) 
-        {   
-            return preg_match('/^[A-Za-z0-9_~\-!@#\$%\^&*.,:(\)\s]+$/',request('name'));  
-        });
-
-        $rules= [
-            //
-            'name'          => 'required|max:15|check_name',
-            'type'          => 'required',
-            'cover_image'   => 'nullable|mimes:jpg,jpeg,png,webp',
-            'year'          => 'required',
-            'path'          => 'required|mimes:pdf|max:8092',  
+        $rules = [
+            'name'        => ['required', 'string', 'max:255'],
+            'type'        => ['required', 'string', 'in:week,month'],
+            'year'        => ['required', 'digits:4', 'integer'],
+            'cover_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'path'        => ['required', 'mimes:pdf', 'max:8192'],
         ];
 
-         if(request('type') == "week")
-        {
-            $rules['week']='required';
+        if ($this->input('type') === 'week') {
+            $rules['week'] = ['required', 'integer', 'between:1,53'];
+        } else {
+            $rules['month'] = ['required', 'integer', 'between:1,12'];
         }
-        else
-        {
-            $rules['month']='required';
-        }
+
         return $rules;
     }
 
     public function messages()
     {
-        return[
-            'name.required'         => 'Bulletin Name is required',
-            'name.max:15'           => 'Bulletin Name should be atmost 15 digits',
-            'name.check_name'       => 'Enter Valid Bulletin Name',
-
-            'type.required'         => 'Type is required',
-
-            'week.required'         => 'Week is required',
-
-            'month.required'        => 'Month is required',
-
-            'year.required'         => 'Year is required',
-
-            'cover_image.required'  => 'Cover Image is required',
-            'cover_image.mimes'     => 'Choose jpg,jpeg,png,webp file',
-
-            'path.required'         => 'Bulletin File is required',
-            'path.mimes'            => 'Choose a pdf file', 
-            'path.max'              => 'Maximum file size to upload is 8MB',    
+        return [
+            'name.required'       => 'Bulletin name is required.',
+            'name.max'            => 'Bulletin name must not exceed 255 characters.',
+            'type.required'       => 'Please select a bulletin type.',
+            'type.in'             => 'Type must be either week or month.',
+            'year.required'       => 'Year is required.',
+            'year.digits'         => 'Year must be a 4-digit number.',
+            'week.required'       => 'Week number is required.',
+            'week.between'        => 'Week must be between 1 and 53.',
+            'month.required'      => 'Month is required.',
+            'month.between'       => 'Month must be between 1 and 12.',
+            'cover_image.image'   => 'Cover image must be an image file.',
+            'cover_image.mimes'   => 'Cover image must be jpg, jpeg, png, or webp.',
+            'cover_image.max'     => 'Cover image must not exceed 2MB.',
+            'path.required'       => 'Bulletin PDF file is required.',
+            'path.mimes'          => 'Bulletin file must be a PDF.',
+            'path.max'            => 'Bulletin file must not exceed 8MB.',
         ];
     }
 }

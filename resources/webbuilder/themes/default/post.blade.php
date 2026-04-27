@@ -124,6 +124,7 @@
         <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
             <h3 class="text-lg font-semibold text-gray-800 mb-5">Leave a Comment</h3>
 
+            @auth
             @if($errors->any())
             <div class="mb-4 bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-3 space-y-1">
                 @foreach($errors->all() as $error)
@@ -132,27 +133,18 @@
             </div>
             @endif
 
+            @php
+                $authProfile = optional(auth()->user()->userprofile);
+                $authName = trim(($authProfile->firstname ?? '') . ' ' . ($authProfile->lastname ?? '')) ?: auth()->user()->name;
+            @endphp
+            <p class="text-sm text-gray-500 mb-4">Commenting as <span class="font-semibold text-gray-700">{{ $authName }}</span></p>
+
             <form method="POST" action="{{ route('web.post.comment', $post->id) }}" novalidate>
                 @csrf
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1" for="comment_name">Name <span class="text-red-500">*</span></label>
-                        <input id="comment_name" type="text" name="name" value="{{ old('name') }}"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 @error('name') border-red-400 @enderror"
-                            placeholder="Your name">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1" for="comment_email">Email <span class="text-red-500">*</span></label>
-                        <input id="comment_email" type="email" name="email" value="{{ old('email') }}"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 @error('email') border-red-400 @enderror"
-                            placeholder="your@email.com">
-                        <p class="text-xs text-gray-400 mt-1">Your email will not be published.</p>
-                    </div>
-                </div>
                 <div class="mb-5">
                     <label class="block text-xs font-medium text-gray-600 mb-1" for="comment_text">Comment <span class="text-red-500">*</span></label>
                     <textarea id="comment_text" name="comment" rows="4"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-none @error('comment') border-red-400 @enderror"
+                        class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-none {{ $errors->has('comment') ? 'border-red-400' : 'border-gray-300' }}"
                         placeholder="Share your thoughts…">{{ old('comment') }}</textarea>
                     <p class="text-xs text-gray-400 mt-1">Comments are moderated before they appear.</p>
                 </div>
@@ -161,6 +153,21 @@
                     Submit Comment
                 </button>
             </form>
+            @else
+            <div class="text-center py-4 space-y-3">
+                <p class="text-gray-600 text-sm">You need to be logged in to leave a comment.</p>
+                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                    <a href="{{ route('web.guest.register') }}"
+                       class="px-5 py-2 rounded-lg font-semibold bg-indigo-600 text-white hover:bg-indigo-700 text-sm text-center">
+                        Register Free
+                    </a>
+                    <a href="{{ route('web.guest.login') }}"
+                       class="px-5 py-2 rounded-lg font-semibold border border-indigo-300 text-indigo-700 hover:bg-indigo-50 text-sm text-center">
+                        Login
+                    </a>
+                </div>
+            </div>
+            @endauth
         </div>
 
     </div>{{-- end #comments --}}

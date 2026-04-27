@@ -41,6 +41,8 @@ class Widget extends Model
     protected $fillable = [
         'church_id',
         'slug',
+        'page',
+        'display_order',
         'content',
         'created_by',
         'updated_by'

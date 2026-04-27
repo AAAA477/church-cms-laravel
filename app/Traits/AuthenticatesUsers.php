@@ -139,7 +139,6 @@ trait AuthenticatesUsers
             $user->usergroup_id == 3 && optional($user->userprofile)->membership_type === 'member' => true,
             $user->usergroup_id == 4                                                               => true,
             $user->usergroup_id == 5                                                               => \Config::get('settings.login_status') == 1,
-            $user->usergroup_id == 6                                                               => true,
             default                                                                                => false,
         };
     }
@@ -193,7 +192,7 @@ trait AuthenticatesUsers
      */
     protected function authenticated(Request $request, $user)
     {
-        //
+        $user->updateQuietly(['last_login_at' => now()]);
     }
 
     /**

@@ -21,14 +21,18 @@
                 <div class="tw-form-group">
                     <label class="tw-form-label">Site Logo</label>
                     <input type="file" name="sitelogo" class="p-2 border border-dashed lg:w-128">
-                    <img src={{ url(\Config::get('settings.sitelogo')) }} class="lg:w-64 h-auto my-2">
+                    @if(\Config::get('settings.sitelogo'))
+                    <img src="{{ url(\Config::get('settings.sitelogo')) }}" class="lg:w-64 h-auto my-2">
+                    @endif
                     <span class="text-danger">{{ $errors->first('sitelogo') }}</span>
                 </div>
                 <div class="tw-form-group">
                     <label class="tw-form-label">Site Favicon</label>
 
                     <input type="file" name="favicon" class="p-2 border border-dashed lg:w-128">
-                    <img src={{ url(\Config::get('settings.favicon')) }} class="lg:w-64 h-auto my-2">
+                    @if(\Config::get('settings.favicon'))
+                    <img src="{{ url(\Config::get('settings.favicon')) }}" class="lg:w-64 h-auto my-2">
+                    @endif
 
                 </div>
                 <input type="submit" value="Submit" name="submit" class="btn btn-submit">

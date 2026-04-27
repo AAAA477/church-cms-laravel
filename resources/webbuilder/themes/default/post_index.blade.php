@@ -3,21 +3,26 @@
 @section('title', 'Blog')
 
 @section('content')
-<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+@include('theme::_hero_banner', [
+    'heroTitle'    => 'Blog',
+    'heroSubtitle' => 'News, reflections, and stories from our parish community',
+    'breadcrumbs'  => [
+        ['label' => 'Home', 'url' => route('web.home')],
+        ['label' => 'Blog'],
+    ],
+])
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
-    {{-- Page Header --}}
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-800">Blog</h1>
-        @if($activeCategoryId && ($activeCategory = $categories->firstWhere('id', $activeCategoryId)))
-        <p class="mt-1 text-sm text-gray-500">Showing posts in <span class="font-medium text-indigo-600">{{ $activeCategory->name }}</span>
-            <a href="{{ route('web.posts') }}" class="ml-2 text-gray-400 hover:text-gray-600 text-xs">&times; Clear</a>
-        </p>
-        @elseif($activeTag)
-        <p class="mt-1 text-sm text-gray-500">Tagged: <span class="font-medium text-indigo-600">#{{ $activeTag }}</span>
-            <a href="{{ route('web.posts') }}" class="ml-2 text-gray-400 hover:text-gray-600 text-xs">&times; Clear</a>
-        </p>
-        @endif
-    </div>
+    {{-- Active filter indicator --}}
+    @if($activeCategoryId && ($activeCategory = $categories->firstWhere('id', $activeCategoryId)))
+    <p class="text-sm text-gray-500 mb-6">Showing posts in <span class="font-medium text-indigo-600">{{ $activeCategory->name }}</span>
+        <a href="{{ route('web.posts') }}" class="ml-2 text-gray-400 hover:text-gray-600 text-xs">&times; Clear</a>
+    </p>
+    @elseif($activeTag)
+    <p class="text-sm text-gray-500 mb-6">Tagged: <span class="font-medium text-indigo-600">#{{ $activeTag }}</span>
+        <a href="{{ route('web.posts') }}" class="ml-2 text-gray-400 hover:text-gray-600 text-xs">&times; Clear</a>
+    </p>
+    @endif
 
     <div class="flex flex-col lg:flex-row gap-10">
 

@@ -15,7 +15,6 @@ class RouteServiceProvider extends ServiceProvider
      * @var string
      */
     protected $namespace = 'App\Http\Controllers';
-    protected $preacherNamespace = 'App\Http\Controllers\Preacher';
     protected $adminNamespace = 'App\Http\Controllers\Admin';
 
     /**
@@ -40,10 +39,6 @@ class RouteServiceProvider extends ServiceProvider
         $this->mapApiRoutes();
 
         $this->mapWebRoutes();
-
-
-
-        $this->mapPreacherRoutes();
 
         $this->mapAdminRoutes();
 
@@ -81,14 +76,6 @@ class RouteServiceProvider extends ServiceProvider
     }
 
 
-
-    protected function mapPreacherRoutes()  
-    {
-        Route::prefix('preacher')
-            ->middleware(['web','auth','preacher'])
-            ->namespace($this->preacherNamespace)
-            ->group(base_path('routes/preacher.php'));
-    }
 
     protected function mapAdminRoutes()  
     {

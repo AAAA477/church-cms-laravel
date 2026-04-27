@@ -35,7 +35,7 @@ class PrayerRequestController extends Controller
 
         Prayer::create([
             'church_id'       => optional($church)->id,
-            'user_id'         => null,
+            'user_id'         => auth()->id(),
             'category_id'     => $validated['category_id'] ?? null,
             'text'            => $validated['text'],
             'original_text'   => $validated['text'],

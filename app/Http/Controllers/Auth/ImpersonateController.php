@@ -42,7 +42,7 @@ class ImpersonateController extends Controller
                 \Session::put('Impersonate disabled for this user.');
             }
 
-            return redirect('/preacher/dashboard');
+            return redirect('/admin/dashboard');
         }
         catch(Exception $e)
         {

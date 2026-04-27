@@ -80,7 +80,7 @@ class AppServiceProvider extends ServiceProvider
         if (!\App::runningInConsole() && count(Schema::getColumnListing('settings'))) {
             $church = Church::first();
 
-            $settings = ChurchDetail::where('church_id', $church->id)->whereIn('meta_key', ['site_title', 'site_description', 'site_keyword', 'favicon', 'church_logo', 'maintenance', 'login_status', 'register_status','header_code','footer_code', 'facebook_title','facebook_description','facebook_url','facebook_image','twitter_title','twitter_description','twitter_image','twitter_url'])->get();
+            $settings = ChurchDetail::where('church_id', $church->id)->whereIn('meta_key', ['site_title', 'site_description', 'site_keyword', 'favicon', 'church_logo', 'maintenance', 'login_status', 'register_status','header_code','footer_code', 'facebook_title','facebook_description','facebook_url','facebook_image','twitter_title','twitter_description','twitter_image','twitter_url', 'church_full_name', 'church_short_name', 'sitetitle', 'sitename', 'member_web_login', 'guest_login', 'guest_registration'])->get();
 
             //$settings = Setting::all();
 

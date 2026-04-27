@@ -5,6 +5,7 @@ namespace App\Http\Controllers\WebBuilder;
 use App\Http\Controllers\Controller;
 use App\Models\Post;
 use App\Models\Page;
+use App\Models\Widget;
 
 class HomeController extends Controller
 {
@@ -18,6 +19,10 @@ class HomeController extends Controller
                             ->orderBy('created_at', 'desc')
                             ->limit(3)->get();
 
-        return view('theme::home', compact('recentPosts', 'featuredPages'));
+        $widgets = Widget::where('page', 'home')
+                        ->orderBy('display_order')
+                        ->get();
+
+        return view('theme::home', compact('recentPosts', 'featuredPages', 'widgets'));
     }
 }

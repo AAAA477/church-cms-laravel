@@ -1,5 +1,6 @@
 @extends('layouts.admin.layout')
 @section('content')
+    @include('partials._page_header', ['pageTitle' => 'Google Analytics'])
     <!-- start -->
     <div class="flex flex-col lg:flex-row my-4">
         <div class="w-full">

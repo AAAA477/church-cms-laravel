@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\GroupUpdateRequest;
 use App\Http\Requests\GroupAddRequest;
 use App\Http\Requests\SendMailRequest;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -148,15 +149,16 @@ class GroupsController extends Controller
      */
     public function show($id)
     {
-        //
         $group = Group::where('id',$id)->first();
         if(Gate::allows('group',$group))
         {
-
-            $grouplinks = GroupLink::where([['group_id',$group->id],['church_id',$group->church_id]])->paginate(3);
+            $grouplinks  = GroupLink::where([['group_id',$group->id],['church_id',$group->church_id]])->paginate(12);
             $memberCount = GroupLink::where([['group_id',$group->id],['church_id',$group->church_id]])->count();
+            $messages    = SendMail::where([['entity_id',$id],['entity_name','App\Models\Group'],['church_id',Auth::user()->church_id]])
+                                ->orderBy('executed_at','desc')
+                                ->paginate(15);
 
-            return view('/admin/groups/show',['group' => $group , 'grouplinks' => $grouplinks , 'memberCount' => $memberCount]);
+            return view('/admin/groups/show', compact('group','grouplinks','memberCount','messages'));
         }
         else
         {
@@ -301,16 +303,17 @@ class GroupsController extends Controller
         try
         {
             $grouplinks = Grouplink::where([['group_id',$id],['church_id',Auth::user()->church_id]])->get();
+            $batch_id   = (string) Str::uuid();
+            $group      = Group::where('id',$id)->first();
 
             foreach($grouplinks as $grouplink)
             {
                 $user = User::where('id',$grouplink->user_id)->first();
-                $group = Group::where('id',$grouplink->group_id)->first();
 
-                $request->entity_id     = $grouplink->group_id;
-                $request->entity_name   = get_class($group);
+                $request->entity_id   = $grouplink->group_id;
+                $request->entity_name = get_class($group);
 
-                $this->sendMessage($request , Auth::user()->church_id , Auth::user()->email , $user , Auth::user());
+                $this->sendMessage($request, Auth::user()->church_id, Auth::user()->email, $user, Auth::user(), $batch_id);
             }
 
             $res['success'] = 'Message Sent Successfully to Group Members';

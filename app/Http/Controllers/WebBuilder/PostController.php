@@ -64,15 +64,16 @@ class PostController extends Controller
         $post = Post::where('id', $id)->where('is_posted', 1)->where('status', 'posted')->firstOrFail();
 
         $request->validate([
-            'name'    => 'required|string|max:100',
-            'email'   => 'required|email|max:150',
             'comment' => 'required|string|max:1000',
         ]);
 
+        $user    = auth()->user();
+        $profile = optional($user->userprofile);
+
         PostComment::create([
-            'user_id'     => null,
-            'guest_name'  => $request->input('name'),
-            'guest_email' => $request->input('email'),
+            'user_id'     => $user->id,
+            'guest_name'  => trim(($profile->firstname ?? '') . ' ' . ($profile->lastname ?? '')) ?: $user->name,
+            'guest_email' => $user->email,
             'entity_id'   => $post->id,
             'entity_name' => 'App\\Models\\Post',
             'comments'    => $request->input('comment'),

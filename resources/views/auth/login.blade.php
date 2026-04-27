@@ -16,6 +16,20 @@
                             Login page under maintenance
                         </div>
 
+                    @elseif ($blocked ?? false)
+
+                        <div class="px-2 py-6 text-center space-y-4">
+                            <div class="w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center text-2xl mx-auto">🔒</div>
+                            <div>
+                                <p class="text-gray-200 font-semibold text-sm">Member Web Login Unavailable</p>
+                                <p class="text-gray-400 text-xs mt-1 leading-relaxed">
+                                    Web login for members is currently disabled.<br>
+                                    Please use the <strong class="text-gray-300">mobile app</strong> to access your account.
+                                </p>
+                            </div>
+                            <p class="text-xs text-gray-500">Need help? Contact the church office.</p>
+                        </div>
+
                     @else
                         <form method="POST" action="{{ route('login') }}" aria-label="{{ __('Login') }}">
                             @csrf

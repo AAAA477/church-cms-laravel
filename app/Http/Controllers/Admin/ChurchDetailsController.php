@@ -30,35 +30,18 @@ class ChurchDetailsController extends Controller
 
     public function edit($church_id)
     {
-        //
-        $churchdetail = [];
+        $churchdetail = ChurchDetail::where('church_id', $church_id)
+            ->pluck('meta_value', 'meta_key')
+            ->map(fn($value) => $value === '-' ? null : $value)
+            ->toArray();
 
-        $churchdetails  = ChurchDetail::select('meta_key','meta_value')->where('church_id',$church_id)->get();
-        $plucked  = $churchdetails->pluck('meta_value','meta_key');
+        foreach (['church_logo', 'favicon'] as $fileKey) {
+            if (!empty($churchdetail[$fileKey])) {
+                $churchdetail[$fileKey] = $this->getFilePath($churchdetail[$fileKey]);
+            }
+        }
 
-        $churchdetail['church_logo']     = $plucked['church_logo'] === '-' ? null:$this->getFilePath($plucked['church_logo']);
-        $churchdetail['favicon']     = $plucked['favicon'] === '-' ? null:$this->getFilePath($plucked['favicon']);
-
-        
-        $churchdetail['name']   = $plucked['name'] === '-' ? null:$plucked['name'];
-        $churchdetail['short_summary']   = $plucked['short_summary'] === '-' ? null:$plucked['short_summary'];
-        $churchdetail['long_summary']    = $plucked['long_summary'] === '-' ? null:$plucked['long_summary'];
-        $churchdetail['quotes']          = $plucked['quotes'] === '-' ? null:$plucked['quotes'];
-        $churchdetail['phone']           = $plucked['phone'] === '-' ? null:$plucked['phone'];
-        $churchdetail['email']           = $plucked['email'] === '-' ? null:$plucked['email'];
-        $churchdetail['address']         = $plucked['address'] === '-' ? null:$plucked['address'];
-        $churchdetail['latitude']        = $plucked['latitude'] === '-' ? null:$plucked['latitude'];
-        $churchdetail['longitude']       = $plucked['longitude'] === '-' ? null:$plucked['longitude'];
-        $churchdetail['website']         = $plucked['website'] === '-' ? null:$plucked['website'];
-        $churchdetail['facebook']        = $plucked['facebook'] === '-' ? null:$plucked['facebook'];
-        $churchdetail['twitter']         = $plucked['twitter'] === '-' ? null:$plucked['twitter'];
-        $churchdetail['instagram']       = $plucked['instagram'] === '-' ? null:$plucked['instagram'];
-        $churchdetail['site_title']       = $plucked['site_title'] === '-' ? null:$plucked['site_title'];
-
-        $churchdetail['site_description']       = $plucked['site_description'] === '-' ? null:$plucked['site_description'];
-        $churchdetail['site_keyword']       = $plucked['site_keyword'] === '-' ? null:$plucked['site_keyword'];
-
-        return view('/admin/churchdetails/edit',['churchdetail' => $churchdetail]);
+        return view('/admin/churchdetails/edit', compact('churchdetail'));
     }
 
     /**
@@ -101,24 +84,19 @@ class ChurchDetailsController extends Controller
                 $churchdetail->save();
             }
 
-            foreach($request->request as $key => $value)
-            {
-                $arrays = ['short_summary' , 'long_summary' , 'quotes' , 'phone' , 'email' , 'address' , 'latitude' , 'longitude' , 'website' , 'facebook' , 'twitter' , 'instagram'];
-                foreach($arrays as $array)
-                {
-                    if($key === $array)
-                    {
-                        $churchdetail = ChurchDetail::where([['church_id',$church_id],['meta_key',$key]])->first();
-                        if($churchdetail)
-                        {
-                            if($value === null)
-                            {
-                                $churchdetail->meta_value = $churchdetail->meta_value;
-                            }
-                            $churchdetail->meta_value = $value;
+            $textFields = [
+                'name', 'short_summary', 'long_summary', 'quotes',
+                'phone', 'email', 'address', 'latitude', 'longitude',
+                'website', 'facebook', 'twitter', 'instagram',
+                'site_title', 'site_description', 'site_keyword',
+            ];
 
-                            $churchdetail->save();
-                        }
+            foreach ($textFields as $key) {
+                if ($request->has($key)) {
+                    $churchdetail = ChurchDetail::where([['church_id', $church_id], ['meta_key', $key]])->first();
+                    if ($churchdetail) {
+                        $churchdetail->meta_value = $request->input($key) ?? '-';
+                        $churchdetail->save();
                     }
                 }
             }

@@ -71,23 +71,25 @@ class SubAdminController extends Controller
      */
     public function index()
     {
-      	$count    = User::ByRole(4)->ByChurch(Auth::user()->church_id)->count();
-      	$alphabet = request('alphabet')?request('alphabet'):'';
-      	$query    = \Request::getQueryString();
-        if(request('date_of_birth') != null)
-        {
-            $type = 'date_of_birth';
-        }
-        if(request('marriage_status') != null)
-        {
-            $type = 'marriage_status';
-        }
-        if(request('location') != null)
-        {
-            $type = 'location';
-        }
+        $search = request('search');
 
-      	return view('/admin/subadmin/index',['alphabet' => $alphabet , 'query' => $query , 'count' => $count , 'type' => $type]);
+        $subadmins = User::with(['userprofile', 'permissions'])
+            ->ByRole(4)
+            ->ByChurch(Auth::user()->church_id)
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($q) use ($search) {
+                    $q->where('email', 'like', "%{$search}%")
+                      ->orWhere('mobile_no', 'like', "%{$search}%")
+                      ->orWhereHas('userprofile', function ($q) use ($search) {
+                          $q->where('firstname', 'like', "%{$search}%")
+                            ->orWhere('lastname', 'like', "%{$search}%");
+                      });
+                });
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('/admin/subadmin/index', compact('subadmins', 'search'));
     }
 
     /**
@@ -97,11 +99,10 @@ class SubAdminController extends Controller
      */
     public function create()
     {
-        //
-        $count    = User::ByRole(4)->ByChurch(Auth::user()->church_id)->count();
-        $membership_start_date = Carbon::now()->format('Y-m-d');
+        $countries   = SiteHelper::getCountries();
+        $occupations = SiteHelper::getOccupationList();
 
-        return view('/admin/subadmin/create',['membership_start_date' => $membership_start_date  , 'count' => $count]);
+        return view('/admin/subadmin/create', compact('countries', 'occupations'));
     }
 
     /**

@@ -3,382 +3,270 @@
     $user    = auth()->user();
 @endphp
 <ul class="list-reset tracking-wide font-navigation text-xs">
+
+    {{-- ── Dashboard ──────────────────────────────────────────────────── --}}
     <li class="py-2 px-3 {{ Request::segment('2') == 'dashboard' ? 'active' : '' }}">
         <a href="{{ url('admin/dashboard') }}" class="flex items-center">
-            <img src="{{ url('uploads/icons/dashboard-fill.svg') }}" class="w-4 h-4">
+            <i class="fas fa-gauge-high w-5 text-center text-sm opacity-75"></i>
             <span class="mx-3 whitespace-no-wrap">Dashboard</span>
         </a>
     </li>
 
-    @if($isAdmin)
-    <li class="py-2 px-3 {{ Request::segment('2') == 'churchdetails' ? 'active' : '' }}">
-        <a href="{{ url('/admin/churchdetails/edit/'.$user->church->id) }}" class="flex items-center whitespace-no-wrap">
-            <img src="{{ url('uploads/icons/church.svg') }}" class="w-4 h-4">
-            <span class="mx-3 whitespace-no-wrap">Church Details</span>
-        </a>
-    </li>
-    @endif
-
-    @if($isAdmin)
+    {{-- ── People ──────────────────────────────────────────────────────── --}}
     @php
-        $masterDataClass = '';
-        $masterDataSegments = ['countries', 'country', 'states', 'state', 'cities', 'city'];
-        if (in_array(\Request()->segment('2'), $masterDataSegments)) {
-            $masterDataClass = 'active';
-        }
-    @endphp
-    <li class="relative py-2 px-3 hover:bg-red-900 {{ $masterDataClass }}">
-        <a href="#" class="flex items-center">
-            <img src="{{ url('uploads/icons/settings.svg') }}" class="w-4 h-4">
-            <span class="ml-3 whitespace-no-wrap flex items-center justify-between w-10/12">Master Data</span>
-            <img src="{{ url('uploads/icons/right-arrow.svg') }}" class="w-2 h-2">
-        </a>
-        <ul class="list-reset sites-sidebar">
-            <li class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'countries' ? 'active' : '' }}">
-                <a href="{{ url('/admin/countries') }}" class="flex items-center">
-                    <span class="mx-3 whitespace-no-wrap">Countries</span>
-                </a>
-            </li>
-            <li class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'states' ? 'active' : '' }}">
-                <a href="{{ url('/admin/states') }}" class="flex items-center">
-                    <span class="mx-3 whitespace-no-wrap">States</span>
-                </a>
-            </li>
-            <li class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'cities' ? 'active' : '' }}">
-                <a href="{{ url('/admin/cities') }}" class="flex items-center">
-                    <span class="mx-3 whitespace-no-wrap">Cities</span>
-                </a>
-            </li>
-        </ul>
-    </li>
-    @endif
-
-    @if($isAdmin)
-    <!-- start -->
-    @php
-        $class = '';
-        $array = ['pages', 'page', 'page-categories', 'pageCategory', 'posts', 'post', 'post-categories', 'postCategory', 'settings', 'setting', 'faq', 'faq-categories', 'widgets', 'seodetail', 'google-analytics'];
-        if (in_array(\Request()->segment('2'), $array)) {
-            $class = 'active';
-        }
-    @endphp
-    <li class="relative py-2 px-3 hover:bg-red-900 {{ $class }}">
-        <a href="#" class="flex items-center">
-            <img src="{{ url('uploads/icons/web-cms.svg') }}" class="w-4 h-4"
-                style="filter: brightness(0) invert(1);">
-            <span class="ml-3 whitespace-no-wrap flex items-center justify-between w-10/12">WebCMS</span>
-            <img src="{{ url('uploads/icons/right-arrow.svg') }}" class="w-2 h-2"> </span>
-        </a>
-        <ul class="list-reset sites-sidebar">
-            <li
-                class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'pages' ? 'active' : '' }} || {{ Request::segment('2') == 'page' ? 'active' : '' }}">
-                <a href="{{ url('/admin/pages') }}" class="flex items-center">
-                    <img src="{{ url('uploads/icons/pages.svg') }}" class="w-4 h-4"
-                        style="filter: brightness(0) invert(1);">
-                    <span class="mx-3 whitespace-no-wrap">Pages</span>
-                </a>
-            </li>
-            <li
-                class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'page-categories' ? 'active' : '' }}">
-                <a href="{{ url('/admin/page-categories') }}" class="flex items-center">
-                    <img src="{{ url('uploads/icons/pages.svg') }}" class="w-4 h-4"
-                        style="filter: brightness(0) invert(1);">
-                    <span class="mx-3 whitespace-no-wrap">Page Categories</span>
-                </a>
-            </li>
-            <li
-                class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'posts' ? 'active' : '' }} || {{ Request::segment('2') == 'post' ? 'active' : '' }}">
-                <a href="{{ url('/admin/posts') }}" class="flex items-center">
-                    <img src="{{ url('uploads/icons/posts.svg') }}" class="w-4 h-4"
-                        style="filter: brightness(0) invert(1);">
-                    <span class="mx-3 whitespace-no-wrap">Posts</span>
-                </a>
-            </li>
-            <li class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'post-categories' ? 'active' : '' }}">
-                <a href="{{ url('/admin/post-categories') }}" class="flex items-center">
-                    <img src="{{ url('uploads/icons/posts.svg') }}" class="w-4 h-4"
-                        style="filter: brightness(0) invert(1);">
-                    <span class="mx-3 whitespace-no-wrap">Post Categories</span>
-                </a>
-            </li>
-            <li class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'faq' && Request::segment('3') != 'categories' ? 'active' : '' }}">
-                <a href="{{ url('admin/faq') }}" class="flex items-center">
-                    <img src="{{ url('uploads/icons/faq.svg') }}" class="w-6 h-6"
-                        style="filter: brightness(0) invert(1);">
-                    <span class="mx-1 whitespace-no-wrap">FAQ</span>
-                </a>
-            </li>
-            <li class="py-3 px-3 hover:font-semibold {{ Request::segment(2) == 'faq-categories' ? 'active' : '' }}">
-                <a href="{{ url('/admin/faq-categories') }}" class="flex items-center">
-                    <img src="{{ url('uploads/icons/faq.svg') }}" class="w-6 h-6"
-                        style="filter: brightness(0) invert(1);">
-                    <span class="mx-1 whitespace-no-wrap">FAQ Categories</span>
-                </a>
-            </li>
-             <li class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'widgets' ? 'active' : '' }}">
-                <a href="{{ url('/admin/widgets') }}" class="flex items-center">
-                    <img src="{{ url('uploads/icons/widgets.svg') }}" class="w-4 h-4">
-                    <span class="mx-3 whitespace-no-wrap">Code Snippets</span>
-                </a>
-            </li>
-            <hr>
-           <!--  <li class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'generalsettings' ? 'active' : '' }}">
-                <a href="{{ url('/admin/settings/generalsettings') }}" class="flex items-center">
-                    <img src="{{ url('uploads/icons/settings.svg') }}" class="w-4 h-4"
-                        style="filter: brightness(0) invert(1);">
-                    <span class="mx-3 whitespace-no-wrap">General Settings</span>
-                </a>
-            </li> -->
-            <li class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'maintenancesettings' ? 'active' : '' }}">
-                <a href="{{ url('/admin/settings/maintenancesettings') }}" class="flex items-center">
-                    <img src="{{ url('uploads/icons/maintenance.svg') }}" class="w-4 h-4"
-                        style="filter: brightness(0) invert(1);">
-                    <span class="mx-3 whitespace-no-wrap">Maintenance Settings</span>
-                </a>
-            </li>
-            <li class="py-3 px-3 hover:font-semibold {{ Request::segment('3') == 'seodetail' ? 'active' : '' }}">
-                <a href="{{ url('/admin/settings/seodetail') }}" class="flex items-center">
-                    <img src="{{ url('uploads/icons/seo.svg') }}" class="w-4 h-4"
-                        style="filter: brightness(0) invert(1);">
-                    <span class="mx-3 whitespace-no-wrap">SEO Settings</span>
-                </a>
-            </li>
-
-            <li
-                class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'google-analytics' ? 'active' : '' }}">
-                <a href="{{ url('/admin/google-analytics') }}" class="flex items-center">
-                    <img src="{{ url('uploads/icons/google-analytics.svg') }}" class="w-4 h-4">
-                    <span class="mx-3 whitespace-no-wrap">Google Analytics</span>
-                </a>
-            </li>
-
-        </ul>
-    </li>
-    <!-- end -->
-    @endif
-
-    @php
-        $showUsers = $isAdmin
-            || $user->hasPermission('read-members')
-            || $user->hasPermission('read-preachers');
+        $showUsers = $isAdmin || $user->hasPermission('read-members');
+        $usersActive = in_array(Request::segment('2'), ['members','member','guests','guest','subadmins','subadmin']) ? 'active' : '';
     @endphp
     @if($showUsers)
-    <!-- start -->
-    @php
-        $class = '';
-        $array = ['members', 'member', 'guests', 'guest', 'preachers', 'preacher', 'subadmins', 'subadmin'];
-        if (in_array(\Request()->segment('2'), $array)) {
-            $class = 'active';
-        }
-    @endphp
-    <li class="relative py-2 px-3 hover:bg-red-900 {{ $class }}">
+    <li class="relative py-2 px-3 hover:bg-red-900 {{ $usersActive }}">
         <a href="#" class="flex items-center">
-            <img src="{{ url('uploads/icons/active-users.svg') }}" class="w-4 h-4">
+            <i class="fas fa-users w-5 text-center text-sm opacity-75"></i>
             <span class="ml-3 whitespace-no-wrap flex items-center justify-between w-10/12">Users</span>
-            <img src="{{ url('uploads/icons/right-arrow.svg') }}" class="w-2 h-2"> </span>
+            <i class="fas fa-chevron-right text-xs ml-auto opacity-50"></i>
         </a>
         <ul class="list-reset sites-sidebar">
             @if($isAdmin || $user->hasPermission('read-members'))
-            <li
-                class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'members' ? 'active' : '' }} || {{ Request::segment('2') == 'member' ? 'active' : '' }}">
+            <li class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'members' || Request::segment('2') == 'member' ? 'active' : '' }}">
                 <a href="{{ url('/admin/members') }}" class="flex items-center">
-                    <img src="{{ url('uploads/icons/multiple-users.svg') }}" class="w-4 h-4">
+                    <i class="fas fa-users w-5 text-center text-sm opacity-75"></i>
                     <span class="mx-3 whitespace-no-wrap">Members</span>
                 </a>
             </li>
-            @endif
-            @if($isAdmin || $user->hasPermission('read-members'))
-            <li
-                class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'guests' ? 'active' : '' }} || {{ Request::segment('2') == 'guest' ? 'active' : '' }}">
+            <li class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'guests' || Request::segment('2') == 'guest' ? 'active' : '' }}">
                 <a href="{{ url('/admin/guests') }}" class="flex items-center">
-                    <img src="{{ url('uploads/icons/guest-user.svg') }}" class="w-4 h-4">
+                    <i class="fas fa-user-clock w-5 text-center text-sm opacity-75"></i>
                     <span class="mx-3 whitespace-no-wrap">Guests</span>
                 </a>
             </li>
             @endif
-            @if($isAdmin || $user->hasPermission('read-preachers'))
-            <li class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'preachers' ? 'active' : '' }}">
-                <a href="{{ url('/admin/preachers') }}" class="flex items-center">
-                    <img src="{{ url('uploads/icons/preacher.svg') }}" class="w-4 h-4"
-                        style="filter: brightness(0) invert(1);">
-                    <span class="mx-3 whitespace-no-wrap">Preachers</span>
-                </a>
-            </li>
-            @endif
             @if($isAdmin)
-            <li class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'subadmins' ? 'active' : '' }}">
+            <li class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'subadmins' || Request::segment('2') == 'subadmin' ? 'active' : '' }}">
                 <a href="{{ url('/admin/subadmins') }}" class="flex items-center">
-                    <img src="{{ url('uploads/icons/subadmin.svg') }}" class="w-4 h-4"
-                        style="filter: brightness(0) invert(1);">
+                    <i class="fas fa-user-shield w-5 text-center text-sm opacity-75"></i>
                     <span class="mx-3 whitespace-no-wrap">Sub Admins</span>
                 </a>
             </li>
             @endif
         </ul>
     </li>
-    <!-- end -->
-    @endif
-
-    @if($isAdmin || $user->hasPermission('read-events'))
-    <li class="py-2 px-3 {{ Request::segment('2') == 'events' ? 'active' : '' }}">
-        <a href="{{ url('admin/events') }}" class="flex items-center">
-            <img src="{{ url('uploads/icons/calendar.svg') }}" class="w-4 h-4">
-            <span class="mx-3 whitespace-no-wrap">Calendar</span>
-        </a>
-    </li>
     @endif
 
     @if($isAdmin || $user->hasPermission('read-groups'))
-    <li
-        class="py-2 px-3 {{ Request::segment('2') == 'groups' ? 'active' : '' }} && {{ Request::segment('2') == 'group' ? 'active' : '' }}">
+    <li class="py-2 px-3 {{ in_array(Request::segment('2'), ['groups','group']) ? 'active' : '' }}">
         <a href="{{ url('admin/groups') }}" class="flex items-center">
-            <img src="{{ url('uploads/icons/multiple-users.svg') }}" class="w-4 h-4">
+            <i class="fas fa-people-group w-5 text-center text-sm opacity-75"></i>
             <span class="mx-3 whitespace-no-wrap">Groups</span>
         </a>
     </li>
     @endif
 
+    {{-- ── Events ───────────────────────────────────────────────────────── --}}
+    @if($isAdmin || $user->hasPermission('read-events'))
+    <li class="py-2 px-3 {{ Request::segment('2') == 'events' ? 'active' : '' }}">
+        <a href="{{ url('admin/events') }}" class="flex items-center">
+            <i class="fas fa-calendar-days w-5 text-center text-sm opacity-75"></i>
+            <span class="mx-3 whitespace-no-wrap">Calendar</span>
+        </a>
+    </li>
+    @endif
+
+    {{-- ── Ministry Content ─────────────────────────────────────────────── --}}
+    @if($isAdmin || $user->hasPermission('read-sermons'))
+    <li class="py-2 px-3 {{ in_array(Request::segment('2'), ['sermons','sermon']) ? 'active' : '' }}">
+        <a href="{{ url('/admin/sermons') }}" class="flex items-center">
+            <i class="fas fa-microphone w-5 text-center text-sm opacity-75"></i>
+            <span class="mx-3 whitespace-no-wrap">Sermons</span>
+        </a>
+    </li>
+    @endif
+
+    @if($isAdmin || $user->hasPermission('read-bulletins'))
+    <li class="py-2 px-3 {{ in_array(Request::segment('2'), ['bulletins','bulletin']) ? 'active' : '' }}">
+        <a href="{{ url('/admin/bulletins') }}" class="flex items-center">
+            <i class="fas fa-newspaper w-5 text-center text-sm opacity-75"></i>
+            <span class="mx-3 whitespace-no-wrap">Bulletin</span>
+        </a>
+    </li>
+    @endif
+
+    @if($isAdmin || $user->hasPermission('read-gallery'))
+    <li class="py-2 px-3 {{ Request::segment('2') == 'gallery' ? 'active' : '' }}">
+        <a href="{{ url('admin/gallery') }}" class="flex items-center">
+            <i class="fas fa-images w-5 text-center text-sm opacity-75"></i>
+            <span class="mx-3 whitespace-no-wrap">Gallery</span>
+        </a>
+    </li>
+    @endif
+
+    @if($isAdmin || $user->hasPermission('read-files'))
+    <li class="py-2 px-3 {{ in_array(Request::segment('2'), ['mediafiles','mediafile']) ? 'active' : '' }}">
+        <a href="{{ url('/admin/mediafiles') }}" class="flex items-center">
+            <i class="fas fa-photo-film w-5 text-center text-sm opacity-75"></i>
+            <span class="mx-3 whitespace-no-wrap">Media Files</span>
+        </a>
+    </li>
+    @endif
+
+    @if($isAdmin || $user->hasPermission('read-quotes'))
+    <li class="py-2 px-3 {{ in_array(Request::segment('2'), ['quotes','quote']) ? 'active' : '' }}">
+        <a href="{{ url('/admin/quotes') }}" class="flex items-center">
+            <i class="fas fa-quote-left w-5 text-center text-sm opacity-75"></i>
+            <span class="mx-3 whitespace-no-wrap">Quotes / Bible Verse</span>
+        </a>
+    </li>
+    @endif
+
+    {{-- ── Community ────────────────────────────────────────────────────── --}}
+    @if($isAdmin || $user->hasPermission('read-prayers'))
+    <li class="py-2 px-3 {{ in_array(Request::segment('2'), ['prayerboard','prayercategories','prayercategory']) ? 'active' : '' }}">
+        <a href="{{ url('/admin/prayerboard') }}" class="flex items-center whitespace-no-wrap">
+            <i class="fas fa-hands-praying w-5 text-center text-sm opacity-75"></i>
+            <span class="mx-3 whitespace-no-wrap">Prayer Board</span>
+        </a>
+    </li>
+    @endif
+
+    @if($isAdmin || $user->hasPermission('read-helps'))
+    <li class="py-2 px-3 {{ Request::segment('2') == 'helps' ? 'active' : '' }}">
+        <a href="{{ url('/admin/helps') }}" class="flex items-center whitespace-no-wrap">
+            <i class="fas fa-life-ring w-5 text-center text-sm opacity-75"></i>
+            <span class="mx-3 whitespace-no-wrap">Help Requests</span>
+        </a>
+    </li>
+    @endif
+
+    @if($isAdmin || $user->hasPermission('read-video-conferences'))
     <li class="py-2 px-3 {{ Request::segment('2') == 'video-conference' ? 'active' : '' }}">
         <a href="{{ url('/admin/video-conference') }}" class="flex items-center">
-            <!--<img src="{{ url('uploads/icons/video_room.svg') }}" class="w-4 h-4"
-                style="filter: brightness(0) invert(1);"> -->
-            <img src="{{ url('uploads/icons/videocall.svg') }}" class="w-4 h-4"
-                style="filter: brightness(0) invert(1);">
+            <i class="fas fa-video w-5 text-center text-sm opacity-75"></i>
             <span class="mx-3 whitespace-no-wrap">Video Chat Room</span>
         </a>
     </li>
+    @endif
 
     @if($isAdmin || $user->hasPermission('read-members'))
-    <li
-        class="py-2 px-3 {{ Request::segment('2') == 'messages' ? 'active' : '' }} || {{ Request::segment('2') == 'message' ? 'active' : '' }}">
+    <li class="py-2 px-3 {{ in_array(Request::segment('2'), ['messages','message']) ? 'active' : '' }}">
         <a href="{{ url('/admin/messages') }}" class="flex items-center">
-            <img src="{{ url('uploads/icons/message-fill.svg') }}" class="w-4 h-4"
-                style="filter: brightness(0) invert(1);">
+            <i class="fas fa-envelope w-5 text-center text-sm opacity-75"></i>
             <span class="mx-3 whitespace-no-wrap">Messages</span>
         </a>
     </li>
     @endif
 
-
-    @if($isAdmin)
+    {{-- ── Financial ────────────────────────────────────────────────────── --}}
     @php
-        $class = '';
-        $array = ['campaigns', 'emails', 'email', 'campaign', 'subscribers', 'subscriber', 'mailinglists', 'email-templates', 'mailinglist', 'mailqueues', 'mailqueue', 'smtps', 'smtp', 'newsletter', 'rules', 'rule', 'mails-delivered', 'mail-delivered', 'webhooks', 'webhook'];
-        if (in_array(\Request()->segment('2'), $array)) {
-            $class = 'active';
-        }
+        $showOfferings = $isAdmin || $user->hasPermission('read-payments') || $user->hasPermission('read-funds');
+        $offeringsActive = in_array(Request::segment('2'), ['payaccounts','payaccount','funds','fund']) ? 'active' : '';
     @endphp
-    <li class="relative py-3 px-3 hover:font-semibold {{ $class }}">
-        <a href="#" class="flex items-center whitespace-no-wrap text-white">
-            <img src="{{ url('uploads/icons/email-blaster.svg') }}" class="w-4 h-4">
-            <span class="ml-3 whitespace-no-wrap flex items-center justify-between w-10/12">Email Blaster</span>
-            <img src="{{ url('uploads/icons/right-arrow.svg') }}" class="w-2 h-2"> </span>
+    @if($showOfferings)
+    <li class="relative py-2 px-3 hover:bg-red-900 {{ $offeringsActive }}">
+        <a href="#" class="flex items-center">
+            <i class="fas fa-hand-holding-dollar w-5 text-center text-sm opacity-75"></i>
+            <span class="ml-3 whitespace-no-wrap flex items-center justify-between w-10/12">Offerings</span>
+            <i class="fas fa-chevron-right text-xs ml-auto opacity-50"></i>
         </a>
         <ul class="list-reset sites-sidebar">
-            <li
-                class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'campaigns' ? 'active' : '' }} || {{ Request::segment('2') == 'campaign' ? 'active' : '' }}">
+            @if($isAdmin || $user->hasPermission('read-payments'))
+            <li class="py-3 px-3 hover:font-semibold {{ in_array(Request::segment('2'), ['payaccounts','payaccount']) ? 'active' : '' }}">
+                <a href="{{ url('/admin/payaccounts') }}" class="flex items-center">
+                    <i class="fas fa-credit-card w-5 text-center text-sm opacity-75"></i>
+                    <span class="mx-3 whitespace-no-wrap">Payaccounts</span>
+                </a>
+            </li>
+            @endif
+            @if($isAdmin || $user->hasPermission('read-funds'))
+            <li class="py-3 px-3 hover:font-semibold {{ in_array(Request::segment('2'), ['funds','fund']) ? 'active' : '' }}">
+                <a href="{{ url('/admin/funds') }}" class="flex items-center">
+                    <i class="fas fa-piggy-bank w-5 text-center text-sm opacity-75"></i>
+                    <span class="mx-3 whitespace-no-wrap">Funds</span>
+                </a>
+            </li>
+            @endif
+        </ul>
+    </li>
+    @endif
+
+    {{-- ── Communication ────────────────────────────────────────────────── --}}
+    @if($isAdmin || $user->hasPermission('manage-email-blaster'))
+    @php
+        $emailArray = ['campaigns','emails','email','campaign','subscribers','subscriber','mailinglists','email-templates','mailinglist','mailqueues','mailqueue','smtps','smtp','newsletter','rules','rule','mails-delivered','mail-delivered','webhooks','webhook'];
+        $emailActive = in_array(Request::segment('2'), $emailArray) ? 'active' : '';
+    @endphp
+    <li class="relative py-3 px-3 hover:font-semibold {{ $emailActive }}">
+        <a href="#" class="flex items-center whitespace-no-wrap text-white">
+            <i class="fas fa-paper-plane w-5 text-center text-sm opacity-75"></i>
+            <span class="ml-3 whitespace-no-wrap flex items-center justify-between w-10/12">Email Blaster</span>
+            <i class="fas fa-chevron-right text-xs ml-auto opacity-50"></i>
+        </a>
+        <ul class="list-reset sites-sidebar" style="bottom: 0; top: auto;">
+            <li class="py-3 px-3 hover:font-semibold {{ in_array(Request::segment('2'), ['campaigns','campaign']) ? 'active' : '' }}">
                 <a href="{{ url('/admin/campaigns') }}" class="flex items-center text-white">
-                    <img src="{{ url('uploads/icons/campaigns.svg') }}" class="w-4 h-4">
+                    <i class="fas fa-bullhorn w-5 text-center text-sm opacity-75"></i>
                     <span class="mx-3 whitespace-no-wrap">Campaigns</span>
                 </a>
             </li>
-
-            <li
-                class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'emails' ? 'active' : '' }} || {{ Request::segment('2') == 'email' ? 'active' : '' }}">
+            <li class="py-3 px-3 hover:font-semibold {{ in_array(Request::segment('2'), ['emails','email']) ? 'active' : '' }}">
                 <a href="{{ url('/admin/emails') }}" class="flex items-center">
-                    <img src="{{ url('uploads/icons/email1.svg') }}" class="w-4 h-4 fill-current text-white"
-                        style="filter: brightness(0) invert(1);">
+                    <i class="fas fa-envelope-open w-5 text-center text-sm opacity-75"></i>
                     <span class="mx-3 whitespace-no-wrap">Emails</span>
                 </a>
             </li>
-
-            <li
-                class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'subscribers' ? 'active' : '' }} || {{ Request::segment('2') == 'subscriber' ? 'active' : '' }}">
+            <li class="py-3 px-3 hover:font-semibold {{ in_array(Request::segment('2'), ['subscribers','subscriber']) ? 'active' : '' }}">
                 <a href="{{ url('/admin/subscribers') }}" class="flex items-center">
-                    <img src="{{ url('uploads/icons/subscribers.svg') }}" class="w-4 h-4">
+                    <i class="fas fa-user-group w-5 text-center text-sm opacity-75"></i>
                     <span class="mx-3 whitespace-no-wrap">Subscribers</span>
                 </a>
             </li>
-
-            <li
-                class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'mailinglists' ? 'active' : '' }} || {{ Request::segment('2') == 'mailinglist' ? 'active' : '' }}">
+            <li class="py-3 px-3 hover:font-semibold {{ in_array(Request::segment('2'), ['mailinglists','mailinglist']) ? 'active' : '' }}">
                 <a href="{{ url('/admin/mailinglists') }}" class="flex items-center">
-                    <img src="{{ url('/uploads/icons/mailinglist.svg') }}" class="w-4 h-4"
-                        style="filter: brightness(0) invert(1);">
+                    <i class="fas fa-list w-5 text-center text-sm opacity-75"></i>
                     <span class="mx-3 whitespace-no-wrap">Mailing List</span>
                 </a>
             </li>
-
-            <!-- <li class="py-3 px-3 hover:font-semibold">
-                <a href="{{ url('/admin/maileclipse/templates') }}" class="flex items-center">
-                    <img src="{{ url('uploads/icons/template.svg') }}" class="w-4 h-4" style="filter: brightness(0) invert(1);">
-                    <span class="mx-3 whitespace-no-wrap">Email Templates</span>
-                </a>
-            </li> -->
-
             <li class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'newsletter' ? 'active' : '' }}">
                 <a href="{{ url('/admin/newsletter/send') }}" class="flex items-center">
-                    <img src="{{ url('uploads/icons/newsletter.svg') }}" class="w-4 h-4"
-                        style="filter: brightness(0) invert(1);">
-                    <span class="mx-3 whitespace-no-wrap">Send News Letter</span>
+                    <i class="fas fa-paper-plane w-5 text-center text-sm opacity-75"></i>
+                    <span class="mx-3 whitespace-no-wrap">Send Newsletter</span>
                 </a>
             </li>
             @php
-                $active_class = '';
-                $array1 = ['rules', 'rule', 'mails-delivered', 'mail-delivered', 'mailqueues', 'mailqueue', 'smtps', 'smtp', 'webhooks', 'webhook'];
-                if (in_array(\Request()->segment('2'), $array1)) {
-                    $active_class = 'active';
-                }
+                $emailSettingsArray = ['rules','rule','mails-delivered','mail-delivered','mailqueues','mailqueue','smtps','smtp','webhooks','webhook'];
+                $emailSettingsActive = in_array(Request::segment('2'), $emailSettingsArray) ? 'active' : '';
             @endphp
-            <li class="py-3 px-3 hover:font-semibold {{ $active_class }}">
+            <li class="py-3 px-3 hover:font-semibold {{ $emailSettingsActive }}">
                 <a href="#" class="flex items-center">
-                    <img src="{{ url('uploads/icons/email-settings.svg') }}" class="w-4 h-4"
-                        style="filter: brightness(0) invert(1);">
+                    <i class="fas fa-gear w-5 text-center text-sm opacity-75"></i>
                     <span class="ml-3 whitespace-no-wrap flex items-center justify-between w-10/12">Settings</span>
-                    <img src="{{ url('uploads/icons/right-arrow.svg') }}" class="w-2 h-2"> </span>
+                    <i class="fas fa-chevron-right text-xs ml-auto opacity-50"></i>
                 </a>
                 <ul class="list-reset sites-sidebar" style="bottom: 0;top: auto;">
-                    <li
-                        class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'rules' ? 'active' : '' }} || {{ Request::segment('2') == 'rule' ? 'active' : '' }}">
+                    <li class="py-3 px-3 hover:font-semibold {{ in_array(Request::segment('2'), ['rules','rule']) ? 'active' : '' }}">
                         <a href="{{ url('/admin/rules') }}" class="flex items-center">
-                            <img src="{{ url('uploads/icons/rules.svg') }}" class="w-4 h-4"
-                                style="filter: brightness(0) invert(1);">
+                            <i class="fas fa-shield-halved w-5 text-center text-sm opacity-75"></i>
                             <span class="mx-3 whitespace-no-wrap">Rules</span>
                         </a>
                     </li>
-
-                    <li
-                        class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'mails-delivered' ? 'active' : '' }} || {{ Request::segment('2') == 'mail-delivered' ? 'active' : '' }}">
+                    <li class="py-3 px-3 hover:font-semibold {{ in_array(Request::segment('2'), ['mails-delivered','mail-delivered']) ? 'active' : '' }}">
                         <a href="{{ url('/admin/mails-delivered') }}" class="flex items-center">
-                            <img src="{{ url('uploads/icons/mail-delivered.svg') }}" class="w-4 h-4"
-                                style="filter: brightness(0) invert(1);">
+                            <i class="fas fa-circle-check w-5 text-center text-sm opacity-75"></i>
                             <span class="mx-3 whitespace-no-wrap">Mails Delivered</span>
                         </a>
                     </li>
-
-                    <li
-                        class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'mailqueues' ? 'active' : '' }} || {{ Request::segment('2') == 'mailqueue' ? 'active' : '' }}">
+                    <li class="py-3 px-3 hover:font-semibold {{ in_array(Request::segment('2'), ['mailqueues','mailqueue']) ? 'active' : '' }}">
                         <a href="{{ url('/admin/mailqueues') }}" class="flex items-center">
-                            <img src="{{ url('/uploads/icons/mailqueue.svg') }}" class="w-4 h-4"
-                                style="filter: brightness(0) invert(1);">
+                            <i class="fas fa-clock w-5 text-center text-sm opacity-75"></i>
                             <span class="mx-3 whitespace-no-wrap">Mail Queues</span>
                         </a>
                     </li>
-
-                    <li
-                        class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'smtps' ? 'active' : '' }} || {{ Request::segment('2') == 'smtp' ? 'active' : '' }}">
+                    <li class="py-3 px-3 hover:font-semibold {{ in_array(Request::segment('2'), ['smtps','smtp']) ? 'active' : '' }}">
                         <a href="{{ url('/admin/smtps') }}" class="flex items-center">
-                            <img src="{{ url('/uploads/icons/smtp.svg') }}" class="w-4 h-4"
-                                style="filter: brightness(0) invert(1);">
-                            <span class="mx-3 whitespace-no-wrap">Smtps</span>
+                            <i class="fas fa-server w-5 text-center text-sm opacity-75"></i>
+                            <span class="mx-3 whitespace-no-wrap">SMTPs</span>
                         </a>
                     </li>
-
-                    <li
-                        class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'webhooks' ? 'active' : '' }} || {{ Request::segment('2') == 'webhook' ? 'active' : '' }}">
+                    <li class="py-3 px-3 hover:font-semibold {{ in_array(Request::segment('2'), ['webhooks','webhook']) ? 'active' : '' }}">
                         <a href="{{ url('/admin/webhooks') }}" class="flex items-center">
-                            <img src="{{ url('uploads/icons/webhook.svg') }}" class="w-4 h-4"
-                                style="filter: brightness(0) invert(1);">
+                            <i class="fas fa-plug w-5 text-center text-sm opacity-75"></i>
                             <span class="mx-3 whitespace-no-wrap">Webhooks</span>
                         </a>
                     </li>
@@ -388,156 +276,150 @@
     </li>
     @endif
 
-    @if($isAdmin || $user->hasPermission('read-files'))
-    <li
-        class="py-2 px-3 {{ Request::segment('2') == 'mediafiles' ? 'active' : '' }} && {{ Request::segment('2') == 'mediafile' ? 'active' : '' }}">
-        <a href="{{ url('/admin/mediafiles') }}" class="flex items-center">
-            <img src="{{ url('uploads/icons/video.svg') }}" class="w-4 h-4">
-            <span class="mx-3 whitespace-no-wrap">Media Files</span>
+    {{-- ── Inbox ────────────────────────────────────────────────────────── --}}
+    @if($isAdmin || $user->hasPermission('read-contacts'))
+    <li class="py-2 px-3 {{ in_array(Request::segment('2'), ['contacts','contact']) ? 'active' : '' }}">
+        <a href="{{ url('/admin/contacts') }}" class="flex items-center">
+            <i class="fas fa-phone-volume w-5 text-center text-sm opacity-75"></i>
+            <span class="mx-3 whitespace-no-wrap">Contact Requests</span>
         </a>
     </li>
     @endif
 
-    @if($isAdmin || $user->hasPermission('read-bulletins'))
-    <li
-        class="py-2 px-3 {{ Request::segment('2') == 'bulletins' ? 'active' : '' }} && {{ Request::segment('2') == 'bulletin' ? 'active' : '' }}">
-        <a href="{{ url('/admin/bulletins') }}" class="flex  items-center">
-            <img src="{{ url('uploads/icons/bulletin.svg') }}" class="w-4 h-4">
-            <span class="mx-3 whitespace-no-wrap">Bulletin</span>
+    @if($isAdmin || $user->hasPermission('read-feedbacks'))
+    <li class="py-2 px-3 {{ in_array(Request::segment('2'), ['feedbacks','feedback']) ? 'active' : '' }}">
+        <a href="{{ url('/admin/feedbacks') }}" class="flex items-center">
+            <i class="fas fa-comment-dots w-5 text-center text-sm opacity-75"></i>
+            <span class="mx-3 whitespace-no-wrap">Feedbacks</span>
         </a>
     </li>
     @endif
 
-    @if($isAdmin || $user->hasPermission('read-gallery'))
-    <li class="py-2 px-3 {{ Request::segment('2') == 'gallery' ? 'active' : '' }}">
-        <a href="{{ url('admin/gallery') }}" class="flex items-center">
-            <img src="{{ url('uploads/icons/gallery.svg') }}" class="w-4 h-4">
-            <span class="mx-3 whitespace-no-wrap">Gallery</span>
-        </a>
-    </li>
-    @endif
-
-    <!-- <li class="py-2 px-3 {{ Request::segment('2') == 'funds' ? 'active' : '' }} && {{ Request::segment('2') == 'fund' ? 'active' : '' }}">
-        <a href="{{ url('admin/funds') }}" class="flex items-center">
-            <img src="{{ url('uploads/icons/giving.svg') }}" class="w-4 h-4">
-            <span class="mx-3 whitespace-no-wrap">Offerings</span>
-        </a>
-    </li> -->
-
-    @php
-        $showOfferings = $isAdmin
-            || $user->hasPermission('read-payments')
-            || $user->hasPermission('read-funds');
-    @endphp
-    @if($showOfferings)
-    <!-- start -->
-    @php
-        $class = '';
-        $array = ['payaccounts', 'payaccount', 'funds', 'fund'];
-        if (in_array(\Request()->segment('2'), $array)) {
-            $class = 'active';
-        }
-    @endphp
-    <li class="relative py-2 px-3 hover:bg-red-900 {{ $class }}">
-        <a href="#" class="flex items-center">
-            <img src="{{ url('uploads/icons/giving.svg') }}" class="w-4 h-4">
-            <span class="ml-3 whitespace-no-wrap flex items-center justify-between w-10/12">Offerings</span>
-            <img src="{{ url('uploads/icons/right-arrow.svg') }}" class="w-2 h-2"> </span>
-        </a>
-        <ul class="list-reset sites-sidebar">
-            @if($isAdmin || $user->hasPermission('read-payments'))
-            <li
-                class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'payaccounts' ? 'active' : '' }} || {{ Request::segment('2') == 'member' ? 'active' : '' }}">
-                <a href="{{ url('/admin/payaccounts') }}" class="flex items-center">
-                    <img src="{{ url('uploads/icons/multiple-users.svg') }}" class="w-4 h-4">
-                    <span class="mx-3 whitespace-no-wrap">Payaccounts</span>
-                </a>
-            </li>
-            @endif
-            @if($isAdmin || $user->hasPermission('read-funds'))
-            <li
-                class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'guests' ? 'active' : '' }} || {{ Request::segment('2') == 'guest' ? 'active' : '' }}">
-                <a href="{{ url('/admin/funds') }}" class="flex items-center">
-                    <img src="{{ url('uploads/icons/giving.svg') }}" class="w-4 h-4">
-                    <span class="mx-3 whitespace-no-wrap">Funds</span>
-                </a>
-            </li>
-            @endif
-        </ul>
-    </li>
-    <!-- end -->
-    @endif
-
-
-
-    <li
-        class="py-2 px-3 {{ in_array(Request::segment(2), ['prayerboard', 'prayercategories', 'prayercategory']) ? 'active' : '' }}">
-        <a href="{{ url('/admin/prayerboard') }}" class="flex items-center whitespace-no-wrap">
-            <img src="{{ url('uploads/icons/rosary.svg') }}" class="w-4 h-4">
-            <span class="mx-3 whitespace-no-wrap">Prayer Board</span>
-        </a>
-    </li>
-
-    <li class="py-2 px-3 {{ Request::segment('2') == 'helps' ? 'active' : '' }}">
-        <a href="{{ url('/admin/helps') }}" class="flex items-center whitespace-no-wrap">
-            <img src="{{ url('uploads/icons/key.svg') }}" class="w-4 h-4">
-            <span class="mx-3 whitespace-no-wrap">Help Requests</span>
-        </a>
-    </li>
-
-    @if($isAdmin || $user->hasPermission('read-sermons'))
-    <li
-        class="py-2 px-3 {{ Request::segment('2') == 'sermons' ? 'active' : '' }} || {{ Request::segment('2') == 'sermon' ? 'active' : '' }}">
-        <a href="{{ url('/admin/sermons') }}" class="flex  items-center">
-            <img src="{{ url('uploads/icons/sermon.svg') }}" class="w-4 h-4">
-            <span class="mx-3 whitespace-no-wrap">Sermons</span>
-        </a>
-    </li>
-    @endif
-
-    @if($isAdmin || $user->hasPermission('read-quotes'))
-    <li
-        class="py-2 px-3 {{ Request::segment('2') == 'quotes' ? 'active' : '' }} || {{ Request::segment('2') == 'quote' ? 'active' : '' }}">
-        <a href="{{ url('/admin/quotes') }}" class="flex  items-center">
-            <img src="{{ url('uploads/icons/library.svg') }}" class="w-4 h-4">
-            <span class="mx-3 whitespace-no-wrap">Quotes / Bible Verse</span>
-        </a>
-    </li>
-    @endif
-
+    {{-- ── Reporting ────────────────────────────────────────────────────── --}}
     @if($isAdmin || $user->hasPermission('read-reports'))
-    <li
-        class="py-2 px-3 {{ Request::segment('2') == 'reports' ? 'active' : '' }} && {{ Request::segment('2') == 'report' ? 'active' : '' }}">
+    <li class="py-2 px-3 {{ in_array(Request::segment('2'), ['reports','report']) ? 'active' : '' }}">
         <a href="{{ url('/admin/reports') }}" class="flex items-center">
-            <img src="{{ url('uploads/icons/file.svg') }}" class="w-4 h-4">
+            <i class="fas fa-chart-bar w-5 text-center text-sm opacity-75"></i>
             <span class="mx-3 whitespace-no-wrap">Reports</span>
         </a>
     </li>
     @endif
 
     <li class="py-2 px-3 {{ Request::segment('2') == 'activity' ? 'active' : '' }}">
-        <a href="{{ url('/admin/activity') }}" class="flex  items-center">
-            <img src="{{ url('uploads/icons/activity-log.svg') }}" class="w-4 h-4">
+        <a href="{{ url('/admin/activity') }}" class="flex items-center">
+            <i class="fas fa-clipboard-list w-5 text-center text-sm opacity-75"></i>
             <span class="mx-3 whitespace-no-wrap">Activity Logs</span>
         </a>
     </li>
 
-    <li
-        class="py-2 px-3 {{ Request::segment('2') == 'contacts' ? 'active' : '' }} && {{ Request::segment('2') == 'contact' ? 'active' : '' }}">
-        <a href="{{ url('/admin/contacts') }}" class="flex items-center">
-            <img src="{{ url('uploads/icons/contact.svg') }}" class="w-4 h-4">
-            <span class="mx-3 whitespace-no-wrap">Contact Requests</span>
+    {{-- ── WebCMS (admin + manage-cms subadmin) ────────────────────────── --}}
+    @if($isAdmin || $user->hasPermission('manage-cms'))
+    @php
+        $webCmsArray = ['pages','page','page-categories','pageCategory','posts','post','post-categories','postCategory','faq','faq-categories','widgets','google-analytics'];
+        $webCmsActive = in_array(Request::segment('2'), $webCmsArray) ? 'active' : '';
+    @endphp
+    <li class="relative py-2 px-3 hover:bg-red-900 {{ $webCmsActive }}">
+        <a href="#" class="flex items-center">
+            <i class="fas fa-globe w-5 text-center text-sm opacity-75"></i>
+            <span class="ml-3 whitespace-no-wrap flex items-center justify-between w-10/12">WebCMS</span>
+            <i class="fas fa-chevron-right text-xs ml-auto opacity-50"></i>
+        </a>
+        <ul class="list-reset sites-sidebar" style="bottom: 0; top: auto;">
+            <li class="py-3 px-3 hover:font-semibold {{ in_array(Request::segment('2'), ['pages','page']) ? 'active' : '' }}">
+                <a href="{{ url('/admin/pages') }}" class="flex items-center">
+                    <i class="fas fa-file-lines w-5 text-center text-sm opacity-75"></i>
+                    <span class="mx-3 whitespace-no-wrap">Pages</span>
+                </a>
+            </li>
+            <li class="py-3 px-3 hover:font-semibold {{ in_array(Request::segment('2'), ['posts','post']) ? 'active' : '' }}">
+                <a href="{{ url('/admin/posts') }}" class="flex items-center">
+                    <i class="fas fa-pen-to-square w-5 text-center text-sm opacity-75"></i>
+                    <span class="mx-3 whitespace-no-wrap">Posts</span>
+                </a>
+            </li>
+            <li class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'faq' && Request::segment('3') != 'categories' ? 'active' : '' }}">
+                <a href="{{ url('admin/faq') }}" class="flex items-center">
+                    <i class="fas fa-circle-question w-5 text-center text-sm opacity-75"></i>
+                    <span class="mx-3 whitespace-no-wrap">FAQ</span>
+                </a>
+            </li>
+            <li class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'widgets' ? 'active' : '' }}">
+                <a href="{{ url('/admin/widgets') }}" class="flex items-center">
+                    <i class="fas fa-code w-5 text-center text-sm opacity-75"></i>
+                    <span class="mx-3 whitespace-no-wrap">Code Snippets</span>
+                </a>
+            </li>
+            <hr class="border-white/10 my-1">
+            <li class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'page-categories' ? 'active' : '' }}">
+                <a href="{{ url('/admin/page-categories') }}" class="flex items-center">
+                    <i class="fas fa-folder w-5 text-center text-sm opacity-75"></i>
+                    <span class="mx-3 whitespace-no-wrap">Page Categories</span>
+                </a>
+            </li>
+            <li class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'post-categories' ? 'active' : '' }}">
+                <a href="{{ url('/admin/post-categories') }}" class="flex items-center">
+                    <i class="fas fa-folder-open w-5 text-center text-sm opacity-75"></i>
+                    <span class="mx-3 whitespace-no-wrap">Post Categories</span>
+                </a>
+            </li>
+            <li class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'faq-categories' ? 'active' : '' }}">
+                <a href="{{ url('/admin/faq-categories') }}" class="flex items-center">
+                    <i class="fas fa-folder-tree w-5 text-center text-sm opacity-75"></i>
+                    <span class="mx-3 whitespace-no-wrap">FAQ Categories</span>
+                </a>
+            </li>
+            <li class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'google-analytics' ? 'active' : '' }}">
+                <a href="{{ url('/admin/google-analytics') }}" class="flex items-center">
+                    <i class="fas fa-chart-line w-5 text-center text-sm opacity-75"></i>
+                    <span class="mx-3 whitespace-no-wrap">Google Analytics</span>
+                </a>
+            </li>
+        </ul>
+    </li>
+    @endif
+
+    {{-- ── Settings (admin only) ──────────────────────────────────────── --}}
+    @if($isAdmin)
+    <li class="py-2 px-3 {{ Request::segment('2') == 'settings' ? 'active' : '' }}">
+        <a href="{{ url('/admin/settings/generalsettings') }}" class="flex items-center">
+            <i class="fas fa-gear w-5 text-center text-sm opacity-75"></i>
+            <span class="mx-3 whitespace-no-wrap">Settings</span>
         </a>
     </li>
+    @endif
 
-    <li
-        class="py-2 px-3 {{ Request::segment('2') == 'feedbacks' ? 'active' : '' }} || {{ Request::segment('2') == 'feedback' ? 'active' : '' }}">
-        <a href="{{ url('/admin/feedbacks') }}" class="flex items-center">
-            <img src="{{ url('uploads/icons/message-fill.svg') }}" class="w-4 h-4"
-                style="filter: brightness(0) invert(1);">
-            <span class="mx-3 whitespace-no-wrap">Feedbacks</span>
+    {{-- ── Config (admin only) ─────────────────────────────────────────── --}}
+    @if($isAdmin)
+    @php
+        $masterDataActive = in_array(Request::segment('2'), ['countries','country','states','state','cities','city']) ? 'active' : '';
+    @endphp
+    <li class="relative py-2 px-3 hover:bg-red-900 {{ $masterDataActive }}">
+        <a href="#" class="flex items-center">
+            <i class="fas fa-database w-5 text-center text-sm opacity-75"></i>
+            <span class="ml-3 whitespace-no-wrap flex items-center justify-between w-10/12">Master Data</span>
+            <i class="fas fa-chevron-right text-xs ml-auto opacity-50"></i>
         </a>
+        <ul class="list-reset sites-sidebar" style="bottom: 0; top: auto;">
+            <li class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'countries' ? 'active' : '' }}">
+                <a href="{{ url('/admin/countries') }}" class="flex items-center">
+                    <i class="fas fa-earth-americas w-5 text-center text-sm opacity-75"></i>
+                    <span class="mx-3 whitespace-no-wrap">Countries</span>
+                </a>
+            </li>
+            <li class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'states' ? 'active' : '' }}">
+                <a href="{{ url('/admin/states') }}" class="flex items-center">
+                    <i class="fas fa-map w-5 text-center text-sm opacity-75"></i>
+                    <span class="mx-3 whitespace-no-wrap">States</span>
+                </a>
+            </li>
+            <li class="py-3 px-3 hover:font-semibold {{ Request::segment('2') == 'cities' ? 'active' : '' }}">
+                <a href="{{ url('/admin/cities') }}" class="flex items-center">
+                    <i class="fas fa-city w-5 text-center text-sm opacity-75"></i>
+                    <span class="mx-3 whitespace-no-wrap">Cities</span>
+                </a>
+            </li>
+        </ul>
     </li>
-
+    @endif
 
 </ul>

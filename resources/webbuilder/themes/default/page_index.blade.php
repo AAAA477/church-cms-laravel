@@ -11,6 +11,14 @@
 @endpush
 
 @section('content')
+@include('theme::_hero_banner', [
+    'heroTitle'   => $activePage ? ($activePage->meta_title ?: $activePage->page_name) : 'Pages',
+    'breadcrumbs' => array_filter([
+        ['label' => 'Home', 'url' => route('web.home')],
+        ['label' => 'Pages', 'url' => route('web.pages')],
+        $activePage ? ['label' => $activePage->page_name] : null,
+    ]),
+])
 @php $layout = $activePage->layout_template ?? 'left-sidebar'; @endphp
 
 {{-- Custom page CSS --}}

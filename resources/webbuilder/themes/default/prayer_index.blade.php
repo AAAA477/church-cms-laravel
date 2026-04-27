@@ -7,31 +7,20 @@
 {{-- ═══════════════════════════════════════════════════════
      HERO SECTION
 ═══════════════════════════════════════════════════════ --}}
-<section class="relative bg-gradient-to-br from-indigo-700 via-purple-700 to-indigo-900 text-white overflow-hidden">
-    {{-- Soft decorative circles --}}
-    <div class="absolute -top-16 -left-16 w-72 h-72 bg-white/5 rounded-full"></div>
-    <div class="absolute -bottom-16 -right-16 w-96 h-96 bg-white/5 rounded-full"></div>
-
-    <div class="relative max-w-5xl mx-auto px-6 py-20 text-center">
-        <p class="text-5xl mb-4">🙏</p>
-        <h1 class="text-4xl sm:text-5xl font-extrabold leading-tight mb-4">
-            Bring Your Prayers<br class="hidden sm:block"> to the Community
-        </h1>
-        <p class="text-indigo-200 text-lg max-w-xl mx-auto mb-8">
-            You are not alone. Share your heart, and let hundreds of believers stand with you in prayer.
-        </p>
-        <div class="flex flex-wrap justify-center gap-6 text-sm text-indigo-200">
-            <span class="flex items-center gap-2"><span class="text-xl">✝️</span> Scripture-grounded prayer</span>
-            <span class="flex items-center gap-2"><span class="text-xl">🤝</span> Community intercession</span>
-            <span class="flex items-center gap-2"><span class="text-xl">🔒</span> Safe &amp; moderated</span>
-        </div>
-    </div>
-</section>
+@include('theme::_hero_banner', [
+    'heroTitle'    => 'Prayer Board',
+    'heroSubtitle' => 'You are not alone. Share your heart, and let the community stand with you in prayer.',
+    'heroIcon'     => '🙏',
+    'breadcrumbs'  => [
+        ['label' => 'Home', 'url' => route('web.home')],
+        ['label' => 'Prayer Board'],
+    ],
+])
 
 {{-- ═══════════════════════════════════════════════════════
      TWO-COLUMN: INFO + PRAYER CARDS
 ═══════════════════════════════════════════════════════ --}}
-<section class="max-w-6xl mx-auto px-6 py-16">
+<section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
 
         {{-- LEFT — Process info block --}}
@@ -115,7 +104,7 @@
      FULL-WIDTH SUBMIT SECTION
 ═══════════════════════════════════════════════════════ --}}
 <section id="submit-prayer" class="bg-gradient-to-br from-indigo-50 to-purple-100 border-t border-indigo-100">
-    <div class="max-w-6xl mx-auto px-6 py-16">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
 
             {{-- LEFT — Invitation copy --}}
@@ -159,6 +148,7 @@
                 @endif
 
                 <div class="p-6">
+                    @auth
                     @if($errors->any())
                     <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-5 text-sm">
                         <ul class="list-disc list-inside space-y-1">
@@ -204,6 +194,21 @@
                             <span>Submit Prayer Request</span>
                         </button>
                     </form>
+                    @else
+                    <div class="text-center py-6 space-y-4">
+                        <p class="text-gray-600 text-sm">You need to be logged in to submit a prayer request.</p>
+                        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                            <a href="{{ route('web.guest.register') }}"
+                               class="px-5 py-2.5 rounded-xl font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 text-sm text-center">
+                                Register Free
+                            </a>
+                            <a href="{{ route('web.guest.login') }}"
+                               class="px-5 py-2.5 rounded-xl font-semibold border border-indigo-300 text-indigo-700 hover:bg-indigo-50 text-sm text-center">
+                                Login
+                            </a>
+                        </div>
+                    </div>
+                    @endauth
                 </div>
             </div>
 
