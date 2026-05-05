@@ -68,28 +68,64 @@ class GuestsController extends Controller
         return $array;
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
-        $count    = User::ByRole(5)->ByChurch(Auth::user()->church_id)->ByStatus('active')->ByMembershipType('guest')->count();
-        $alphabet = request('alphabet') ? request('alphabet') : '';
-        $query    = \Request::getQueryString();
-        if (request('date_of_birth') != null) {
-            $type = 'date_of_birth';
-        }
-        if (request('marriage_status') != null) {
-            $type = 'marriage_status';
-        }
-        if (request('location') != null) {
-            $type = 'location';
-        }
+        $alphabet   = $request->input('alphabet', '');
+        $firstname  = $request->input('firstname', '');
+        $lastname   = $request->input('lastname', '');
+        $gender     = $request->input('gender', '');
+        $minAge     = $request->input('min_age', '');
+        $maxAge     = $request->input('max_age', '');
+        $profession = $request->input('profession', '');
+        $mobile     = $request->input('mobile_no', '');
+        $email      = $request->input('email', '');
+        $location   = $request->input('location', '');
+        $dob        = $request->input('date_of_birth', '');
 
-        return view('/admin/guest/index', ['alphabet' => $alphabet, 'query' => $query, 'count' => $count, 'type' => $type]);
+        $query = User::ByRole(5)
+                     ->ByChurch(Auth::user()->church_id)
+                     ->ByMembershipType('guest')
+                     ->whereHas('userprofile', fn($q) => $q->whereIn('status', ['active', 'inactive']));
+
+        if ($alphabet)   $query->ByFirstName($alphabet);
+        if ($firstname)  $query->ByFirstName($firstname);
+        if ($lastname)   $query->ByLastName($lastname);
+        if ($gender)     $query->ByGender($gender);
+        if ($minAge || $maxAge) {
+            $year = (int) date('Y');
+            $query->ByAge(
+                $minAge ? $year - (int)$minAge : $year,
+                $maxAge ? $year - (int)$maxAge : 1900
+            );
+        }
+        if ($dob)        $query->ByDateOfBirth($dob);
+        if ($profession) $query->ByProfession($profession);
+        if ($mobile)     $query->ByMobile_no($mobile);
+        if ($email)      $query->ByEmail_id($email);
+        if ($location)   $query->ByLocation($location);
+
+        $guests = $query->with('userprofile')
+                        ->orderBy('created_at', 'desc')
+                        ->paginate(24)
+                        ->withQueryString();
+
+        $count = $guests->total();
+
+        $occupations = Userprofile::where('church_id', Auth::user()->church_id)
+                        ->whereNotNull('profession')
+                        ->where('profession', '!=', '')
+                        ->distinct()
+                        ->pluck('profession')
+                        ->sort()
+                        ->values();
+
+        return view('admin.guest.index', compact(
+            'guests', 'count', 'alphabet',
+            'firstname', 'lastname', 'gender',
+            'minAge', 'maxAge', 'dob', 'profession',
+            'mobile', 'email', 'location',
+            'occupations'
+        ));
     }
 
     public function updateStatus(Request $request, $name)

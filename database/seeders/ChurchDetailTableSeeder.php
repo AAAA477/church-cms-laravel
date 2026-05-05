@@ -204,6 +204,30 @@ class ChurchDetailTableSeeder extends Seeder
 				'updated_at'    => date("Y-m-d H:i:s"),
 			]);
 
+			DB::table('church_details')->Insert([
+				'church_id'     => $church->id,
+				'meta_key'      => 'member_web_login',
+				'meta_value'    => '1',
+				'created_at'    => date("Y-m-d H:i:s"),
+				'updated_at'    => date("Y-m-d H:i:s"),
+			]);
+
+			DB::table('church_details')->Insert([
+				'church_id'     => $church->id,
+				'meta_key'      => 'guest_login',
+				'meta_value'    => '1',
+				'created_at'    => date("Y-m-d H:i:s"),
+				'updated_at'    => date("Y-m-d H:i:s"),
+			]);
+
+			DB::table('church_details')->Insert([
+				'church_id'     => $church->id,
+				'meta_key'      => 'guest_registration',
+				'meta_value'    => '1',
+				'created_at'    => date("Y-m-d H:i:s"),
+				'updated_at'    => date("Y-m-d H:i:s"),
+			]);
+
             DB::table('church_details')->Insert([
                 'church_id'     => $church->id,
                 'meta_key'      => 'facebook_title',

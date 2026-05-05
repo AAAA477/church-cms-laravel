@@ -183,11 +183,6 @@ class Church extends Model
         return $this->hasMany('App\Models\Attendance','church_id','id');
     }
 
-    public function videoConference()
-    {
-        return $this->hasMany('App\Models\VideoConference','church_id','id');
-    }
-
     public function churchDetail()
     {
         return $this->hasOne('App\Models\ChurchDetail','church_id','id');

@@ -78,10 +78,6 @@ defined('LOGNAME_DOWNLOAD_SAMPLE_FORMAT') or define('LOGNAME_DOWNLOAD_SAMPLE_FOR
 defined('LOGNAME_ADD_AUDIO') or define('LOGNAME_ADD_AUDIO','add_audio');
 defined('LOGNAME_DELETE_AUDIO') or define('LOGNAME_DELETE_AUDIO','delete_audio');
 
-//video
-defined('LOGNAME_ADD_VIDEO') or define('LOGNAME_ADD_VIDEO','add_video');
-defined('LOGNAME_DELETE_VIDEO') or define('LOGNAME_DELETE_VIDEO','delete_video');
-
 //fund
 defined('LOGNAME_ADD_FUND') or define('LOGNAME_ADD_FUND','add_fund');
 defined('LOGNAME_EDIT_FUND') or define('LOGNAME_EDIT_FUND','edit_fund');

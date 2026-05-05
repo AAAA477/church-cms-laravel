@@ -62,6 +62,7 @@ class Events extends Model
         'days_of_week', 'duration_minutes',
         'location', 'category', 'organised_by', 'image', 'start_date', 'end_date', 'allDay',
         'created_by', 'updated_by', 'publish_to_web', 'enable_gallery', 'enable_attendance',
+        'attendance_scope', 'attendance_group_id',
     ];
 
     protected $casts = [

@@ -3,6 +3,7 @@ namespace App\Traits;
 
 use App\Models\ChurchDetail;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Log;
 
 /**
@@ -30,11 +31,25 @@ trait SettingProcess
      */
     public function updatesettings(string $key, string $value): ?object {
         try {
-            $setting = ChurchDetail::where('meta_key', $key)->first();
-            $setting->meta_value = $value;
-            $setting->save();
+            $churchId = Auth::user()?->church_id;
 
-            return $setting;
+            if ($churchId) {
+                return ChurchDetail::updateOrCreate(
+                    ['church_id' => $churchId, 'meta_key' => $key],
+                    ['meta_value' => $value]
+                );
+            }
+
+            $setting = ChurchDetail::where('meta_key', $key)->first();
+
+            if ($setting) {
+                $setting->meta_value = $value;
+                $setting->save();
+
+                return $setting;
+            }
+
+            return null;
         } catch (Exception $e) {
             Log::info($e->getMessage());
             return null;

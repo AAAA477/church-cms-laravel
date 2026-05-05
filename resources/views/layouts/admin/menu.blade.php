@@ -70,14 +70,7 @@
     </li>
     @endif
 
-    @if($isAdmin || $user->hasPermission('read-attendance'))
-    <li class="py-2 px-3 {{ Request::segment('2') == 'attendance' ? 'active' : '' }}">
-        <a href="{{ url('admin/events') }}" class="flex items-center">
-            <i class="fas fa-qrcode w-5 text-center text-sm opacity-75"></i>
-            <span class="mx-3 whitespace-no-wrap">Attendance</span>
-        </a>
-    </li>
-    @endif
+
 
     {{-- ── Ministry Content ─────────────────────────────────────────────── --}}
     @if($isAdmin || $user->hasPermission('read-sermons'))
@@ -144,14 +137,6 @@
     </li>
     @endif
 
-    @if($isAdmin || $user->hasPermission('read-video-conferences'))
-    <li class="py-2 px-3 {{ Request::segment('2') == 'video-conference' ? 'active' : '' }}">
-        <a href="{{ url('/admin/video-conference') }}" class="flex items-center">
-            <i class="fas fa-video w-5 text-center text-sm opacity-75"></i>
-            <span class="mx-3 whitespace-no-wrap">Video Chat Room</span>
-        </a>
-    </li>
-    @endif
 
     @if($isAdmin || $user->hasPermission('read-members'))
     <li class="py-2 px-3 {{ in_array(Request::segment('2'), ['messages','message']) ? 'active' : '' }}">

@@ -141,7 +141,7 @@
     var CSRF      = document.querySelector('meta[name="csrf-token"]').content;
     var MARK_URL  = '{{ route('admin.attendance.mark', $session->id) }}';
     var SEARCH_URL = '{{ route('admin.attendance.search', $session->id) }}';
-    var REMOVE_URL = '{{ url('/admin/attendance/session/' . $session->id . '/attendee') }}';
+    var REMOVE_URL = '{{ url('/admin/events/attendance/session/' . $session->id . '/attendee') }}';
     var locked    = {{ $locked ? 'true' : 'false' }};
 
     // ── Tab switching ────────────────────────────────────────────────────
