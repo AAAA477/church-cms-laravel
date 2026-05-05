@@ -155,9 +155,22 @@
 
                 <div>
                     <label class="tw-form-label">Start Time <span class="text-red-500">*</span></label>
-                    <input type="time" name="start_time" id="start_time"
-                           value="{{ old('start_time', $startTime) }}"
-                           class="tw-form-control w-full @error('start_time') border-red-400 @enderror">
+                    @php $oldTime = old('start_time', $startTime); @endphp
+                    <select name="start_time" id="start_time"
+                            class="tw-form-control w-full @error('start_time') border-red-400 @enderror">
+                        @for($i = 0; $i < 96; $i++)
+                        @php
+                            $h24  = intdiv($i * 15, 60);
+                            $m    = ($i * 15) % 60;
+                            $val  = sprintf('%02d:%02d', $h24, $m);
+                            $h12  = $h24 % 12 ?: 12;
+                            $ampm = $h24 < 12 ? 'AM' : 'PM';
+                        @endphp
+                        <option value="{{ $val }}" {{ $oldTime === $val ? 'selected' : '' }}>
+                            {{ sprintf('%d:%02d %s', $h12, $m, $ampm) }}
+                        </option>
+                        @endfor
+                    </select>
                     @error('start_time')<p class="tw-form-error">{{ $message }}</p>@enderror
                 </div>
 

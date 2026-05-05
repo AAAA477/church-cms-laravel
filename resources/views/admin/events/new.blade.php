@@ -25,13 +25,14 @@
                     @foreach(['private' => ['label' => 'Private', 'icon' => 'fa-lock', 'desc' => 'Members only'],
                                'public'  => ['label' => 'Public',  'icon' => 'fa-globe', 'desc' => 'Open to all'],
                                'online'  => ['label' => 'Online',  'icon' => 'fa-video', 'desc' => 'Virtual event']] as $val => $opt)
-                    <label class="event-type-pill flex-1 min-w-[140px] cursor-pointer border-2 rounded-lg px-4 py-3 flex items-center gap-3 transition
-                        {{ old('select_type') === $val ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-gray-300' }}">
+                    @php $selType = old('select_type', 'public') === $val; @endphp
+                    <label class="ev-pill flex-1 min-w-[140px] cursor-pointer border-2 rounded-lg px-4 py-3 flex items-center gap-3 transition select-none
+                        {{ $selType ? 'border-blue-600 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50' }}">
                         <input type="radio" name="select_type" value="{{ $val }}" class="sr-only"
-                            {{ old('select_type', 'public') === $val ? 'checked' : '' }}>
-                        <i class="fas {{ $opt['icon'] }} text-gray-400 w-4"></i>
+                            {{ $selType ? 'checked' : '' }}>
+                        <i class="fas {{ $opt['icon'] }} w-4 {{ $selType ? 'text-blue-500' : 'text-gray-400' }}"></i>
                         <div>
-                            <p class="text-sm font-medium text-gray-800">{{ $opt['label'] }}</p>
+                            <p class="text-sm font-semibold {{ $selType ? 'text-blue-700' : 'text-gray-800' }}">{{ $opt['label'] }}</p>
                             <p class="text-xs text-gray-400">{{ $opt['desc'] }}</p>
                         </div>
                     </label>
@@ -50,13 +51,14 @@
                 <div class="flex gap-3 flex-wrap" id="schedule-type-group">
                     @foreach(['0' => ['label' => 'One-Time Event', 'icon' => 'fa-calendar-check', 'desc' => 'Happens once'],
                                '1' => ['label' => 'Recurring Event', 'icon' => 'fa-rotate', 'desc' => 'Repeats on a schedule']] as $val => $opt)
-                    <label class="schedule-pill flex-1 min-w-[180px] cursor-pointer border-2 rounded-lg px-4 py-3 flex items-center gap-3 transition
-                        {{ old('schedule') === $val ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-gray-300' }}">
+                    @php $selSched = old('schedule', '0') === $val; @endphp
+                    <label class="ev-pill flex-1 min-w-[180px] cursor-pointer border-2 rounded-lg px-4 py-3 flex items-center gap-3 transition select-none
+                        {{ $selSched ? 'border-blue-600 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50' }}">
                         <input type="radio" name="schedule" value="{{ $val }}" class="sr-only"
-                            {{ old('schedule', '0') === $val ? 'checked' : '' }}>
-                        <i class="fas {{ $opt['icon'] }} text-gray-400 w-4"></i>
+                            {{ $selSched ? 'checked' : '' }}>
+                        <i class="fas {{ $opt['icon'] }} w-4 {{ $selSched ? 'text-blue-500' : 'text-gray-400' }}"></i>
                         <div>
-                            <p class="text-sm font-medium text-gray-800">{{ $opt['label'] }}</p>
+                            <p class="text-sm font-semibold {{ $selSched ? 'text-blue-700' : 'text-gray-800' }}">{{ $opt['label'] }}</p>
                             <p class="text-xs text-gray-400">{{ $opt['desc'] }}</p>
                         </div>
                     </label>
@@ -141,9 +143,24 @@
 
                 <div>
                     <label class="tw-form-label">Start Time <span class="text-red-500">*</span></label>
-                    <input type="time" name="start_time" id="start_time"
-                           value="{{ old('start_time', '09:00') }}"
-                           class="tw-form-control w-full @error('start_time') border-red-400 @enderror">
+                    @php
+                        $oldTime = old('start_time', '09:00');
+                    @endphp
+                    <select name="start_time" id="start_time"
+                            class="tw-form-control w-full @error('start_time') border-red-400 @enderror">
+                        @for($i = 0; $i < 96; $i++)
+                        @php
+                            $h24  = intdiv($i * 15, 60);
+                            $m    = ($i * 15) % 60;
+                            $val  = sprintf('%02d:%02d', $h24, $m);
+                            $h12  = $h24 % 12 ?: 12;
+                            $ampm = $h24 < 12 ? 'AM' : 'PM';
+                        @endphp
+                        <option value="{{ $val }}" {{ $oldTime === $val ? 'selected' : '' }}>
+                            {{ sprintf('%d:%02d %s', $h12, $m, $ampm) }}
+                        </option>
+                        @endfor
+                    </select>
                     @error('start_time')<p class="tw-form-error">{{ $message }}</p>@enderror
                 </div>
 
@@ -355,28 +372,53 @@
 (function () {
     // ── Pill selection highlight ─────────────────────────────────────────
     function setupPillGroup(groupId) {
-        const group = document.getElementById(groupId);
+        var group = document.getElementById(groupId);
         if (!group) return;
-        group.addEventListener('change', function (e) {
-            group.querySelectorAll('label').forEach(function (lbl) {
-                lbl.classList.remove('border-blue-600', 'bg-blue-50');
-                lbl.classList.add('border-gray-200');
+
+        function activatePill(activeLbl) {
+            group.querySelectorAll('label.ev-pill').forEach(function (lbl) {
+                var on = lbl === activeLbl;
+                // Border + background
+                lbl.classList.toggle('border-blue-600', on);
+                lbl.classList.toggle('bg-blue-50', on);
+                lbl.classList.toggle('border-gray-200', !on);
+                lbl.classList.toggle('bg-white', !on);
+                // Suppress hover classes on selected pill so blue stays solid
+                lbl.classList.toggle('hover:border-blue-300', !on);
+                lbl.classList.toggle('hover:bg-blue-50', !on);
+                // Icon colour
+                var icon = lbl.querySelector('i.fas');
+                if (icon) {
+                    icon.classList.toggle('text-blue-500', on);
+                    icon.classList.toggle('text-gray-400', !on);
+                }
+                // Title colour
+                var title = lbl.querySelector('p:first-of-type');
+                if (title) {
+                    title.classList.toggle('text-blue-700', on);
+                    title.classList.toggle('text-gray-800', !on);
+                }
             });
-            if (e.target.checked) {
-                e.target.closest('label').classList.add('border-blue-600', 'bg-blue-50');
-                e.target.closest('label').classList.remove('border-gray-200');
+        }
+
+        group.addEventListener('change', function (e) {
+            if (e.target.type === 'radio' && e.target.checked) {
+                activatePill(e.target.closest('label'));
             }
         });
-        // Highlight the pre-selected pill on load
-        group.querySelectorAll('input[type=radio]').forEach(function (radio) {
-            if (radio.checked) {
-                radio.closest('label').classList.add('border-blue-600', 'bg-blue-50');
-                radio.closest('label').classList.remove('border-gray-200');
-            }
-        });
+
+        // Sync initial state from checked radio
+        var checked = group.querySelector('input[type=radio]:checked');
+        if (checked) activatePill(checked.closest('label'));
     }
     setupPillGroup('event-type-group');
     setupPillGroup('schedule-type-group');
+
+    // Declare shared DOM refs before any function that references them
+    var dateInput     = document.getElementById('event_date');
+    var timeInput     = document.getElementById('start_time');
+    var durationInput = document.getElementById('duration');
+    var preview       = document.getElementById('end-time-preview');
 
     // ── Show/hide recurring section ──────────────────────────────────────
     const scheduleGroup  = document.getElementById('schedule-type-group');
@@ -459,11 +501,6 @@
     });
 
     // ── End-time preview ─────────────────────────────────────────────────
-    const dateInput     = document.getElementById('event_date');
-    const timeInput     = document.getElementById('start_time');
-    const durationInput = document.getElementById('duration');
-    const preview       = document.getElementById('end-time-preview');
-
     function updateEndPreview() {
         const date     = dateInput ? dateInput.value : '';
         const time     = timeInput ? timeInput.value : '';

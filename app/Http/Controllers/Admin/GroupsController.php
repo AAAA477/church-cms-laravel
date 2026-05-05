@@ -48,19 +48,19 @@ class GroupsController extends Controller
      */
     public function index(Request $request)
     {
-        //
-        $groups = Group::where('church_id',Auth::user()->church_id);
-        if(\Request::getQueryString() != null)
-        {
-            if($request->search != null)
-            {
-                $groups = $groups->where('name','LIKE','%'.$request->search.'%')->orWhere('description','LIKE','%'.$request->search.'%');
-            }
-        }
-        $groups = $groups->get();
-       
+        $query = Group::where('church_id', Auth::user()->church_id);
 
-        return view('/admin/groups/index',['groups' => $groups ]);
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'LIKE', '%' . $request->search . '%')
+                  ->orWhere('description', 'LIKE', '%' . $request->search . '%');
+            });
+        }
+
+        $groups = $query->paginate(15)->withQueryString();
+        $count  = $groups->total();
+
+        return view('admin.groups.index', compact('groups', 'count'));
     }
 
     public function getData()

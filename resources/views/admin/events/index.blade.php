@@ -43,7 +43,7 @@
     <div id="view-table">
 
         {{-- Filter row --}}
-        <div class="flex items-center gap-2 mb-4 border-b border-gray-100 pb-3">
+        <div class="flex flex-wrap items-center gap-2 mb-4 border-b border-gray-100 pb-3">
             @foreach(['all' => 'All Events', 'upcoming' => 'Upcoming', 'completed' => 'Completed'] as $key => $label)
             <a href="{{ request()->fullUrlWithQuery(['filter' => $key, 'page' => 1]) }}"
                class="text-sm px-3 py-1.5 rounded-full border transition
@@ -53,6 +53,17 @@
                 {{ $label }}
             </a>
             @endforeach
+
+            {{-- Category filter --}}
+            <div class="ml-auto">
+                <select id="category-filter"
+                        class="text-sm border border-gray-200 rounded-full px-3 py-1.5 text-gray-600 bg-white focus:outline-none focus:border-blue-400 transition cursor-pointer">
+                    <option value="">All Categories</option>
+                    @foreach(['Culturals' => 'Culturals', 'Education' => 'Education', 'Meeting' => 'Meeting', 'prayer' => 'Prayer', 'sermon' => 'Sermon'] as $val => $lbl)
+                    <option value="{{ $val }}" {{ $category === $val ? 'selected' : '' }}>{{ $lbl }}</option>
+                    @endforeach
+                </select>
+            </div>
         </div>
 
         @if($events->isEmpty())
@@ -179,6 +190,21 @@
 @push('scripts')
 <script>
 (function () {
+    // ── Category filter ──────────────────────────────────────────────────
+    var catFilter = document.getElementById('category-filter');
+    if (catFilter) {
+        catFilter.addEventListener('change', function () {
+            var url = new URL(window.location.href);
+            if (catFilter.value) {
+                url.searchParams.set('category', catFilter.value);
+            } else {
+                url.searchParams.delete('category');
+            }
+            url.searchParams.set('page', '1');
+            window.location.href = url.toString();
+        });
+    }
+
     // ── View toggle ──────────────────────────────────────────────────────
     var tableBtn   = document.getElementById('view-table-btn');
     var calBtn     = document.getElementById('view-calendar-btn');

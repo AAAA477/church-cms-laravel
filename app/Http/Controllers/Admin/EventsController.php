@@ -54,8 +54,9 @@ class EventsController extends Controller
 
     public function index()
     {
-        $filter = request('filter', 'all');
-        $now    = now();
+        $filter   = request('filter', 'all');
+        $category = request('category', '');
+        $now      = now();
 
         $query = Events::where('church_id', Auth::user()->church_id);
 
@@ -67,10 +68,14 @@ class EventsController extends Controller
             $query->orderBy('start_date', 'asc');
         }
 
+        if ($category !== '') {
+            $query->where('category', $category);
+        }
+
         $events = $query->paginate(15)->withQueryString();
         $count  = $events->total();
 
-        return view('admin.events.index', compact('events', 'count', 'filter'));
+        return view('admin.events.index', compact('events', 'count', 'filter', 'category'));
     }
 
     public function editForm($id)
@@ -234,6 +239,19 @@ class EventsController extends Controller
             $event->enable_gallery    = $request->boolean('enable_gallery', true);
             $event->enable_attendance = $request->boolean('enable_attendance', false);
             $event->created_by        = Auth::id();
+
+            if ($request->cover_image_id && str_starts_with($request->cover_image_id, 'media_')) {
+                $mediaId    = str_replace('media_', '', $request->cover_image_id);
+                $mediaImage = \App\Models\MediaFile::where([
+                    ['id', $mediaId],
+                    ['church_id', Auth::user()->church_id],
+                    ['media_type', 'image'],
+                ])->first();
+                if ($mediaImage) $event->image = $mediaImage->url;
+            } elseif ($request->cover_image_path) {
+                $event->image = $request->cover_image_path;
+            }
+
             $event->save();
 
             $reminderDate = date('Y-m-d', strtotime('-2 days', strtotime($event->start_date)));
