@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,15 +30,15 @@ Route::post('/guest/login','Api\Guest\LoginController@login');
 Route::get('/apk/church','Api\ApkController@index');
 
 Route::group([
-	'prefix' => 'v2', 
+	'prefix' => 'v2',
 	'namespace' =>'Api\Guest' ,
 	//'middleware'=>['auth:sanctum']
-	], 
+	],
 	function() {
 
 	//events
 	Route::get('/events/{church_id}', 'EventsController@index');
-	
+
 	Route::get('/event/show/{church_id}/{id}', 'EventsController@show');
 
 	//events

@@ -56,12 +56,26 @@ class MediaFilesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $files = MediaFile::where('church_id',Auth::user()->church_id)->get();
-        $count = $files->count();
+        $type   = in_array($request->input('type'), ['audio', 'video', 'image'])
+                    ? $request->input('type') : 'image';
+        $search = $request->input('search', '');
 
-        return view('/admin/mediafiles/index',['files' => $files , 'count' => $count ]);
+        $query = MediaFile::where('church_id', Auth::user()->church_id)
+                    ->where('media_type', $type);
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('description', 'LIKE', "%{$search}%");
+            });
+        }
+
+        $files = $query->orderBy('created_at', 'desc')->paginate(24)->withQueryString();
+        $count = $files->total();
+
+        return view('admin.mediafiles.index', compact('files', 'count', 'type', 'search'));
     }
 
     /**

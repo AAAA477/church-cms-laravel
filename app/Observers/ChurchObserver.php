@@ -19,7 +19,7 @@ class ChurchObserver
     {
         //
         try {
-            $keys = ['church_logo', 'short_summary', 'long_summary', 'quotes', 'phone', 'email', 'address', 'latitude', 'longitude', 'website', 'facebook', 'twitter', 'instagram', 'site_title', 'site_description', 'site_keyword', 'favicon','maintenance','register_status','login_status','facebook_title','facebook_description','facebook_url','facebook_image','twitter_title','twitter_description','twitter_image','twitter_url'];
+            $keys = ['church_logo', 'short_summary', 'long_summary', 'quotes', 'phone', 'email', 'address', 'latitude', 'longitude', 'website', 'facebook', 'twitter', 'instagram', 'site_title', 'site_description', 'site_keyword', 'favicon','maintenance','register_status','login_status','member_web_login','guest_login','guest_registration','facebook_title','facebook_description','facebook_url','facebook_image','twitter_title','twitter_description','twitter_image','twitter_url'];
 
             foreach ($keys as $key) {
                 $detail = ChurchDetail::create([

@@ -101,8 +101,11 @@ class EventsController extends Controller
         }
         $seriesEndDate = $event->repeats == 1 ? date('Y-m-d', strtotime($event->end_date)) : null;
 
+        $groups = \App\Models\Group::where('church_id', Auth::user()->church_id)
+            ->orderBy('name')->get();
+
         return view('admin.events.edit', compact(
-            'event', 'categories', 'eventDate', 'startTime', 'durationMinutes', 'seriesEndDate'
+            'event', 'categories', 'eventDate', 'startTime', 'durationMinutes', 'seriesEndDate', 'groups'
         ));
     }
 
@@ -158,9 +161,12 @@ class EventsController extends Controller
             $event->organised_by      = $request->organised_by;
             $event->start_date        = $startDateTime;
             $event->end_date          = $endDateTime;
-            $event->publish_to_web    = $request->boolean('publish_to_web', false);
-            $event->enable_gallery    = $request->boolean('enable_gallery', false);
-            $event->enable_attendance = $request->boolean('enable_attendance', false);
+            $event->publish_to_web       = $request->boolean('publish_to_web', false);
+            $event->enable_gallery       = $request->boolean('enable_gallery', false);
+            $event->enable_attendance    = $request->boolean('enable_attendance', false);
+            $event->attendance_scope     = $event->enable_attendance ? ($request->input('attendance_scope', 'all')) : 'all';
+            $event->attendance_group_id  = ($event->enable_attendance && $event->attendance_scope === 'group')
+                                            ? $request->input('attendance_group_id') : null;
 
             if ($request->cover_image_id && str_starts_with($request->cover_image_id, 'media_')) {
                 $mediaId    = str_replace('media_', '', $request->cover_image_id);
@@ -202,7 +208,10 @@ class EventsController extends Controller
             'sermon'     => 'Sermon',
         ];
 
-        return view('admin.events.new', compact('categories'));
+        $groups = \App\Models\Group::where('church_id', Auth::user()->church_id)
+            ->orderBy('name')->get();
+
+        return view('admin.events.new', compact('categories', 'groups'));
     }
 
     public function storeNew(EventCreateRequest $request)
@@ -237,8 +246,11 @@ class EventsController extends Controller
             $event->end_date          = $endDateTime;
             $event->publish_to_web    = $request->boolean('publish_to_web', true);
             $event->enable_gallery    = $request->boolean('enable_gallery', true);
-            $event->enable_attendance = $request->boolean('enable_attendance', false);
-            $event->created_by        = Auth::id();
+            $event->enable_attendance    = $request->boolean('enable_attendance', false);
+            $event->attendance_scope     = $event->enable_attendance ? ($request->input('attendance_scope', 'all')) : 'all';
+            $event->attendance_group_id  = ($event->enable_attendance && $event->attendance_scope === 'group')
+                                            ? $request->input('attendance_group_id') : null;
+            $event->created_by           = Auth::id();
 
             if ($request->cover_image_id && str_starts_with($request->cover_image_id, 'media_')) {
                 $mediaId    = str_replace('media_', '', $request->cover_image_id);

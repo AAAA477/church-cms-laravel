@@ -60,12 +60,6 @@ Auth::routes();
 
 //Route::get('/checksms', 'ContactController@checksms');
 
-/*video-chat room*/
-Route::view('/video-chat-grid', 'pages.video.grid');
-Route::view('/video-chat-collaboration', 'pages.video.collaboration');
-Route::view('/video-chat-tile', 'pages.video.tile');
-Route::view('/video-chat-presentation', 'pages.video.presentation');
-
 
 //admin
 Route::group(['prefix' => 'nova-api', 'middleware' => ['auth','nova'] ], function() {

@@ -233,7 +233,7 @@ class EventAttendanceController extends Controller
 
         $checkedInIds = EventAttendee::where('session_id', $session_id)->pluck('user_id');
 
-        $members = User::where('church_id', $session->church_id)
+        $membersQuery = User::where('church_id', $session->church_id)
             ->where('usergroup_id', 5)
             ->where(function ($query) use ($q) {
                 $query->where('name', 'LIKE', "%{$q}%")
@@ -241,8 +241,17 @@ class EventAttendanceController extends Controller
                         $q2->where('firstname', 'LIKE', "%{$q}%")
                            ->orWhere('lastname',  'LIKE', "%{$q}%");
                     });
-            })
-            ->with('userprofile')
+            });
+
+        // Restrict to group members if event has a specific group scope
+        $event = $session->event;
+        if ($event && $event->attendance_scope === 'group' && $event->attendance_group_id) {
+            $groupUserIds = \App\Models\GroupLink::where('group_id', $event->attendance_group_id)
+                ->pluck('user_id');
+            $membersQuery->whereIn('id', $groupUserIds);
+        }
+
+        $members = $membersQuery->with('userprofile')
             ->take(10)
             ->get()
             ->map(function ($u) use ($checkedInIds) {

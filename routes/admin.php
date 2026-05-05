@@ -321,30 +321,6 @@ use Illuminate\Support\Facades\Route;
         Route::get('/ajax/cities',           'CityController@ajaxByState');
     });
 
-    // Video Conference
-    Route::group(['middleware' => ['permission:read-video-conferences']], function () {
-        Route::get('/video-conference',                     'VideoConferencesController@index');
-        Route::get('/video-conference/list',                'VideoConferencesController@list');
-        Route::get('/video-conference/{slug}',              'VideoConferencesController@show');
-        Route::get('/video-conference/editList/{id}',       'VideoConferencesController@editList');
-        Route::get('/video-conference/recordings/{id}',     'VideoConferencesController@recordings');
-        Route::get('/video-conference/manage-invites/{id}', 'VideoConferencesController@invites');
-    });
-
-    Route::group(['middleware' => ['permission:create-video-conferences']], function () {
-        Route::get('/video-conference/create',              'VideoConferencesController@create');
-        Route::post('/video-conference/save',               'VideoConferencesController@store');
-        Route::get('/video-conference/edit/{id}',           'VideoConferencesController@edit');
-        Route::post('/video-conference/edit/{id}',          'VideoConferencesController@update');
-        Route::post('/video-conference/status/{id}',        'VideoConferencesController@statusUpdate');
-        Route::get('/video-conference/add-invites/{id}',    'VideoConferencesController@addinvites');
-        Route::post('/video-conference/save-invites/{id}',  'VideoConferencesController@saveinvites');
-    });
-
-    Route::group(['middleware' => ['permission:delete-video-conferences']], function () {
-        Route::delete('/video-conference/remove/{id}',      'VideoConferencesController@remove');
-        Route::delete('/video-conference/remove-users/{id}','VideoConferencesController@removeUsers');
-    });
 
     //widgets (cms)
     Route::group(['middleware' => ['permission:manage-cms']], function() {
@@ -871,20 +847,20 @@ use Illuminate\Support\Facades\Route;
 
     //attendance (QR-based check-in)
     Route::group(['middleware' => ['permission:read-attendance']], function() {
-        Route::get('/event/{event_id}/attendance-sessions',         'EventAttendanceController@sessions')->name('admin.attendance.sessions');
-        Route::get('/attendance/session/{id}',                      'EventAttendanceController@showSession')->name('admin.attendance.session');
-        Route::get('/attendance/session/{id}/export',               'EventAttendanceController@export')->name('admin.attendance.export');
+        Route::get('/event/{event_id}/attendance-sessions',                'EventAttendanceController@sessions')->name('admin.attendance.sessions');
+        Route::get('/events/attendance/session/{id}',                      'EventAttendanceController@showSession')->name('admin.attendance.session');
+        Route::get('/events/attendance/session/{id}/export',               'EventAttendanceController@export')->name('admin.attendance.export');
     });
     Route::group(['middleware' => ['permission:create-attendance']], function() {
-        Route::post('/event/{event_id}/attendance-sessions/open',   'EventAttendanceController@openSession')->name('admin.attendance.open');
-        Route::get('/attendance/session/{id}/checkin',              'EventAttendanceController@checkin')->name('admin.attendance.checkin');
-        Route::get('/attendance/session/{id}/search',               'EventAttendanceController@searchMember')->name('admin.attendance.search');
-        Route::post('/attendance/session/{id}/checkin',             'EventAttendanceController@markAttendee')->name('admin.attendance.mark');
-        Route::delete('/attendance/session/{id}/attendee/{uid}',    'EventAttendanceController@removeAttendee')->name('admin.attendance.remove');
+        Route::post('/event/{event_id}/attendance-sessions/open',          'EventAttendanceController@openSession')->name('admin.attendance.open');
+        Route::get('/events/attendance/session/{id}/checkin',              'EventAttendanceController@checkin')->name('admin.attendance.checkin');
+        Route::get('/events/attendance/session/{id}/search',               'EventAttendanceController@searchMember')->name('admin.attendance.search');
+        Route::post('/events/attendance/session/{id}/checkin',             'EventAttendanceController@markAttendee')->name('admin.attendance.mark');
+        Route::delete('/events/attendance/session/{id}/attendee/{uid}',    'EventAttendanceController@removeAttendee')->name('admin.attendance.remove');
     });
     Route::group(['middleware' => ['permission:update-attendance']], function() {
-        Route::post('/attendance/session/{id}/lock',                'EventAttendanceController@lock')->name('admin.attendance.lock');
-        Route::post('/attendance/session/{id}/unlock',              'EventAttendanceController@unlock')->name('admin.attendance.unlock');
+        Route::post('/events/attendance/session/{id}/lock',                'EventAttendanceController@lock')->name('admin.attendance.lock');
+        Route::post('/events/attendance/session/{id}/unlock',              'EventAttendanceController@unlock')->name('admin.attendance.unlock');
         Route::get('/event/{event_id}/managers',                    'EventAttendanceController@manageManagers')->name('admin.event.managers');
         Route::post('/event/{event_id}/managers',                   'EventAttendanceController@storeManager')->name('admin.event.managers.store');
         Route::delete('/event/{event_id}/managers/{uid}',           'EventAttendanceController@removeManager')->name('admin.event.managers.remove');

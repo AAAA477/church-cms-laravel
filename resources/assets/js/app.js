@@ -116,11 +116,6 @@ Vue.component('guest-send-message', require('./components/guest/sendMessage.vue'
 Vue.component('exit-guest', require('./components/guest/Exit.vue').default);
 Vue.component('family-tree', require('./components/guest/profile/familytree.vue').default);
 
-//Video Conference
-Vue.component('create-video-room', require('./components/videoconference/Create.vue').default);
-Vue.component('edit-video-room', require('./components/videoconference/Edit.vue').default);
-Vue.component('add-invitee', require('./components/videoconference/addInvitee.vue').default);
-
 //Bulletin
 Vue.component('bulletin-tab', require('./components/bulletin/listTab.vue').default);
 Vue.component('create-bulletin', require('./components/bulletin/Create.vue').default);

@@ -170,7 +170,6 @@ return [
          //MaddHatter\LaravelFullcalendar\ServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
         Laratrust\LaratrustServiceProvider::class,
-         App\Conference\ConferenceServiceProvider::class,
         Barryvdh\DomPDF\ServiceProvider::class,
         App\Providers\RepositoryServiceProvider::class,
         L5Swagger\L5SwaggerServiceProvider::class,
@@ -227,7 +226,6 @@ return [
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
         'Laratrust'   => Laratrust\LaratrustFacade::class,
          'Str' => Illuminate\Support\Str::class,
-          'Conference'=> App\Conference\ConferenceFacade::class,
           'PDF' => Barryvdh\DomPDF\Facade::class,
     ],
 

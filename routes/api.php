@@ -4,8 +4,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\Widget;
 
-@include('angularapi.php');
-
 // Public widget endpoint — no auth required
 Route::get('/widget/{uid}', function ($uid) {
     $widget = Widget::where('slug', $uid)->first();
@@ -188,12 +186,6 @@ Route::group([
 	//groups
 
 	Route::get('/groups/list' , 'GroupsController@index');
-
-    //video conference
-
-    Route::get('/video-conference','VideoConferencesController@index');
-
-    Route::get('/video-conference/{slug}/{user_id}','VideoConferencesController@show');
 
     //messages
 

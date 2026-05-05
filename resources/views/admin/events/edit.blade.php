@@ -335,6 +335,40 @@
                 </label>
                 @endforeach
             </div>
+
+            {{-- Attendance scope (shown when Attendance Tracking is on) --}}
+            @php
+                $oldScope = old('attendance_scope', $event->attendance_scope ?? 'all');
+                $oldGroup = old('attendance_group_id', $event->attendance_group_id ?? '');
+                $attEnabled = old('enable_attendance') !== null
+                    ? (bool) old('enable_attendance')
+                    : (bool) $event->enable_attendance;
+            @endphp
+            <div id="attendance-scope-panel"
+                 class="{{ $attEnabled ? '' : 'hidden' }} px-6 pb-5 pt-1 border-t border-gray-100">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Who can be checked in?</p>
+                <div class="flex flex-wrap gap-3 mb-3" id="att-scope-group">
+                    @foreach(['all' => ['label' => 'All Members', 'icon' => 'fa-users'], 'group' => ['label' => 'A Group', 'icon' => 'fa-layer-group']] as $val => $opt)
+                    <label class="att-scope-pill cursor-pointer border-2 rounded-lg px-4 py-2.5 flex items-center gap-2.5 transition select-none
+                        {{ $oldScope === $val ? 'border-blue-600 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50' }}">
+                        <input type="radio" name="attendance_scope" value="{{ $val }}" class="sr-only"
+                            {{ $oldScope === $val ? 'checked' : '' }}>
+                        <i class="fas {{ $opt['icon'] }} w-4 {{ $oldScope === $val ? 'text-blue-500' : 'text-gray-400' }}"></i>
+                        <span class="text-sm font-medium {{ $oldScope === $val ? 'text-blue-700' : 'text-gray-700' }}">{{ $opt['label'] }}</span>
+                    </label>
+                    @endforeach
+                </div>
+                <div id="att-group-select" class="{{ $oldScope === 'group' ? '' : 'hidden' }} max-w-xs">
+                    <select name="attendance_group_id" class="tw-form-control w-full text-sm">
+                        <option value="">Select a group…</option>
+                        @foreach($groups as $g)
+                        <option value="{{ $g->id }}" {{ (string)$oldGroup === (string)$g->id ? 'selected' : '' }}>
+                            {{ $g->name }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
         </div>
 
         {{-- Submit --}}
@@ -480,14 +514,44 @@
     updateEndPreview();
 
     // ── Toggle switches ──────────────────────────────────────────────
+    var attScopePanel = document.getElementById('attendance-scope-panel');
+
     document.querySelectorAll('.ev-toggle-input').forEach(function (cb) {
         cb.addEventListener('change', function () {
             var track = cb.closest('.ev-toggle-track');
             var thumb = track ? track.querySelector('.ev-toggle-thumb') : null;
             if (track) track.style.background = cb.checked ? '#2563EB' : '#D1D5DB';
             if (thumb) thumb.style.left = cb.checked ? '23px' : '3px';
+            if (cb.id === 'toggle_attendance' && attScopePanel) {
+                attScopePanel.classList.toggle('hidden', !cb.checked);
+            }
         });
     });
+
+    // ── Attendance scope pills ────────────────────────────────────────
+    var scopeGroup  = document.getElementById('att-scope-group');
+    var groupSelect = document.getElementById('att-group-select');
+
+    if (scopeGroup) {
+        scopeGroup.addEventListener('change', function (e) {
+            if (e.target.type !== 'radio') return;
+            var on = e.target.value === 'group';
+            if (groupSelect) groupSelect.classList.toggle('hidden', !on);
+            scopeGroup.querySelectorAll('label.att-scope-pill').forEach(function (lbl) {
+                var sel = lbl.querySelector('input[type=radio]') === e.target;
+                lbl.classList.toggle('border-blue-600', sel);
+                lbl.classList.toggle('bg-blue-50',      sel);
+                lbl.classList.toggle('border-gray-200', !sel);
+                lbl.classList.toggle('bg-white',        !sel);
+                lbl.classList.toggle('hover:border-blue-300', !sel);
+                lbl.classList.toggle('hover:bg-blue-50',      !sel);
+                var icon = lbl.querySelector('i.fas');
+                if (icon) { icon.classList.toggle('text-blue-500', sel); icon.classList.toggle('text-gray-400', !sel); }
+                var span = lbl.querySelector('span');
+                if (span) { span.classList.toggle('text-blue-700', sel); span.classList.toggle('text-gray-700', !sel); }
+            });
+        });
+    }
 
     // ── Cover image picker ───────────────────────────────────────────
     var modal       = document.getElementById('image-picker-modal');
