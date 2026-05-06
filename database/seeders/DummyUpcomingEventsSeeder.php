@@ -5,7 +5,7 @@ use App\Models\Church;
 use App\Models\User;
 use Carbon\Carbon;
 
-class UpcomingEventsTableSeeder extends Seeder
+class DummyUpcomingEventsSeeder extends Seeder
 {
     /**
      * Run the database seeds.

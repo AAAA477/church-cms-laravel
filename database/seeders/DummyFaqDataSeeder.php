@@ -15,7 +15,7 @@ use Illuminate\Database\Seeder;
  *
  * Run: php artisan db:seed --class=FaqTestDataSeeder
  */
-class FaqTestDataSeeder extends Seeder
+class DummyFaqDataSeeder extends Seeder
 {
     public function run()
     {

@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\DB;
  *
  * Safe to re-run — adds on top of existing data.
  */
-class PrayerBoardTestSeeder extends Seeder
+class DummyPrayerBoardSeeder extends Seeder
 {
     public function run(): void
     {

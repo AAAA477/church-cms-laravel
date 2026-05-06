@@ -3,8 +3,9 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Church;
 use App\Models\User;
+use App\Models\Help;
 
-class PrayerRequestsTableSeeder extends Seeder
+class DummyHelpsSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -15,12 +16,13 @@ class PrayerRequestsTableSeeder extends Seeder
     {
         //
         $churches = Church::where('status',1)->get();
-        foreach ($churches as $church) 
+        foreach ($churches as $church)
         {
             $users = User::where([['church_id',$church->id],['usergroup_id',5]])->pluck('id')->toArray();
-            $user = array_rand($users, 1);
-            
-            factory(App\Models\PrayerRequest::class,2)->create([
+
+            $user = array_rand($users);
+
+            factory(Help::class,2)->create([
                 'church_id'	=> 	$church->id,
                 'user_id'   =>	$user,
                 'status' 	=> 	'approve',

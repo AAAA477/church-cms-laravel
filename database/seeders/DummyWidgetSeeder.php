@@ -8,7 +8,7 @@ use App\Models\Widget;
 use App\Models\Church;
 use App\Models\User;
 
-class WidgetSeeder extends Seeder
+class DummyWidgetSeeder extends Seeder
 {
     public function run()
     {

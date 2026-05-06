@@ -5,6 +5,9 @@ namespace App\Http\Controllers\WebBuilder;
 use App\Http\Controllers\Controller;
 use App\Models\Contact;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ContactMail;
+use App\Models\User;
 
 class ContactController extends Controller
 {
@@ -22,9 +25,11 @@ class ContactController extends Controller
             'query'    => 'required|string|max:3000',
         ]);
 
+
+
         $church = $request->attributes->get('_church');
 
-        Contact::create([
+        $contact = Contact::create([
             'church_id'          => optional($church)->id,
             'fullname'           => $validated['fullname'],
             'email'              => $validated['email'],
@@ -36,6 +41,12 @@ class ContactController extends Controller
                 'user_agent' => $request->userAgent(),
             ]),
         ]);
+
+        $user = User::ByRole(3)->first();
+
+        if (env('MAIL_STATUS') === 'on') {
+            Mail::to($user->email)->send(new ContactMail($contact));
+        }
 
         return redirect()->back()->with('success', 'Thank you for reaching out. We will get back to you soon.');
     }

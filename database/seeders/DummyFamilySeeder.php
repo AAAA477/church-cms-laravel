@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Hash;
  * Run: php artisan db:seed --class=FamilyTestSeeder
  * Safe to re-run – uses firstOrCreate on email / user_id.
  */
-class FamilyTestSeeder extends Seeder
+class DummyFamilySeeder extends Seeder
 {
     public function run()
     {

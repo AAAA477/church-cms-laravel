@@ -7,7 +7,7 @@ use App\Models\Church;
 use App\Models\Userprofile;
 use App\Models\Bulletin;
 use App\Models\Group;
-class ChurchTableSeeder extends Seeder
+class DummyChurchSeeder extends Seeder
 {
     /**
      * Run the database seeds.

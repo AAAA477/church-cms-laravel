@@ -2,7 +2,7 @@
 namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 
-class UserprofilesTableSeeder extends Seeder
+class DummyUserprofilesSeeder extends Seeder
 {
     /**
      * Run the database seeds.

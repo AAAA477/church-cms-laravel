@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Models\PageCategory;
 use Illuminate\Database\Seeder;
 
-class PageCategorySeeder extends Seeder
+class DummyPageCategorySeeder extends Seeder
 {
     public function run(): void
     {

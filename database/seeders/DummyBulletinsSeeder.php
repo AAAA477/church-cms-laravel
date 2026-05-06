@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Church;
 
-class BulletinsTableSeeder extends Seeder
+class DummyBulletinsSeeder extends Seeder
 {
     /**
      * Run the database seeds.

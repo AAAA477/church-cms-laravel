@@ -6,7 +6,7 @@ use App\Models\User;
 use App\Models\Sermon;
 use App\Models\SermonLink;
 
-class SermonTableSeeder extends Seeder
+class DummySermonSeeder extends Seeder
 {
     /**
      * Run the database seeds.

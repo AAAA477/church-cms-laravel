@@ -9,7 +9,7 @@ use App\Models\Events;
 use App\Models\EventGallery;
 use Carbon\Carbon;
 
-class EventsTableSeeder extends Seeder
+class DummyEventsSeeder extends Seeder
 {
     public function run(): void
     {

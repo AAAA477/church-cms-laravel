@@ -1,329 +1,97 @@
 <?php
+
 namespace Database\Seeders;
+
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+
 class PermissionTableSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
-      //
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'create-members',
-        'display_name'  => 'Create Members',
-        'description'   => 'Create Members', 
-      ]);
+        $permissions = [
+            // Members
+            ['name' => 'create-members',        'display_name' => 'Create Members',         'description' => 'Add new members'],
+            ['name' => 'read-members',           'display_name' => 'Read Members',           'description' => 'View member list and profiles'],
+            ['name' => 'update-members',         'display_name' => 'Update Members',         'description' => 'Edit member profiles and details'],
 
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'read-members',
-        'display_name'  => 'Read Members',
-        'description'   => 'Read Members', 
-      ]);
+            // Events
+            ['name' => 'create-events',          'display_name' => 'Create Events',          'description' => 'Create and manage events'],
+            ['name' => 'read-events',            'display_name' => 'Read Events',            'description' => 'View events list'],
+            ['name' => 'update-events',          'display_name' => 'Update Events',          'description' => 'Edit and update events'],
 
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'update-members',
-        'display_name'  => 'Update Members',
-        'description'   => 'Update Members', 
-      ]);
+            // Attendance
+            ['name' => 'read-attendance',        'display_name' => 'Read Attendance',        'description' => 'View attendance sessions and reports'],
+            ['name' => 'create-attendance',      'display_name' => 'Create Attendance',      'description' => 'Open attendance sessions and scan member QR codes'],
+            ['name' => 'update-attendance',      'display_name' => 'Update Attendance',      'description' => 'Lock/unlock sessions and assign staff to events'],
 
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'create-events',
-        'display_name'  => 'Create Events',
-        'description'   => 'Create Events', 
-      ]);
+            // Files / Media
+            ['name' => 'create-files',           'display_name' => 'Create Files',           'description' => 'Upload files and videos'],
+            ['name' => 'read-files',             'display_name' => 'Read Files',             'description' => 'View file list'],
+            ['name' => 'view-files',             'display_name' => 'View Files',             'description' => 'Download and view files'],
 
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'read-events',
-        'display_name'  => 'Read Events',
-        'description'   => 'Read Events', 
-      ]);
+            // Bulletins
+            ['name' => 'create-bulletins',       'display_name' => 'Create Bulletins',       'description' => 'Create and edit bulletins'],
+            ['name' => 'read-bulletins',         'display_name' => 'Read Bulletins',         'description' => 'View bulletins list'],
+            ['name' => 'view-bulletins',         'display_name' => 'View Bulletins',         'description' => 'Download bulletin attachments'],
 
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'update-events',
-        'display_name'  => 'Update Events',
-        'description'   => 'Update Events', 
-      ]);
+            // Gallery
+            ['name' => 'create-gallery',         'display_name' => 'Create Gallery',         'description' => 'Create new galleries'],
+            ['name' => 'read-gallery',           'display_name' => 'Read Gallery',           'description' => 'View gallery list'],
+            ['name' => 'update-gallery',         'display_name' => 'Update Gallery',         'description' => 'Edit galleries and upload photos'],
 
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'create-files',
-        'display_name'  => 'Create Files',
-        'description'   => 'Create Files', 
-      ]);
+            // Groups
+            ['name' => 'create-groups',          'display_name' => 'Create Groups',          'description' => 'Create new groups'],
+            ['name' => 'read-groups',            'display_name' => 'Read Groups',            'description' => 'View groups list'],
+            ['name' => 'update-groups',          'display_name' => 'Update Groups',          'description' => 'Edit groups and manage members'],
+            ['name' => 'delete-groups',          'display_name' => 'Delete Groups',          'description' => 'Delete groups'],
 
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'read-files',
-        'display_name'  => 'Read Files',
-        'description'   => 'Read Files', 
-      ]);
+            // Sermons
+            ['name' => 'create-sermons',         'display_name' => 'Create Sermons',         'description' => 'Add new sermons'],
+            ['name' => 'read-sermons',           'display_name' => 'Read Sermons',           'description' => 'View sermons list'],
+            ['name' => 'update-sermons',         'display_name' => 'Update Sermons',         'description' => 'Edit sermons'],
+            ['name' => 'delete-sermons',         'display_name' => 'Delete Sermons',         'description' => 'Delete sermons'],
 
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'view-files',
-        'display_name'  => 'View Files',
-        'description'   => 'View Files', 
-      ]);
+            // Preachers
+            ['name' => 'create-preachers',       'display_name' => 'Create Preachers',       'description' => 'Add new preachers'],
+            ['name' => 'read-preachers',         'display_name' => 'Read Preachers',         'description' => 'View preachers list'],
+            ['name' => 'update-preachers',       'display_name' => 'Update Preachers',       'description' => 'Edit preachers'],
 
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'create-bulletins',
-        'display_name'  => 'Create Bulletins',
-        'description'   => 'Create Bulletins', 
-      ]);
+            // Prayers
+            ['name' => 'read-prayers',           'display_name' => 'Read Prayers',           'description' => 'View prayer board'],
+            ['name' => 'update-prayers',         'display_name' => 'Update Prayers',         'description' => 'Moderate prayers (approve, reject, pin, mark answered)'],
 
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'read-bulletins',
-        'display_name'  => 'Read Bulletins',
-        'description'   => 'Read Bulletins', 
-      ]);
+            // Quotes
+            ['name' => 'create-quotes',          'display_name' => 'Create Quotes',          'description' => 'Add new quotes'],
+            ['name' => 'read-quotes',            'display_name' => 'Read Quotes',            'description' => 'View quotes list'],
+            ['name' => 'update-quotes',          'display_name' => 'Update Quotes',          'description' => 'Edit quotes'],
 
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'view-bulletins',
-        'display_name'  => 'view-bulletins',
-        'description'   => 'view-bulletins', 
-      ]);
+            // Funds / Finance
+            ['name' => 'create-funds',           'display_name' => 'Create Funds',           'description' => 'Record new fund transactions'],
+            ['name' => 'read-funds',             'display_name' => 'Read Funds',             'description' => 'View funds list'],
+            ['name' => 'update-funds',           'display_name' => 'Update Funds',           'description' => 'Edit fund records'],
+            ['name' => 'view-funds',             'display_name' => 'View Funds',             'description' => 'View fund transaction details'],
+            ['name' => 'read-payments',          'display_name' => 'Read Payments',          'description' => 'View payment records'],
+            ['name' => 'create-payments',        'display_name' => 'Create Payments',        'description' => 'Process payments'],
 
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'create-gallery',
-        'display_name'  => 'Create Gallery',
-        'description'   => 'Create Gallery', 
-      ]);
+            // Reports
+            ['name' => 'read-reports',           'display_name' => 'Read Reports',           'description' => 'View reports dashboard'],
+            ['name' => 'view-reports',           'display_name' => 'View Reports',           'description' => 'Export and download reports'],
 
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'read-gallery',
-        'display_name'  => 'Read Gallery',
-        'description'   => 'Read Gallery', 
-      ]);
+            // Help & Feedback & Contacts
+            ['name' => 'read-helps',             'display_name' => 'Read Help Requests',     'description' => 'View help requests list and details'],
+            ['name' => 'update-helps',           'display_name' => 'Update Help Requests',   'description' => 'Respond to and update help requests'],
+            ['name' => 'read-contacts',          'display_name' => 'Read Contacts',          'description' => 'View contact form submissions'],
+            ['name' => 'read-feedbacks',         'display_name' => 'Read Feedbacks',         'description' => 'View feedback submissions'],
+            ['name' => 'update-feedbacks',       'display_name' => 'Update Feedbacks',       'description' => 'Update feedback status'],
 
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'update-gallery',
-        'display_name'  => 'Update Gallery',
-        'description'   => 'Update Gallery', 
-      ]);
+            // CMS & Email Blaster (module-level)
+            ['name' => 'manage-cms',             'display_name' => 'Manage CMS',             'description' => 'Full access to pages, posts, FAQ, code snippets, and Google Analytics'],
+            ['name' => 'manage-email-blaster',   'display_name' => 'Manage Email Blaster',   'description' => 'Full access to campaigns, emails, mailing lists, subscribers, SMTP, queues, rules, and webhooks'],
+        ];
 
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'create-groups',
-        'display_name'  => 'Create Groups',
-        'description'   => 'Create Groups', 
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'read-groups',
-        'display_name'  => 'Read Groups',
-        'description'   => 'Read Groups', 
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'update-groups',
-        'display_name'  => 'Update Groups',
-        'description'   => 'Update Groups', 
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'delete-groups',
-        'display_name'  => 'Delete Groups',
-        'description'   => 'Delete Groups', 
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'create-videos',
-        'display_name'  => 'Create Videos',
-        'description'   => 'Create Videos', 
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'read-videos',
-        'display_name'  => 'Read Videos',
-        'description'   => 'Read Videos', 
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'view-videos',
-        'display_name'  => 'View Videos',
-        'description'   => 'View Videos', 
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'create-funds',
-        'display_name'  => 'Create Funds',
-        'description'   => 'Create Funds', 
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'read-funds',
-        'display_name'  => 'Read Funds',
-        'description'   => 'Read Funds', 
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'update-funds',
-        'display_name'  => 'Update Funds',
-        'description'   => 'Update Funds', 
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'view-funds',
-        'display_name'  => 'View Funds',
-        'description'   => 'View Funds', 
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'create-quotes',
-        'display_name'  => 'Create Quotes',
-        'description'   => 'Create Quotes', 
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'read-quotes',
-        'display_name'  => 'Read Quotes',
-        'description'   => 'Read Quotes', 
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'update-quotes',
-        'display_name'  => 'Update Quotes',
-        'description'   => 'Update Quotes', 
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'create-preachers',
-        'display_name'  => 'Create Preachers',
-        'description'   => 'Create Preachers', 
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'read-preachers',
-        'display_name'  => 'Read Preachers',
-        'description'   => 'Read Preachers', 
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'update-preachers',
-        'display_name'  => 'Update Preachers',
-        'description'   => 'Update Preachers', 
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'read-reports',
-        'display_name'  => 'Read Reports',
-        'description'   => 'Read Reports', 
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'view-reports',
-        'display_name'  => 'View Reports',
-        'description'   => 'View Reports', 
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'read-payments',
-        'display_name'  => 'Read Payments',
-        'description'   => 'Read Payments', 
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'create-payments',
-        'display_name'  => 'Create Payments',
-        'description'   => 'Create Payments', 
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'create-sermons',
-        'display_name'  => 'Create Sermons',
-        'description'   => 'Create Sermons', 
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'read-sermons',
-        'display_name'  => 'Read Sermons',
-        'description'   => 'Read Sermons', 
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'update-sermons',
-        'display_name'  => 'Update Sermons',
-        'description'   => 'Update Sermons', 
-      ]);
-
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'delete-sermons',
-        'display_name'  => 'Delete Sermons',
-        'description'   => 'Delete Sermons',
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'read-prayers',
-        'display_name'  => 'Read Prayers',
-        'description'   => 'View prayer board',
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'update-prayers',
-        'display_name'  => 'Update Prayers',
-        'description'   => 'Moderate prayers (approve, reject, pin, mark answered, etc.)',
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'read-helps',
-        'display_name'  => 'Read Help Requests',
-        'description'   => 'View help requests list and details',
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'update-helps',
-        'display_name'  => 'Update Help Requests',
-        'description'   => 'Respond to and update help requests',
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'read-contacts',
-        'display_name'  => 'Read Contacts',
-        'description'   => 'View contact form submissions',
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'read-feedbacks',
-        'display_name'  => 'Read Feedbacks',
-        'description'   => 'View feedback submissions',
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'update-feedbacks',
-        'display_name'  => 'Update Feedbacks',
-        'description'   => 'Update feedback status',
-      ]);
-
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'manage-email-blaster',
-        'display_name'  => 'Manage Email Blaster',
-        'description'   => 'Full access to campaigns, emails, mailing lists, subscribers, SMTP, queues, rules, and webhooks',
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'manage-cms',
-        'display_name'  => 'Manage CMS',
-        'description'   => 'Full access to pages, posts, FAQ, code snippets, and Google Analytics',
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'read-attendance',
-        'display_name'  => 'Read Attendance',
-        'description'   => 'View attendance sessions and reports',
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'create-attendance',
-        'display_name'  => 'Create Attendance',
-        'description'   => 'Open attendance sessions and scan member QR codes',
-      ]);
-
-      DB::table('permissions')->insertOrIgnore([
-        'name'          => 'update-attendance',
-        'display_name'  => 'Update Attendance',
-        'description'   => 'Lock/unlock sessions and assign staff to events',
-      ]);
-  }
+        foreach ($permissions as $permission) {
+            DB::table('permissions')->insertOrIgnore($permission);
+        }
+    }
 }

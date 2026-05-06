@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\DB;
  *
  * Safe to re-run — inserts additional rows each time.
  */
-class SermonTestDataSeeder extends Seeder
+class DummySermonDataSeeder extends Seeder
 {
     // ─── Sermon definitions ──────────────────────────────────────────────────
 

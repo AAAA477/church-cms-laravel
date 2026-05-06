@@ -6,7 +6,7 @@ use App\Models\Post;
 use App\Models\Tag;
 use Illuminate\Database\Seeder;
 
-class TagTestDataSeeder extends Seeder
+class DummyTagDataSeeder extends Seeder
 {
     public function run()
     {

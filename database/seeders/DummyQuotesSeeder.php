@@ -5,7 +5,7 @@ use App\Models\Church;
 use App\Models\User;
 use Carbon\Carbon;
 
-class QuotesTableSeeder extends Seeder
+class DummyQuotesSeeder extends Seeder
 {
     /**
      * Run the database seeds.

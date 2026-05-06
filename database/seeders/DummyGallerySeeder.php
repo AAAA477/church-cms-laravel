@@ -6,7 +6,7 @@ use Illuminate\Database\Seeder;
 use App\Models\Church;
 use App\Models\User;
 
-class GalleryTableSeeder extends Seeder
+class DummyGallerySeeder extends Seeder
 {
     public function run(): void
     {

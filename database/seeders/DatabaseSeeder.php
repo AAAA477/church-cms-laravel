@@ -1,52 +1,32 @@
 <?php
+
 namespace Database\Seeders;
+
 use Illuminate\Database\Seeder;
 
-class DatabaseSeeder extends Seeder {
+class DatabaseSeeder extends Seeder
+{
     /**
-    * Seed the application's database.
-    *
-    * @return void
-    */
-
-    public function run() {
-        //default seeders//
-        $this->call( UsergroupTableSeeder::class );
-        //$this->call(LocationSeeder::class );
-        
-         $this->call( CountriesTableSeeder::class );
-         $this->call( StatesTableSeeder::class );
-         $this->call( CitiesTableSeeder::class );
-        $this->call( PermissionTableSeeder::class );
-        $this->call( GroupCategoryTableSeeder::class );
-        $this->call( MailTemplatesSeeder::class );
-        $this->call( SmsTemplatesTableSeeder::class );
-        $this->call( KeywordsTableSeeder::class );
-        $this->call( SettingsTableSeeder::class );
-        $this->call( PaymentgatewaysTableSeeder::class );
-        // UsersTableSeeder removed - users created via installer only
-        //default seeders//
-
-         $this->call( ChurchTableSeeder::class );
-        //test ----- hide to remove seeded members -----
-         $this->call( ChurchDetailTableSeeder::class );
-        //test
-        $this->call(BibleTableSeeder::class);
-        //$this->call(BibleVerseTableSeeder::class);
-        //test ----- hide to remove seeded members -----
-        // $this->call( EventsTableSeeder::class );
-        //test
-        // $this->call( UpcomingEventsTableSeeder::class );
-        //test
-        // $this->call( GalleryTableSeeder::class );
-        //test
-        // $this->call( SermonTableSeeder::class );
-        //Test
-        // $this->call( QuotesTableSeeder::class );
-        //Test
-        // $this->call( FundsTableSeeder::class );
-        //Test
-        // $this->call( UserprofilesTableSeeder::class );
-
+     * Core seed data required for every installation.
+     *
+     * Run automatically by: php artisan migrate:fresh --seed
+     * For demo/development data run: php artisan db:seed --class=DemoDataSeeder
+     */
+    public function run()
+    {
+        $this->call([
+            UsergroupTableSeeder::class,
+            CountriesTableSeeder::class,
+            StatesTableSeeder::class,
+            CitiesTableSeeder::class,
+            PermissionTableSeeder::class,
+            GroupCategoryTableSeeder::class,
+            MailTemplatesSeeder::class,
+            SmsTemplatesTableSeeder::class,
+            KeywordsTableSeeder::class,
+            SettingsTableSeeder::class,
+            PaymentgatewaysTableSeeder::class,
+            BibleTableSeeder::class,
+        ]);
     }
 }

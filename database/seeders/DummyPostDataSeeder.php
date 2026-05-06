@@ -10,15 +10,15 @@ use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 
 /**
- * PostTestDataSeeder
+ * DummyPostDataSeeder
  *
  * Seeds 8 post categories with 2-3 sample posts each.
  * Posts use placeholder content with realistic titles.
  * Safe to re-run — uses firstOrCreate on category name + church, and post title + church.
  *
- * Run: php artisan db:seed --class=PostTestDataSeeder
+ * Run: php artisan db:seed --class=DummyPostDataSeeder
  */
-class PostTestDataSeeder extends Seeder
+class DummyPostDataSeeder extends Seeder
 {
     public function run()
     {

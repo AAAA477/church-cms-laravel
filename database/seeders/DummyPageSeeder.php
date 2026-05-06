@@ -6,7 +6,7 @@ use App\Models\Page;
 use App\Models\PageCategory;
 use Illuminate\Database\Seeder;
 
-class PageSeeder extends Seeder
+class DummyPageSeeder extends Seeder
 {
     public function run(): void
     {

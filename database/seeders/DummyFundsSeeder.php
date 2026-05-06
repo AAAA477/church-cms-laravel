@@ -4,7 +4,7 @@ use Illuminate\Database\Seeder;
 use App\Models\Church;
 use App\Models\User;
 
-class MediaFileTableSeeder extends Seeder
+class DummyFundsSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -14,15 +14,14 @@ class MediaFileTableSeeder extends Seeder
     public function run()
     {
         //
-        $churches = Church::where('status',1)->get();
-        foreach ($churches as $church) 
+        $churchs = Church::where('status',1)->get();
+        foreach ($churchs as $church) 
         {
             $admin = User::where([['church_id',$church->id],['usergroup_id',3]])->first();
-            
-            factory(App\Models\MediaFile::class,10)->create([
-                'church_id'  => $church->id,
-                'created_by' => $admin->id, 
-                'updated_by' => $admin->id
+            factory(App\Models\Fund::class, 20)->create([
+                'church_id'     =>  $church->id,
+                'authorised_by' =>  $admin->id,
+                'status'        =>  'deposited',
             ]);
         }
     }

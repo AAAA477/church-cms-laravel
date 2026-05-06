@@ -8,7 +8,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use App\Models\ChurchDetail;
 
-class ChurchDetailTableSeeder extends Seeder
+class DummyChurchDetailSeeder extends Seeder
 {
 	/**
 	 * Run the database seeds.
