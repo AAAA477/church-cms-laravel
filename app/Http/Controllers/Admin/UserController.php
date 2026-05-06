@@ -82,6 +82,8 @@ class UserController extends Controller
         $count    = User::ByRole(5)->ByChurch(Auth::user()->church_id)->ByStatus('active')->ByMembershipType('member')->count();
         $alphabet = request('alphabet') ? request('alphabet') : '';
         $query    = \Request::getQueryString();
+
+        $type = null;
         if (request('date_of_birth') != null) {
             $type = 'date_of_birth';
         }
@@ -92,7 +94,60 @@ class UserController extends Controller
             $type = 'location';
         }
 
-        return view('/admin/member/index', ['alphabet' => $alphabet, 'query' => $query, 'count' => $count, 'type' => $type]);
+        // Load members data for Blade view with pagination
+        $church_id = Auth::user()->church_id;
+
+        // Build the query with filters
+        $usersQuery = User::ByChurch($church_id)->ByRole(5)->whereHas('userprofile', function ($q) {
+            $q->where('membership_type', 'member')->orWhere('membership_type', null);
+        });
+
+        // Apply alphabet filter
+        if ($alphabet) {
+            $usersQuery = $usersQuery->ByFirstName($alphabet);
+        }
+
+        // Apply other filters from request
+        if (request()->filled('firstname')) {
+            $usersQuery = $usersQuery->ByFirstName(request('firstname'));
+        }
+        if (request()->filled('lastname')) {
+            $usersQuery = $usersQuery->ByLastName(request('lastname'));
+        }
+        if (request()->filled('gender')) {
+            $usersQuery = $usersQuery->ByGender(request('gender'));
+        }
+        if (request()->filled('marriage_status')) {
+            $usersQuery = $usersQuery->ByMarriageStatus(request('marriage_status'));
+        }
+        if (request()->filled('profession')) {
+            $usersQuery = $usersQuery->ByProfession(request('profession'));
+        }
+        if (request()->filled('mobile_no')) {
+            $usersQuery = $usersQuery->ByMobile_no(request('mobile_no'));
+        }
+        if (request()->filled('email')) {
+            $usersQuery = $usersQuery->ByEmail_id(request('email'));
+        }
+        if (request()->filled('location')) {
+            $usersQuery = $usersQuery->ByLocation(request('location'));
+        }
+
+        // Paginate results (15 per page)
+        $usersPaginated = $usersQuery->paginate(15);
+
+        // Convert to resource collection
+        $membersData = \App\Http\Resources\User::collection($usersPaginated->getCollection());
+        $members = json_decode(json_encode($membersData), true);
+
+        return view('/admin/member/index', [
+            'alphabet' => $alphabet,
+            'query' => $query,
+            'count' => $count,
+            'type' => $type,
+            'members' => $members,
+            'paginator' => $usersPaginated
+        ]);
     }
 
     public function updateStatus(Request $request, $name)

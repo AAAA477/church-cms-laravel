@@ -307,5 +307,23 @@ class PermissionTableSeeder extends Seeder
         'display_name'  => 'Manage CMS',
         'description'   => 'Full access to pages, posts, FAQ, code snippets, and Google Analytics',
       ]);
+
+      DB::table('permissions')->insertOrIgnore([
+        'name'          => 'read-attendance',
+        'display_name'  => 'Read Attendance',
+        'description'   => 'View attendance sessions and reports',
+      ]);
+
+      DB::table('permissions')->insertOrIgnore([
+        'name'          => 'create-attendance',
+        'display_name'  => 'Create Attendance',
+        'description'   => 'Open attendance sessions and scan member QR codes',
+      ]);
+
+      DB::table('permissions')->insertOrIgnore([
+        'name'          => 'update-attendance',
+        'display_name'  => 'Update Attendance',
+        'description'   => 'Lock/unlock sessions and assign staff to events',
+      ]);
   }
 }
