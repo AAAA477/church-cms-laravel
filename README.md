@@ -1,6 +1,6 @@
 # ChurchCMS
 
-ChurchCMS is an open source church management platform built with Laravel 8+, Vue 2, and Laravel Mix. It is designed for ministries that need a single system for member data, communication, sermons, events, prayer workflows, media, and community engagement.
+ChurchCMS is an open source church management platform built with Laravel 10, Vue 2, and Laravel Mix. It is designed for ministries that need a single system for member data, communication, sermons, events, prayer workflows, media, and community engagement.
 
 Developed and maintained by GegoSoft Technologies (OPC) Private Limited, India.
 Website: https://gegosoft.com
@@ -31,7 +31,7 @@ Church teams often end up stitching together spreadsheets, messaging tools, live
 ## Technology stack
 
 - PHP 8.2+
-- Laravel 8 or higher
+- Laravel 10
 - Vue 2
 - MySQL 5.7+ or MariaDB
 - Node.js and npm for frontend assets
@@ -39,9 +39,9 @@ Church teams often end up stitching together spreadsheets, messaging tools, live
 
 ## Getting started
 
-Church CMS offers **two installation methods** to suit your preference:
+Church CMS offers two installation methods:
 
-### 📱 Option 1: Web Installer (Recommended for first-time users)
+### Option 1: Web Installer (Recommended for first-time users)
 
 A visual, browser-based installation wizard that guides you through setup step-by-step.
 
@@ -49,44 +49,39 @@ A visual, browser-based installation wizard that guides you through setup step-b
 
 1. Clone the repository:
    ```bash
-   git clone <your-fork-or-repo-url>
+   git clone https://github.com/church-cms/church-cms-laravel.git
    cd church-cms-laravel
    ```
 
 2. Copy and configure `.env`:
    ```bash
    cp .env.example .env
-   # Edit .env with your database credentials
-   nano .env
+   nano .env   # set DB_HOST, DB_DATABASE, DB_USERNAME, DB_PASSWORD
    ```
 
 3. Open the installer in your browser:
    ```
-   http://localhost:your-port/installer
+   http://localhost/installer
    ```
 
-4. Follow the 6-step visual wizard to complete setup
+4. Follow the step-by-step wizard to complete setup.
 
-📖 **Full guide:** [INSTALL_GUIDE.md](INSTALL_GUIDE.md)
+Full guide: [INSTALL_GUIDE.md](INSTALL_GUIDE.md)
 
 ---
 
-### 💻 Option 2: CLI Installer (Recommended for developers)
-
-A command-line installation method perfect for automation, CI/CD, and SSH servers.
-
-**Best for:** Developers, automation, servers without browser access, scripting
+### Option 2: CLI Installer (Recommended for developers)
 
 ```bash
 # 1. Clone the repository
-git clone <your-fork-or-repo-url>
+git clone https://github.com/church-cms/church-cms-laravel.git
 cd church-cms-laravel
 
 # 2. Copy and configure .env
 cp .env.example .env
-nano .env  # Update database credentials
+nano .env   # set DB_HOST, DB_DATABASE, DB_USERNAME, DB_PASSWORD
 
-# 3. Run framework setup
+# 3. Install dependencies, run migrations, and seed core data
 bash install.sh
 
 # 4. Create your church and admin user
@@ -94,60 +89,61 @@ php artisan church:setup
 
 # 5. Start the development server
 php artisan serve
-
-# 6. Access the application
-# http://localhost:8000/admin
+# Access at http://localhost:8000/admin
 ```
 
-📖 **Full guide:** [CLI_INSTALL_GUIDE.md](CLI_INSTALL_GUIDE.md)
+Full guide: [CLI_INSTALL_GUIDE.md](CLI_INSTALL_GUIDE.md)
 
 ---
 
-### 🔧 Manual Setup (If you prefer complete control)
+### Manual setup
 
-For experienced Laravel developers who want to set up manually:
+For developers who prefer full control:
 
 ```bash
-# 1. Install dependencies
+# Dependencies
 composer install
 npm install
 
-# 2. Configure environment
+# Environment
 cp .env.example .env
 php artisan key:generate
+# Edit .env with your database credentials
 
-# 3. Setup database
+# Database
 php artisan migrate
-php artisan db:seed
+php artisan db:seed          # core data: permissions, settings, countries, etc.
 php artisan passport:install
 
-# 4. Build frontend assets
+# Frontend
 npm run dev
 
-# 5. Create church and admin user
+# Church and admin user
 php artisan church:setup
 
-# 6. Run the application
 php artisan serve
 ```
 
-Visit `http://127.0.0.1:8000` in your browser.
+**Demo data** (optional — development/testing only):
+```bash
+php artisan db:seed --class=DemoDataSeeder
+```
 
 ## Development workflow
-
-Useful commands during local development:
 
 ```bash
 php artisan serve
 npm run watch
 php artisan queue:work
+php artisan storage:link     # if using local file uploads
 ```
 
-If your instance uses local file uploads, create the storage symlink when needed:
+## Seeding reference
 
-```bash
-php artisan storage:link
-```
+| Command | Purpose |
+|---|---|
+| `php artisan db:seed` | Core data only — safe for all environments |
+| `php artisan db:seed --class=DemoDataSeeder` | Sample content for development (events, sermons, members, posts, etc.) |
 
 ## Configuration notes
 
@@ -158,9 +154,7 @@ php artisan storage:link
 
 ## Testing
 
-The repository includes PHPUnit and Laravel Dusk configuration, but application-level tests are not yet comprehensive. When contributing new behavior, add or update automated tests where practical.
-
-Typical test commands:
+The repository includes PHPUnit and Laravel Dusk configuration, but application-level tests are not yet comprehensive. When contributing new behaviour, add or update automated tests where practical.
 
 ```bash
 ./vendor/bin/phpunit
@@ -172,7 +166,7 @@ php artisan dusk
 - Use issues for bug reports, regressions, and feature proposals.
 - Keep pull requests focused and small enough to review.
 - Avoid committing secrets, production data, or generated assets that do not belong in source control.
-- Update documentation when behavior or setup changes.
+- Update documentation when behaviour or setup changes.
 
 ## Contributing
 

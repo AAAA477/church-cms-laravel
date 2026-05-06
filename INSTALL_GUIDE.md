@@ -307,7 +307,7 @@ Once you click "Complete Setup & Go to Dashboard":
 - Or run installation commands manually via SSH:
   ```bash
   php artisan migrate --force
-  php artisan db:seed --class=InstallerSeeder --force
+  php artisan db:seed --class=DatabaseSeeder --force
   ```
 
 ### Still Having Issues?

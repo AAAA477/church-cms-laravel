@@ -411,7 +411,7 @@ function runInstallation($session) {
 
         // Run installer seeder
         outputStatus('seed', 'processing', 'Seeding database...');
-        $output = shell_exec('cd ' . escapeshellarg($basePath) . ' && php artisan db:seed --class=InstallerSeeder --force 2>&1');
+        $output = shell_exec('cd ' . escapeshellarg($basePath) . ' && php artisan db:seed --class=DatabaseSeeder --force 2>&1');
         outputStatus('seed', 'done', 'Database seeded');
 
         // Store installation data for creating church and admin
