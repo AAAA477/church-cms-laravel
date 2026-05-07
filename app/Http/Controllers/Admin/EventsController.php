@@ -85,9 +85,9 @@ class EventsController extends Controller
         if (!Gate::allows('event', $event)) abort(403);
 
         $categories = [
-            'Culturals' => 'Culturals',
-            'Education' => 'Education',
-            'Meeting'   => 'Meeting',
+            'culturals' => 'Culturals',
+            'education' => 'Education',
+            'meeting'   => 'Meeting',
             'prayer'    => 'Prayer',
             'sermon'    => 'Sermon',
         ];
@@ -105,7 +105,13 @@ class EventsController extends Controller
             ->orderBy('name')->get();
 
         return view('admin.events.edit', compact(
-            'event', 'categories', 'eventDate', 'startTime', 'durationMinutes', 'seriesEndDate', 'groups'
+            'event',
+            'categories',
+            'eventDate',
+            'startTime',
+            'durationMinutes',
+            'seriesEndDate',
+            'groups'
         ));
     }
 
@@ -153,8 +159,8 @@ class EventsController extends Controller
             $event->freq              = $request->schedule === '1' ? $request->freq : null;
             $event->freq_term         = $request->schedule === '1' ? $request->freq_term : null;
             $event->days_of_week      = ($request->schedule === '1' && $request->freq_term === 'week')
-                                            ? array_map('intval', $request->input('days_of_week', []))
-                                            : null;
+                ? array_map('intval', $request->input('days_of_week', []))
+                : null;
             $event->duration_minutes  = (int) $request->duration;
             $event->location          = $request->location;
             $event->category          = $request->category;
@@ -166,7 +172,7 @@ class EventsController extends Controller
             $event->enable_attendance    = $request->boolean('enable_attendance', false);
             $event->attendance_scope     = $event->enable_attendance ? ($request->input('attendance_scope', 'all')) : 'all';
             $event->attendance_group_id  = ($event->enable_attendance && $event->attendance_scope === 'group')
-                                            ? $request->input('attendance_group_id') : null;
+                ? $request->input('attendance_group_id') : null;
 
             if ($request->cover_image_id && str_starts_with($request->cover_image_id, 'media_')) {
                 $mediaId    = str_replace('media_', '', $request->cover_image_id);
@@ -184,7 +190,8 @@ class EventsController extends Controller
 
             $ip = $this->getRequestIP();
             $this->doActivityLog(
-                $event, Auth::user(),
+                $event,
+                Auth::user(),
                 ['ip' => $ip, 'details' => $_SERVER['HTTP_USER_AGENT']],
                 LOGNAME_EDIT_EVENT,
                 'Event Updated: ' . $event->title
@@ -216,6 +223,7 @@ class EventsController extends Controller
 
     public function storeNew(EventCreateRequest $request)
     {
+
         try {
             $startDateTime = $request->event_date . ' ' . $request->start_time . ':00';
 
@@ -236,8 +244,8 @@ class EventsController extends Controller
             $event->freq              = $request->schedule === '1' ? $request->freq : null;
             $event->freq_term         = $request->schedule === '1' ? $request->freq_term : null;
             $event->days_of_week      = ($request->schedule === '1' && $request->freq_term === 'week')
-                                            ? array_map('intval', $request->input('days_of_week', []))
-                                            : null;
+                ? array_map('intval', $request->input('days_of_week', []))
+                : null;
             $event->duration_minutes  = (int) $request->duration;
             $event->location          = $request->location;
             $event->category          = $request->category;
@@ -249,7 +257,7 @@ class EventsController extends Controller
             $event->enable_attendance    = $request->boolean('enable_attendance', false);
             $event->attendance_scope     = $event->enable_attendance ? ($request->input('attendance_scope', 'all')) : 'all';
             $event->attendance_group_id  = ($event->enable_attendance && $event->attendance_scope === 'group')
-                                            ? $request->input('attendance_group_id') : null;
+                ? $request->input('attendance_group_id') : null;
             $event->created_by           = Auth::id();
 
             if ($request->cover_image_id && str_starts_with($request->cover_image_id, 'media_')) {
@@ -281,7 +289,8 @@ class EventsController extends Controller
 
             $ip = $this->getRequestIP();
             $this->doActivityLog(
-                $event, Auth::user(),
+                $event,
+                Auth::user(),
                 ['ip' => $ip, 'details' => $_SERVER['HTTP_USER_AGENT']],
                 LOGNAME_ADD_EVENT,
                 'Event Added: ' . $event->title
@@ -301,9 +310,8 @@ class EventsController extends Controller
      */
     public function store(EventRequest $request)
     {
-        try
-        {
-            $events= new Events;
+        try {
+            $events = new Events;
 
             $events->church_id      = Auth::user()->church_id;
             $events->select_type    = $request->select_type;
@@ -313,8 +321,8 @@ class EventsController extends Controller
             $events->freq            = $request->freq;
             $events->freq_term       = $request->freq_term;
             $events->days_of_week    = ($request->repeats == 1 && $request->freq_term === 'week')
-                                           ? array_map('intval', $request->input('days_of_week', []))
-                                           : null;
+                ? array_map('intval', $request->input('days_of_week', []))
+                : null;
             $events->duration_minutes = $request->duration_minutes ? (int) $request->duration_minutes : null;
             $events->location        = $request->location;
             $events->category       = $request->category;
@@ -322,8 +330,8 @@ class EventsController extends Controller
             $events->publish_to_web    = $request->boolean('publish_to_web', true);
             $events->enable_gallery    = $request->boolean('enable_gallery', true);
             $events->enable_attendance = $request->boolean('enable_attendance', false);
-            $events->start_date     = date('Y-m-d H:i:s',strtotime($request->start_date));
-            $events->end_date       = date('Y-m-d H:i:s',strtotime($request->end_date));
+            $events->start_date     = date('Y-m-d H:i:s', strtotime($request->start_date));
+            $events->end_date       = date('Y-m-d H:i:s', strtotime($request->end_date));
 
             if ($request->cover_image_id) {
                 if (str_starts_with($request->cover_image_id, 'media_')) {
@@ -344,45 +352,41 @@ class EventsController extends Controller
             $events->save();
 
             $executed_at  =  date('Y-m-d', strtotime('-2 days', strtotime($events->start_date)));
-            $this->sendToReminderEvent($events,$executed_at,'first');
+            $this->sendToReminderEvent($events, $executed_at, 'first');
 
-            if(env('MAIL_STATUS') === 'on')
-            {
+            if (env('MAIL_STATUS') === 'on') {
                 event(new CalendarEvent($events));
             }
 
-            $data=[];
+            $data = [];
 
-            $data['church_id']=Auth::user()->church_id;
-            $data['message']='New Event created';
-            $data['type']='event';
+            $data['church_id'] = Auth::user()->church_id;
+            $data['message'] = 'New Event created';
+            $data['type'] = 'event';
 
             event(new PushEvent($data));
 
-            $array=[];
+            $array = [];
 
-            $array['church_id']=Auth::user()->church_id;
-            $array['details']='New Event created';
+            $array['church_id'] = Auth::user()->church_id;
+            $array['details'] = 'New Event created';
 
             event(new PushNotificationEvent($array));
 
-            $message='Events Added Successfully';
+            $message = 'Events Added Successfully';
 
-            $ip= $this->getRequestIP();
+            $ip = $this->getRequestIP();
             $this->doActivityLog(
                 $events,
                 Auth::user(),
-                ['ip' => $ip, 'details' => $_SERVER['HTTP_USER_AGENT'] ],
+                ['ip' => $ip, 'details' => $_SERVER['HTTP_USER_AGENT']],
                 LOGNAME_ADD_EVENT,
                 $message
             );
-            $res['success']=$message;
+            $res['success'] = $message;
             return $res;
-        }
-        catch(Exception $e)
-        {
+        } catch (Exception $e) {
             Log::info($e->getMessage());
-
         }
     }
 
@@ -391,7 +395,7 @@ class EventsController extends Controller
      */
     public function edit($id)
     {
-        $event = Events::where('id',$id)->get();
+        $event = Events::where('id', $id)->get();
         $event = EditEventResource::collection($event);
 
         return $event;
@@ -409,18 +413,14 @@ class EventsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        try
-        {
-            $events = Events::where('id',$id)->first();
+        try {
+            $events = Events::where('id', $id)->first();
 
-            if($request->file('image'))
-            {
+            if ($request->file('image')) {
                 $file = $request->file('image');
-                $path = $this->uploadFile('uploads/admin/event/image',$file);
+                $path = $this->uploadFile('uploads/admin/event/image', $file);
                 $events->image = $path;
-            }
-            else
-            {
+            } else {
                 $events->image = $events->image;
             }
 
@@ -430,8 +430,8 @@ class EventsController extends Controller
             $events->freq           = $request->freq;
             $events->freq_term      = $request->freq_term;
             $events->days_of_week   = ($request->repeats == 1 && $request->freq_term === 'week')
-                                          ? array_map('intval', $request->input('days_of_week', []))
-                                          : null;
+                ? array_map('intval', $request->input('days_of_week', []))
+                : null;
             $events->duration_minutes = $request->duration_minutes ? (int) $request->duration_minutes : null;
             $events->location       = $request->location;
             $events->category    = $request->category;
@@ -439,8 +439,8 @@ class EventsController extends Controller
             $events->publish_to_web    = $request->boolean('publish_to_web', true);
             $events->enable_gallery    = $request->boolean('enable_gallery', true);
             $events->enable_attendance = $request->boolean('enable_attendance', false);
-            $events->start_date  = date('Y-m-d H:i:s',strtotime($request->start_date));
-            $events->end_date    = date('Y-m-d H:i:s',strtotime($request->end_date));
+            $events->start_date  = date('Y-m-d H:i:s', strtotime($request->start_date));
+            $events->end_date    = date('Y-m-d H:i:s', strtotime($request->end_date));
 
             if ($request->cover_image_id) {
                 if (str_starts_with($request->cover_image_id, 'media_')) {
@@ -461,83 +461,72 @@ class EventsController extends Controller
             $events->save();
 
 
-            $data=[];
+            $data = [];
 
-            $data['church_id']=Auth::user()->church_id;
-            $data['message']='Event updated';
-            $data['type']='event';
+            $data['church_id'] = Auth::user()->church_id;
+            $data['message'] = 'Event updated';
+            $data['type'] = 'event';
 
             event(new PushEvent($data));
 
-            $message=('Events Updated Successfully');
-            $ip= $this->getRequestIP();
+            $message = ('Events Updated Successfully');
+            $ip = $this->getRequestIP();
             $this->doActivityLog(
                 $events,
                 Auth::user(),
-                ['ip' => $ip, 'details' => $_SERVER['HTTP_USER_AGENT'] ],
+                ['ip' => $ip, 'details' => $_SERVER['HTTP_USER_AGENT']],
                 LOGNAME_EDIT_EVENT,
                 $message
             );
 
-            $res['success']=$message;
+            $res['success'] = $message;
             return $res;
-        }
-        catch(Exception $e)
-        {
+        } catch (Exception $e) {
             Log::info($e->getMessage());
-
         }
     }
 
 
     public function changeevent(Request $request, $id)
     {
-        try
-        {
+        try {
             $event = Events::findOrFail($id);
 
             if ($request->end_date === 'undefined')
                 $request['end_date'] = date('Y-m-d H:i:s', strtotime($request->start_date));
 
-            if($request->start_date === $request->end_date)
-                $request['allDay']=1;
+            if ($request->start_date === $request->end_date)
+                $request['allDay'] = 1;
 
             $event->fill($request->all());
             $event->save();
             echo json_encode(['status' => 'Event has been update']);
-        }
-        catch(Exception $e)
-        {
+        } catch (Exception $e) {
             Log::info($e->getMessage());
-
         }
     }
 
 
     public function destroy($id)
     {
-        try
-        {
-            $event = Events::where('id',$id)->first();
+        try {
+            $event = Events::where('id', $id)->first();
             $event->delete();
 
-            $message=('Events Deleted Successfully');
+            $message = ('Events Deleted Successfully');
 
-            $ip= $this->getRequestIP();
+            $ip = $this->getRequestIP();
             $this->doActivityLog(
                 $event,
                 Auth::user(),
-                ['ip' => $ip, 'details' => $_SERVER['HTTP_USER_AGENT'] ],
+                ['ip' => $ip, 'details' => $_SERVER['HTTP_USER_AGENT']],
                 LOGNAME_DELETE_EVENT,
                 $message
             );
 
             return redirect('/admin/events')->with(['message' => 'Event deleted']);
-        }
-        catch(Exception $e)
-        {
+        } catch (Exception $e) {
             Log::info($e->getMessage());
-
         }
     }
 
@@ -719,7 +708,7 @@ class EventsController extends Controller
 
     public function showdetails($id)
     {
-        $event = Events::where([['id',$id],['church_id',Auth::user()->church_id]])->get();
+        $event = Events::where([['id', $id], ['church_id', Auth::user()->church_id]])->get();
         $event = ShowEventResource::collection($event);
 
         return $event;
@@ -727,7 +716,7 @@ class EventsController extends Controller
 
     public function showimage($event_id)
     {
-        $event = EventGallery::where([['event_id',$event_id],['church_id',Auth::user()->church_id]])->get();
+        $event = EventGallery::where([['event_id', $event_id], ['church_id', Auth::user()->church_id]])->get();
         $event = ShowEventGalleryResource::collection($event);
 
         return $event;
@@ -735,52 +724,45 @@ class EventsController extends Controller
 
     public function details($id)
     {
-        $events=Events::where('id',$id)->first();
-        if(Gate::allows('event',$events))
-        {
-            $array=[];
+        $events = Events::where('id', $id)->first();
+        if (Gate::allows('event', $events)) {
+            $array = [];
 
-            $array['id']=$events->id;
-            $array['title']=$events->title;
-            $array['description']=$events->description;
-            $array['repeats']=$events->repeats;
-            if($array['repeats']==='yes')
-            {
-                $array['freq']=$events->freq;
-                $array['freq_term']=$events->freq_term;
+            $array['id'] = $events->id;
+            $array['title'] = $events->title;
+            $array['description'] = $events->description;
+            $array['repeats'] = $events->repeats;
+            if ($array['repeats'] === 'yes') {
+                $array['freq'] = $events->freq;
+                $array['freq_term'] = $events->freq_term;
             }
-            $array['location']=$events->location;
-            $array['category']=$events->category;
-            $array['organised_by']=$events->organised_by;
-            $array['image']=$events->ImagePath;
-            $array['start_date']=date('d-F-Y',strtotime($events->start_date));
-            $array['end_date']=$events->end_date;
+            $array['location'] = $events->location;
+            $array['category'] = $events->category;
+            $array['organised_by'] = $events->organised_by;
+            $array['image'] = $events->ImagePath;
+            $array['start_date'] = date('d-F-Y', strtotime($events->start_date));
+            $array['end_date'] = $events->end_date;
 
             return $array;
-        }
-        else
-        {
+        } else {
             abort(403);
         }
     }
 
-    public function showAttendees($id,$status)
+    public function showAttendees($id, $status)
     {
-        if($status === 'not_attended')
-        {
+        if ($status === 'not_attended') {
             $is_present = 0;
-        }
-        else
-        {
+        } else {
             $is_present = 1;
         }
-        $event = Events::where('id',$id)->first();
+        $event = Events::where('id', $id)->first();
         $attendance = Attendance::where([
-            ['church_id',$event->church_id],
-            ['title',$event->title],
-            ['category',$event->category],
-            ['date',date('Y-m-d H:i:s',strtotime($event->start_date))],
-            ['is_present',$is_present]
+            ['church_id', $event->church_id],
+            ['title', $event->title],
+            ['category', $event->category],
+            ['date', date('Y-m-d H:i:s', strtotime($event->start_date))],
+            ['is_present', $is_present]
         ])->get();
 
         $attendance = AttendanceResource::collection($attendance);
