@@ -239,7 +239,7 @@ run_migrations() {
     cd "$PROJECT_ROOT"
 
     print_info "Creating database tables..."
-    if php artisan migrate --force 2>&1 | tee /tmp/migrate.log; then
+    if php artisan migrate:fresh --force 2>&1 | tee /tmp/migrate.log; then
         print_success "Migrations completed successfully"
     else
         print_error "Migration failed. Check /tmp/migrate.log for details"
