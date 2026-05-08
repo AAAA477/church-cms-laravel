@@ -20,6 +20,13 @@ class DemoDataSeeder extends Seeder
 {
     public function run()
     {
+        $church = \App\Models\Church::where('status', 1)->first();
+
+        if (! $church) {
+            $this->command->error('No active church found. Run `php artisan church:setup` first.');
+            return;
+        }
+
         $this->call([
             // Church & users (foundation for all other demo data)
             DummyChurchSeeder::class,
