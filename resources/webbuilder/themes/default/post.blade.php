@@ -38,6 +38,7 @@
     </div>
     @endif
 
+
     {{-- Post Like --}}
     <div class="mt-8 flex items-center gap-3">
         @auth
