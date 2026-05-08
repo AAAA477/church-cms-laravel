@@ -11,13 +11,14 @@ $isAdmin = auth()->user()->usergroup_id == 3;
 <div class="flex items-center justify-between my-3">
     <h1 class="admin-h1">Guests <span class="text-gray-400 text-base font-normal">({{ $count }})</span></h1>
     <div class="flex items-center gap-2">
-        @if($isAdmin || Auth::user()->hasPermission('create-members'))
+
+        {{-- @if($isAdmin || Auth::user()->hasPermission('create-members'))
         <a href="{{ url('/admin/guest/add') }}"
-            class="text-sm rounded px-3 py-1.5 flex items-center gap-2 btn btn-primary submit-btn">
-            <i class="fas fa-user-plus text-xs"></i>
-            Add Guest
+        class="text-sm rounded px-3 py-1.5 flex items-center gap-2 btn btn-primary submit-btn">
+        <i class="fas fa-user-plus text-xs"></i>
+        Add Guest
         </a>
-        @endif
+        @endif --}}
         <a href="{{ $exportUrl }}"
             class="text-sm rounded px-3 py-1.5 flex items-center gap-2 border border-gray-300 text-gray-600 hover:bg-gray-50 transition">
             <i class="fas fa-download text-xs"></i>

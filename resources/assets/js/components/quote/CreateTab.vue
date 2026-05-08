@@ -9,9 +9,6 @@
                 <a href="#" class="text-gray-700 font-medium" @click="setTab('text')">Text</a>
             </li>
 
-            <li class="px-2 mx-3 py-2" v-bind:class="[{'active' : tab === 'bible'}]" >
-                <a href="#" class="text-gray-700 font-medium" @click="setTab('bible')">Bible Library (API)</a>
-            </li>
         </ul>
         <div v-if="this.mode == 'add'">
             <portal to="add_quote_tab">
