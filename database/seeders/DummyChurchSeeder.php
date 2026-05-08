@@ -31,6 +31,7 @@ class DummyChurchSeeder extends Seeder
                 'user_id'         => $user->id,
                 'church_id'       => $user->church_id,
                 'membership_type' => 'member',
+                'status'          => 'active',
             ]);
             if ($subadminRole) {
                 $user->attachRole($subadminRole);
@@ -46,6 +47,7 @@ class DummyChurchSeeder extends Seeder
                 'user_id'         => $staff->id,
                 'church_id'       => $staff->church_id,
                 'membership_type' => 'member',
+                'status'          => 'active',
             ]);
             if ($staffRole) {
                 $staff->attachRole($staffRole);
@@ -58,12 +60,14 @@ class DummyChurchSeeder extends Seeder
             'usergroup_id' => 5,
         ])->each(function ($member) {
             factory(Userprofile::class, 1)->create([
-                'user_id'   => $member->id,
-                'church_id' => $member->church_id,
+                'user_id'         => $member->id,
+                'church_id'       => $member->church_id,
+                'membership_type' => 'member',
+                'status'          => 'active',
             ]);
         });
 
-        // 20 Guests (membership_type distinguishes them from regular members)
+        // 20 Guests
         factory(User::class, 20)->create([
             'church_id'    => $church->id,
             'usergroup_id' => 5,
@@ -72,6 +76,7 @@ class DummyChurchSeeder extends Seeder
                 'user_id'         => $guest->id,
                 'church_id'       => $guest->church_id,
                 'membership_type' => 'guest',
+                'status'          => 'active',
             ]);
         });
     }

@@ -2,6 +2,7 @@
 namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Church;
+use App\Models\MediaFile;
 use App\Models\User;
 
 class DummyMediaFilesSeeder extends Seeder
@@ -19,7 +20,7 @@ class DummyMediaFilesSeeder extends Seeder
         {
             $admin = User::where([['church_id',$church->id],['usergroup_id',3]])->first();
             
-            factory(App\Models\MediaFile::class,10)->create([
+            factory(MediaFile::class, 10)->create([
                 'church_id'  => $church->id,
                 'created_by' => $admin->id, 
                 'updated_by' => $admin->id

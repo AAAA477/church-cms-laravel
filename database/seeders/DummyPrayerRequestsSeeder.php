@@ -1,29 +1,39 @@
 <?php
 namespace Database\Seeders;
-use Illuminate\Database\Seeder;
+
 use App\Models\Church;
+use App\Models\Prayer;
 use App\Models\User;
+use Illuminate\Database\Seeder;
 
 class DummyPrayerRequestsSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
-        //
-        $churches = Church::where('status',1)->get();
-        foreach ($churches as $church) 
-        {
-            $users = User::where([['church_id',$church->id],['usergroup_id',5]])->pluck('id')->toArray();
-            $user = array_rand($users, 1);
-            
-            factory(App\Models\PrayerRequest::class,2)->create([
-                'church_id'	=> 	$church->id,
-                'user_id'   =>	$user,
-                'status' 	=> 	'approve',
+        $churches = Church::where('status', 1)->get();
+        foreach ($churches as $church) {
+            $userIds = User::where('church_id', $church->id)
+                ->where('usergroup_id', 5)
+                ->pluck('id');
+
+            if ($userIds->isEmpty()) continue;
+
+            factory(Prayer::class, 5)->create([
+                'church_id' => $church->id,
+                'user_id'   => $userIds->random(),
+                'status'    => Prayer::STATUS_ACTIVE,
+            ]);
+
+            factory(Prayer::class, 2)->create([
+                'church_id' => $church->id,
+                'user_id'   => $userIds->random(),
+                'status'    => Prayer::STATUS_ANSWERED,
+            ]);
+
+            factory(Prayer::class, 3)->create([
+                'church_id' => $church->id,
+                'user_id'   => $userIds->random(),
+                'status'    => Prayer::STATUS_PENDING,
             ]);
         }
     }

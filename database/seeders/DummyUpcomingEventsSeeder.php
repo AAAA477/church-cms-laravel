@@ -2,6 +2,8 @@
 namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Church;
+use App\Models\EventGallery;
+use App\Models\Events;
 use App\Models\User;
 use Carbon\Carbon;
 
@@ -19,13 +21,13 @@ class DummyUpcomingEventsSeeder extends Seeder
         {
             $churchadmin = User::where([['church_id',$church->id],['usergroup_id',3]])->first();
             
-            factory(App\Models\Events::class,5)->create([
+            factory(Events::class, 5)->create([
                 'church_id'     =>  $church->id,
                 'start_date'    => Carbon::now()->addDay(2),
                 'end_date'      => Carbon::now()->addDay(3),
             ])->each(function($churchadmin){
 
-                factory(App\Models\EventGallery::class, 20)->create([
+                factory(EventGallery::class, 20)->create([
                     'event_id'      =>  $churchadmin->id, 
                     'church_id'     =>  $churchadmin->church_id,
                     'created_by'    =>  $churchadmin->id, 
