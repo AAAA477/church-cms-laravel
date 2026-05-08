@@ -18,16 +18,21 @@ class DummySermonSeeder extends Seeder
         $churchs = Church::where('status',1)->get();
         foreach ($churchs as $church)
         {
-            $preacher = User::where([['church_id',$church->id],['usergroup_id',6]])->first();
+            $author = User::where('church_id', $church->id)
+                ->whereIn('usergroup_id', [6, 3, 4])
+                ->first()
+                ?? User::where('church_id', $church->id)->first();
 
-            factory(Sermon::class,3)->create([
-                'church_id' =>  $church->id,
-                'user_id'   =>  "25"
-            ])->each(function($sermon) use($preacher){
-                factory(SermonLink::class,5)->create([
-                    'church_id'     =>  $preacher->church_id,
-                    'user_id'       =>  $preacher->id,
-                    'sermons_id'    =>  $sermon->id
+            if (! $author) continue;
+
+            factory(Sermon::class, 3)->create([
+                'church_id' => $church->id,
+                'user_id'   => $author->id,
+            ])->each(function ($sermon) use ($author) {
+                factory(SermonLink::class, 5)->create([
+                    'church_id'  => $author->church_id,
+                    'user_id'    => $author->id,
+                    'sermons_id' => $sermon->id,
                 ]);
             });
         }

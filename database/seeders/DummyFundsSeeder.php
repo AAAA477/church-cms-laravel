@@ -2,6 +2,7 @@
 namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Church;
+use App\Models\Fund;
 use App\Models\User;
 
 class DummyFundsSeeder extends Seeder
@@ -18,7 +19,7 @@ class DummyFundsSeeder extends Seeder
         foreach ($churchs as $church) 
         {
             $admin = User::where([['church_id',$church->id],['usergroup_id',3]])->first();
-            factory(App\Models\Fund::class, 20)->create([
+            factory(Fund::class, 20)->create([
                 'church_id'     =>  $church->id,
                 'authorised_by' =>  $admin->id,
                 'status'        =>  'deposited',

@@ -98,9 +98,10 @@ class UserController extends Controller
         $church_id = Auth::user()->church_id;
 
         // Build the query with filters
-        $usersQuery = User::ByChurch($church_id)->ByRole(5)->whereHas('userprofile', function ($q) {
-            $q->where('membership_type', 'member')->orWhere('membership_type', null);
-        });
+        $usersQuery = User::with(['userprofile.state', 'userprofile.city', 'usergroup'])
+            ->ByChurch($church_id)->ByRole(5)->whereHas('userprofile', function ($q) {
+                $q->where('membership_type', 'member')->orWhere('membership_type', null);
+            });
 
         // Apply alphabet filter
         if ($alphabet) {

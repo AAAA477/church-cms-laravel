@@ -38,9 +38,10 @@ trait MemberProcess
      */
     public function MemberFilter(Request $request, int $church_id, int $usergroup_id): ?object {
         try {
-            $users = User::ByChurch($church_id)->ByRole($usergroup_id)->whereHas('userprofile', function ($q) {
-                $q->where('membership_type', 'member')->orWhere('membership_type', null);
-            });
+            $users = User::with(['userprofile.state', 'userprofile.city', 'usergroup'])
+                ->ByChurch($church_id)->ByRole($usergroup_id)->whereHas('userprofile', function ($q) {
+                    $q->where('membership_type', 'member')->orWhere('membership_type', null);
+                });
 
             $alphabet = $request->alphabet ?? '';
             if ($alphabet) {

@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             StatesTableSeeder::class,
             CitiesTableSeeder::class,
             PermissionTableSeeder::class,
+            RoleSeeder::class,
             GroupCategoryTableSeeder::class,
             MailTemplatesSeeder::class,
             SmsTemplatesTableSeeder::class,
