@@ -138,11 +138,23 @@ class SermonsController extends Controller
 
             $sermon->title       = $request->title;
             $sermon->description = $request->description;
-
-            if ($request->hasFile('cover_image')) {
-                $path                = $this->uploadFile('/uploads/sermons/covers/' . Auth::user()->church_id, $request->file('cover_image'));
-                $sermon->cover_image = $path;
+            // $sermon->cover_image = $request->input('cover_image_path') ?: null;
+            if ($request->cover_image_id && str_starts_with($request->cover_image_id, 'media_')) {
+                $mediaId    = str_replace('media_', '', $request->cover_image_id);
+                $mediaImage = \App\Models\MediaFile::where([
+                    ['id', $mediaId],
+                    ['church_id', Auth::user()->church_id],
+                    ['media_type', 'image'],
+                ])->first();
+                if ($mediaImage)
+                    $path = $mediaImage->url;
+            } elseif ($request->cover_image_path) {
+                $path = $request->cover_image_path;
             }
+
+            //dd($path);
+
+            $sermon->cover_image = $path;
 
             $sermon->save();
 

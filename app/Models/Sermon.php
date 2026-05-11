@@ -187,6 +187,10 @@ class Sermon extends Model
 
     public function getCoverImagePathAttribute()
     {
+        if (!$this->cover_image) return '';
+        if (str_starts_with($this->cover_image, 'http://') || str_starts_with($this->cover_image, 'https://')) {
+            return $this->cover_image;
+        }
         return $this->getFilePath($this->cover_image);
     }
 
