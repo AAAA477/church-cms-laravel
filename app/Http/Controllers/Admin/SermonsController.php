@@ -30,7 +30,7 @@ use Log;
  */
 class SermonsController extends Controller
 {
-     use LogActivity;
+    use LogActivity;
     use Common;
     //
 
@@ -41,18 +41,16 @@ class SermonsController extends Controller
      */
     public function index(Request $request)
     {
-        $sermons = Sermon::where('church_id',Auth::user()->church_id)->with('vote');
+        $sermons = Sermon::where('church_id', Auth::user()->church_id)->with('vote');
         $q = request('q');
-        if($q!= '')
-        {
-            $sermons= Sermon::whereHas('user', function ($query) use($q)
-            {
-                $query->where([['title','LIKE','%'.$q.'%'],['church_id',Auth::user()->church_id]])->orWhere('name','LIKE','%'.$q.'%');
+        if ($q != '') {
+            $sermons = Sermon::whereHas('user', function ($query) use ($q) {
+                $query->where([['title', 'LIKE', '%' . $q . '%'], ['church_id', Auth::user()->church_id]])->orWhere('name', 'LIKE', '%' . $q . '%');
             });
         }
         $sermons = $sermons->paginate(8);
 
-        return view('admin/sermon/index',['sermons' => $sermons])->withQuery($q);
+        return view('admin/sermon/index', ['sermons' => $sermons])->withQuery($q);
     }
 
     /**
@@ -62,14 +60,11 @@ class SermonsController extends Controller
      */
     public function show($id)
     {
-        $sermon = Sermon::where('id',$id)->first();
-        $sermonlinks = SermonLink::where('sermons_id',$id)->orderBy('date','asc')->paginate(5);
-        if(Gate::allows('sermon',$sermon))
-        {
-            return view('/admin/sermon/show',['sermon' => $sermon , 'sermonlinks' => $sermonlinks]);
-        }
-        else
-        {
+        $sermon = Sermon::where('id', $id)->first();
+        $sermonlinks = SermonLink::where('sermons_id', $id)->orderBy('date', 'asc')->paginate(5);
+        if (Gate::allows('sermon', $sermon)) {
+            return view('/admin/sermon/show', ['sermon' => $sermon, 'sermonlinks' => $sermonlinks]);
+        } else {
             abort(403);
         }
     }
@@ -81,12 +76,28 @@ class SermonsController extends Controller
 
     public function store(SermonRequest $request)
     {
-        try
-        {
+        try {
             $church_id = Auth::user()->church_id;
             $user_id   = Auth::id();
-            $file      = $request->file('cover_image');
-            $path      = $this->uploadFile('/uploads/sermons/covers/' . $church_id, $file);
+
+            // if ($request->hasFile('cover_image')) {
+            //     $path = $this->uploadFile('/uploads/sermons/covers/' . $church_id, $request->file('cover_image'));
+            // } else {
+            //     $path = $request->input('cover_image_path') ?: null;
+            // }
+
+            if ($request->cover_image_id && str_starts_with($request->cover_image_id, 'media_')) {
+                $mediaId    = str_replace('media_', '', $request->cover_image_id);
+                $mediaImage = \App\Models\MediaFile::where([
+                    ['id', $mediaId],
+                    ['church_id', Auth::user()->church_id],
+                    ['media_type', 'image'],
+                ])->first();
+                if ($mediaImage)
+                    $path = $mediaImage->url;
+            } elseif ($request->cover_image_path) {
+                $path = $request->cover_image_path;
+            }
 
             $sermon              = new Sermon;
             $sermon->church_id   = $church_id;
@@ -96,14 +107,14 @@ class SermonsController extends Controller
             $sermon->cover_image = $path;
             $sermon->save();
 
+
+
             if (env('MAIL_STATUS') === 'on') {
                 event(new SermonEvent($sermon));
             }
 
             return redirect('/admin/sermons')->with('successmessage', 'Sermon Created!');
-        }
-        catch (Exception $e)
-        {
+        } catch (Exception $e) {
             Log::error($e->getMessage());
             return redirect()->back()->with('errormessage', 'Could not create sermon.');
         }
@@ -120,8 +131,7 @@ class SermonsController extends Controller
 
     public function update(SermonUpdateRequest $request, $id)
     {
-        try
-        {
+        try {
             $sermon = Sermon::where('id', $id)
                 ->where('church_id', Auth::user()->church_id)
                 ->firstOrFail();
@@ -137,9 +147,7 @@ class SermonsController extends Controller
             $sermon->save();
 
             return redirect('/admin/sermons')->with('successmessage', 'Sermon Updated!');
-        }
-        catch (Exception $e)
-        {
+        } catch (Exception $e) {
             Log::error($e->getMessage());
             return redirect()->back()->with('errormessage', 'Could not update sermon.');
         }
@@ -147,8 +155,7 @@ class SermonsController extends Controller
 
     public function destroy($id)
     {
-        try
-        {
+        try {
             $sermon = Sermon::where('id', $id)
                 ->where('church_id', Auth::user()->church_id)
                 ->firstOrFail();
@@ -157,9 +164,7 @@ class SermonsController extends Controller
             $sermon->delete();
 
             return redirect('/admin/sermons')->with('successmessage', 'Sermon deleted.');
-        }
-        catch (Exception $e)
-        {
+        } catch (Exception $e) {
             Log::error($e->getMessage());
             return redirect()->back()->with('errormessage', 'Could not delete sermon.');
         }
@@ -171,25 +176,22 @@ class SermonsController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function download(Request $request,$id)
+    public function download(Request $request, $id)
     {
         //PDF file is stored under project/public/download/info.pdf
         $sermon = SermonLink::where('id', $id)->first();
-        if(Gate::allows('sermon',$sermon))
-        {
-           $path= $this->getFilePath($sermon->url);
+        if (Gate::allows('sermon', $sermon)) {
+            $path = $this->getFilePath($sermon->url);
 
 
-            $file=pathinfo($path);
+            $file = pathinfo($path);
             $extension = $file['extension'];
             $headers = [
-                'Content-Type: application/'.$extension,
+                'Content-Type: application/' . $extension,
             ];
 
-            return \Response::download($path, 'filename.'.$extension, $headers);
-        }
-        else
-        {
+            return \Response::download($path, 'filename.' . $extension, $headers);
+        } else {
             abort(403);
         }
     }

@@ -173,7 +173,7 @@
                                     class="w-28 flex-shrink-0 border border-gray-300 rounded-lg px-2 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400">
                                     @forelse($countries as $country)
                                     <option value="{{ $country->tel_prefix }}"
-                                        {{ old('mobile_country_code', '+91') === $country->tel_prefix ? 'selected' : '' }}>
+                                        {{ old('mobile_country_code', '91') === $country->tel_prefix ? 'selected' : '' }}>
                                         {{ $country->short_name ?? $country->name }} +{{ $country->tel_prefix }}
                                     </option>
                                     @empty

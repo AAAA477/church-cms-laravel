@@ -25,23 +25,22 @@ class SermonUpdateRequest extends FormRequest
     {
         return [
             //
-                'title'       => 'required',
-                'description' => 'required',
-                'cover_image' => 'nullable|mimes:jpeg,jpg,bmp,png',
+            'title'       => 'required',
+            'description' => 'required',
+            //'cover_image' => 'nullable|mimes:jpeg,jpg,bmp,png',
         ];
     }
 
     public function messages()
     {
-        
-        return[
-                  'title.required'=>'Name is Required',
-                  'title.check_title'  =>' Enter Valid Title',
-                  'description.required'=>'Enter your description',
-                  'description.check_description'=>'Enter Valid Description',
-                 'cover_image.required'=> 'Select your image',
-                 'cover_image.mimes' => 'file extension error',
-            ];
-      
-   } 
+
+        return [
+            'title.required' => 'Name is Required',
+            'title.check_title'  => ' Enter Valid Title',
+            'description.required' => 'Enter your description',
+            'description.check_description' => 'Enter Valid Description',
+            'cover_image.required' => 'Select your image',
+            'cover_image.mimes' => 'file extension error',
+        ];
+    }
 }

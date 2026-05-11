@@ -9,7 +9,7 @@ $addRoutes = [
 ];
 $addLabels = ['image' => 'Add Image', 'audio' => 'Add Audio', 'video' => 'Add Video'];
 $addIcons = ['image' => 'fa-image', 'audio' => 'fa-music', 'video' => 'fa-video'];
-//$isAdmin = auth()->user()->usergroup_id == 3;
+$isAdmin = auth()->user()->usergroup_id == 3;
 @endphp
 
 {{-- ── Header ─────────────────────────────────────────────────────────── --}}
