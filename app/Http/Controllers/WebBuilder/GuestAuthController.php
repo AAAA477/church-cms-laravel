@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\WebBuilder;
 
 use App\Http\Controllers\Controller;
+use App\Models\Country;
+use App\Rules\ValidRecaptcha;
 use App\Traits\RegisterUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,10 +20,16 @@ class GuestAuthController extends Controller
         }
 
         if (config('settings.guest_registration', 1) != 1) {
-            return view('theme::guest_register', ['blocked' => true]);
+            return view('theme::guest_register', ['blocked' => true, 'countries' => collect()]);
         }
 
-        return view('theme::guest_register', ['blocked' => false]);
+        $countries = Country::where('status', 1)
+            ->whereNotNull('tel_prefix')
+            ->orderByRaw("CASE WHEN tel_prefix = '+91' THEN 0 ELSE 1 END")
+            ->orderBy('name')
+            ->get(['id', 'name', 'short_name', 'tel_prefix']);
+
+        return view('theme::guest_register', ['blocked' => false, 'countries' => $countries]);
     }
 
     public function register(Request $request)
@@ -42,6 +50,7 @@ class GuestAuthController extends Controller
             'mobile_no'             => 'required|digits:10|unique:users,mobile_no',
             'email'                 => 'required|email|max:150|unique:users,email',
             'password'              => 'required|string|min:8|confirmed',
+            'g-recaptcha-response'  => env('GOOGLE_RECAPTCHA_KEY') ? ['required', new ValidRecaptcha()] : [],
         ]);
 
         $church = $request->attributes->get('_church');
@@ -66,6 +75,7 @@ class GuestAuthController extends Controller
             'pincode'        => null,
             'aadhar_number'  => null,
             'notes'          => null,
+            'mobile_country_code' => $request->mobile_country_code,
         ];
 
         $user = $this->createGuest($data, optional($church)->id ?? 0, '', 5);

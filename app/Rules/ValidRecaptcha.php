@@ -45,7 +45,8 @@ class ValidRecaptcha implements Rule
                 'response' => $value
             ]
         ]);
-        return json_decode($response->getBody())->success;
+        $body = json_decode($response->getBody());
+        return $body->success && ($body->score ?? 0) >= 0.5;
     }
 
     /**
