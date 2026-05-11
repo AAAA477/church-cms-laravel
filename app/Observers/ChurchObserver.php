@@ -55,7 +55,10 @@ class ChurchObserver
                 'twitter_image' => 'Twitter image',
                 'twitter_url' => 'Twitter url',
                 'header_code' => 'Header Code',
-                'footer_code' => 'Footer Code'
+                'footer_code' => 'Footer Code',
+                'guest_register_captcha_status' => '0',
+                'contact_captcha_status' => '0',
+
 
             ];
 

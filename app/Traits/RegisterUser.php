@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Trait for processing RegisterUser
  */
+
 namespace App\Traits;
 
 use Illuminate\Support\Facades\DB;
@@ -40,7 +42,8 @@ trait RegisterUser
      *
      * @return \App\Models\User|null The created user object, or null on failure
      */
-    public function CreateUser(object $data, int $church_id, string $path = '', int $usergroup_id): ?User {
+    public function CreateUser(object $data, int $church_id, string $path = '', int $usergroup_id): ?User
+    {
         \DB::beginTransaction();
         try {
             $ref_user = null;
@@ -189,7 +192,8 @@ trait RegisterUser
      *
      * @return \App\Models\User|null The created user object, or null on failure
      */
-    public function createGuest(object $data, int $church_id, string $path = '', int $usergroup_id): ?User {
+    public function createGuest(object $data, int $church_id, string $path = '', int $usergroup_id): ?User
+    {
         \DB::beginTransaction();
         try {
             $user = new User;
@@ -204,6 +208,7 @@ trait RegisterUser
             $user->password = bcrypt(config('app.default_password', 'password'));
             $user->email = $data->email;
             $user->mobile_no = $data->mobile_no;
+            $user->mobile_country_code = $data->mobile_country_code;
             $user->email_verification_code = Str::random(40);
 
             $user->save();
@@ -288,7 +293,8 @@ trait RegisterUser
      *
      * @return \App\Models\Subscribers|null The created subscriber object, or null on failure
      */
-    public function CreateSubscriber(object $data): ?object {
+    public function CreateSubscriber(object $data): ?object
+    {
         try {
             $subscriber = new Subscribers;
 

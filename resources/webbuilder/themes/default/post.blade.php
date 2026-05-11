@@ -31,15 +31,17 @@
         <span class="text-xs text-gray-400 font-medium">Tags:</span>
         @foreach($post->tags as $tag)
         <a href="{{ route('web.posts', ['tag' => $tag->tag_name]) }}"
-           class="text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 transition">
+            class="text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 transition">
             #{{ $tag->tag_name }}
         </a>
         @endforeach
     </div>
     @endif
 
+
     {{-- Post Like --}}
     <div class="mt-8 flex items-center gap-3">
+        @auth
         <button id="post-like-btn"
             data-id="{{ $post->id }}"
             data-liked="{{ $postLiked ? 'true' : 'false' }}"
@@ -47,11 +49,21 @@
             class="inline-flex items-center gap-2 px-5 py-2 rounded-full border text-sm font-medium transition
                    {{ $postLiked ? 'bg-red-500 border-red-500 text-white' : 'border-gray-300 text-gray-600 hover:border-red-400 hover:text-red-500' }}">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="{{ $postLiked ? 'currentColor' : 'none' }}" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z" />
             </svg>
             <span id="post-like-label">{{ $postLiked ? 'Liked' : 'Like' }}</span>
             <span id="post-like-count" class="ml-1 {{ $postLiked ? 'text-red-200' : 'text-gray-400' }}">{{ $post->public_like_count }}</span>
         </button>
+        @else
+        <a href="{{ url('guest/login') }}"
+            class="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-gray-300 text-gray-600 text-sm font-medium hover:border-red-400 hover:text-red-500 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z" />
+            </svg>
+            <span>Like</span>
+            <span class="ml-1 text-gray-400">{{ $post->public_like_count }}</span>
+        </a>
+        @endauth
     </div>
 
     <hr class="my-12 border-gray-200">
@@ -98,7 +110,7 @@
                             data-liked="{{ $commentLiked ? 'true' : 'false' }}"
                             data-url="{{ route('web.comment.like', $comment->id) }}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="{{ $commentLiked ? 'currentColor' : 'none' }}" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z" />
                             </svg>
                             <span class="comment-like-label">{{ $commentLiked ? 'Liked' : 'Like' }}</span>
                             <span class="comment-like-count">{{ $comment->public_like_count > 0 ? $comment->public_like_count : '' }}</span>
@@ -134,8 +146,8 @@
             @endif
 
             @php
-                $authProfile = optional(auth()->user()->userprofile);
-                $authName = trim(($authProfile->firstname ?? '') . ' ' . ($authProfile->lastname ?? '')) ?: auth()->user()->name;
+            $authProfile = optional(auth()->user()->userprofile);
+            $authName = trim(($authProfile->firstname ?? '') . ' ' . ($authProfile->lastname ?? '')) ?: auth()->user()->name;
             @endphp
             <p class="text-sm text-gray-500 mb-4">Commenting as <span class="font-semibold text-gray-700">{{ $authName }}</span></p>
 
@@ -158,11 +170,11 @@
                 <p class="text-gray-600 text-sm">You need to be logged in to leave a comment.</p>
                 <div class="flex flex-col sm:flex-row gap-3 justify-center">
                     <a href="{{ route('web.guest.register') }}"
-                       class="px-5 py-2 rounded-lg font-semibold bg-indigo-600 text-white hover:bg-indigo-700 text-sm text-center">
+                        class="px-5 py-2 rounded-lg font-semibold bg-indigo-600 text-white hover:bg-indigo-700 text-sm text-center">
                         Register Free
                     </a>
                     <a href="{{ route('web.guest.login') }}"
-                       class="px-5 py-2 rounded-lg font-semibold border border-indigo-300 text-indigo-700 hover:bg-indigo-50 text-sm text-center">
+                        class="px-5 py-2 rounded-lg font-semibold border border-indigo-300 text-indigo-700 hover:bg-indigo-50 text-sm text-center">
                         Login
                     </a>
                 </div>
@@ -177,84 +189,90 @@
 
 @push('scripts')
 <script>
-(function () {
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+    (function() {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
-    // ── Post like ──────────────────────────────────────────────────
-    const postBtn = document.getElementById('post-like-btn');
-    if (postBtn) {
-        postBtn.addEventListener('click', function () {
-            toggleLike(this, {
-                url:        this.dataset.url,
-                labelEl:    document.getElementById('post-like-label'),
-                countEl:    document.getElementById('post-like-count'),
-                activeClass:'bg-red-500 border-red-500 text-white',
-                inactiveClass:'border-gray-300 text-gray-600 hover:border-red-400 hover:text-red-500',
-                countActiveClass:'text-red-200',
-                countInactiveClass:'text-gray-400',
+        // ── Post like ──────────────────────────────────────────────────
+        const postBtn = document.getElementById('post-like-btn');
+        if (postBtn) {
+            postBtn.addEventListener('click', function() {
+                toggleLike(this, {
+                    url: this.dataset.url,
+                    labelEl: document.getElementById('post-like-label'),
+                    countEl: document.getElementById('post-like-count'),
+                    activeClass: 'bg-red-500 border-red-500 text-white',
+                    inactiveClass: 'border-gray-300 text-gray-600 hover:border-red-400 hover:text-red-500',
+                    countActiveClass: 'text-red-200',
+                    countInactiveClass: 'text-gray-400',
+                });
+            });
+        }
+
+        // ── Comment likes ──────────────────────────────────────────────
+        document.querySelectorAll('.comment-like-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const labelEl = this.querySelector('.comment-like-label');
+                const countEl = this.querySelector('.comment-like-count');
+                const svgEl = this.querySelector('svg');
+                const liked = this.dataset.liked === 'true';
+
+                fetch(this.dataset.url, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        },
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        this.dataset.liked = data.liked ? 'true' : 'false';
+                        labelEl.textContent = data.liked ? 'Liked' : 'Like';
+                        countEl.textContent = data.count > 0 ? data.count : '';
+                        if (data.liked) {
+                            this.classList.remove('text-gray-400', 'hover:text-red-400');
+                            this.classList.add('text-red-500');
+                            svgEl.setAttribute('fill', 'currentColor');
+                        } else {
+                            this.classList.remove('text-red-500');
+                            this.classList.add('text-gray-400', 'hover:text-red-400');
+                            svgEl.setAttribute('fill', 'none');
+                        }
+                    })
+                    .catch(() => {});
             });
         });
-    }
 
-    // ── Comment likes ──────────────────────────────────────────────
-    document.querySelectorAll('.comment-like-btn').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            const labelEl = this.querySelector('.comment-like-label');
-            const countEl = this.querySelector('.comment-like-count');
-            const svgEl   = this.querySelector('svg');
-            const liked   = this.dataset.liked === 'true';
+        function toggleLike(btn, opts) {
+            const liked = btn.dataset.liked === 'true';
+            const svgEl = btn.querySelector('svg');
 
-            fetch(this.dataset.url, {
-                method: 'POST',
-                headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-            })
-            .then(r => r.json())
-            .then(data => {
-                this.dataset.liked = data.liked ? 'true' : 'false';
-                labelEl.textContent = data.liked ? 'Liked' : 'Like';
-                countEl.textContent = data.count > 0 ? data.count : '';
-                if (data.liked) {
-                    this.classList.remove('text-gray-400', 'hover:text-red-400');
-                    this.classList.add('text-red-500');
-                    svgEl.setAttribute('fill', 'currentColor');
-                } else {
-                    this.classList.remove('text-red-500');
-                    this.classList.add('text-gray-400', 'hover:text-red-400');
-                    svgEl.setAttribute('fill', 'none');
-                }
-            })
-            .catch(() => {});
-        });
-    });
+            fetch(opts.url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                })
+                .then(r => r.json())
+                .then(data => {
+                    btn.dataset.liked = data.liked ? 'true' : 'false';
+                    opts.labelEl.textContent = data.liked ? 'Liked' : 'Like';
+                    opts.countEl.textContent = data.count;
 
-    function toggleLike(btn, opts) {
-        const liked  = btn.dataset.liked === 'true';
-        const svgEl  = btn.querySelector('svg');
-
-        fetch(opts.url, {
-            method: 'POST',
-            headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-        })
-        .then(r => r.json())
-        .then(data => {
-            btn.dataset.liked = data.liked ? 'true' : 'false';
-            opts.labelEl.textContent = data.liked ? 'Liked' : 'Like';
-            opts.countEl.textContent = data.count;
-
-            if (data.liked) {
-                btn.className = btn.className.replace(opts.inactiveClass, '').trim();
-                btn.classList.add(...opts.activeClass.split(' '));
-                opts.countEl.className = opts.countEl.className.replace(opts.countInactiveClass, opts.countActiveClass);
-                svgEl.setAttribute('fill', 'currentColor');
-            } else {
-                btn.classList.remove(...opts.activeClass.split(' '));
-                btn.classList.add(...opts.inactiveClass.split(' '));
-                opts.countEl.className = opts.countEl.className.replace(opts.countActiveClass, opts.countInactiveClass);
-                svgEl.setAttribute('fill', 'none');
-            }
-        })
-        .catch(() => {});
-    }
-})();
+                    if (data.liked) {
+                        btn.className = btn.className.replace(opts.inactiveClass, '').trim();
+                        btn.classList.add(...opts.activeClass.split(' '));
+                        opts.countEl.className = opts.countEl.className.replace(opts.countInactiveClass, opts.countActiveClass);
+                        svgEl.setAttribute('fill', 'currentColor');
+                    } else {
+                        btn.classList.remove(...opts.activeClass.split(' '));
+                        btn.classList.add(...opts.inactiveClass.split(' '));
+                        opts.countEl.className = opts.countEl.className.replace(opts.countActiveClass, opts.countInactiveClass);
+                        svgEl.setAttribute('fill', 'none');
+                    }
+                })
+                .catch(() => {});
+        }
+    })();
 </script>
 @endpush
