@@ -39,14 +39,14 @@ class HelpRepository implements HelpRepositoryInterface
             $help = Help::find($id);
 
             $help->status = $data->status;
-            if($request->status == 'approve')
+            if($data->status == 'approve')
             {
-                $help->expired_at = Carbon::now()->addDay($request->expired_at)->format('Y-m-d');
+                $help->expired_at = Carbon::now()->addDays((int)$data->expired_at)->format('Y-m-d');
                 $help->closed_by  = Auth::id();
             }
             else
             {
-                $help->comments = $request->comments;
+                $help->comments = $data->comments;
             }
 
             $help->save();

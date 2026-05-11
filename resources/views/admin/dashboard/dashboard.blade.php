@@ -10,19 +10,19 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-5">
                     @include('admin.dashboard._partials.__total_members')
                     @include('admin.dashboard._partials.__total_guests')
-                    {{-- @include('admin.dashboard._partials.__male_count')
-                     @include('admin.dashboard._partials.__female_count') --}}
                     @include('admin.dashboard._partials.__search_box')
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     @include('admin.dashboard._partials.__statistics')
                     @include('admin.dashboard._partials.__recently_added_members')
-                    @include('admin.dashboard._partials.__not_attended_members')
                     @include('admin.dashboard._partials.__birthday')
                     @include('admin.dashboard._partials.__anniversary')
                     @include('admin.dashboard._partials.__upcoming_events')
+                    @include('admin.dashboard._partials.__pending_prayers')
+                    @include('admin.dashboard._partials.__pending_helps')
                     @include('admin.dashboard._partials.__latest_sermons')
                     @include('admin.dashboard._partials.__offerings')
+
                 </div>
             @else
                 {{-- Sub-admin dashboard: welcome widget only --}}

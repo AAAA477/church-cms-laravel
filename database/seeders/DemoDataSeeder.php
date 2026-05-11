@@ -57,6 +57,7 @@ class DemoDataSeeder extends Seeder
             DummyHelpsSeeder::class,
 
             // Groups & finances
+            DummyGroupsSeeder::class,
             DummyFundsSeeder::class,
 
             // Prayer

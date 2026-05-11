@@ -33,7 +33,7 @@ class HelpRequestController extends Controller
             'title'           => $validated['title'],
             'description'     => $validated['description'],
             'contact_details' => $validated['contact_details'],
-            'status'          => 'open',
+            'status'          => 'pending',
         ]);
 
         return redirect()->back()->with('success', 'Your help request has been submitted.');

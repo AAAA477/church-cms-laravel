@@ -131,12 +131,12 @@ class Userprofile extends Model
 
     public function state()
     {
-        return $this->hasOne('App\Models\State','id','state_id');
+        return $this->belongsTo('App\Models\State', 'state_id');
     }
 
     public function city()
     {
-        return $this->hasOne('App\Models\City','id','city_id');
+        return $this->belongsTo('App\Models\City', 'city_id');
     }
 
     public function scopeByChurch($query,$church_id)

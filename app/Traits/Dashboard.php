@@ -1,113 +1,62 @@
 <?php
 
-/**
- * Trait for processing Dashboard
- */
-
 namespace App\Traits;
 
 use Illuminate\Support\Facades\Cache;
-use App\Models\Userprofile;
 use App\Models\Attendance;
-use App\Models\MediaFile;
 use App\Models\Bulletin;
-use App\Models\Gallery;
 use App\Models\Events;
-use App\Models\Group;
 use App\Models\Fund;
+use App\Models\Gallery;
+use App\Models\Group;
+use App\Models\MediaFile;
+use App\Models\Help;
+use App\Models\Prayer;
 use App\Models\User;
+use App\Models\Userprofile;
 use Carbon\Carbon;
 
-/**
- * Trait for dashboard data compilation and statistics
- *
- * Provides functionality for:
- * - Generating comprehensive church dashboard statistics
- * - Caching statistical data for performance
- * - Computing member and guest counts by various categories
- * - Aggregating event, gallery, and resource statistics
- * - Calculating fund and donation statistics
- * - Analyzing attendance patterns and trends
- *
- * @package App\Traits
- */
 trait Dashboard
 {
-    /**
-     * Compile comprehensive dashboard statistics for a church.
-     *
-     * Retrieves and caches various statistics including member counts (by gender),
-     * guest counts, event details, gallery statistics, fund information, and
-     * attendance analytics. All results are cached for improved performance.
-     *
-     * @param int $church_id The church ID to compile statistics for
-     * @param int $admin_id The administrator ID viewing the dashboard
-     *
-     * @return array Comprehensive dashboard statistics array containing:
-     *               - Member counts (total, male, female)
-     *               - Guest counts (total, male, female)
-     *               - Long-term and recent members
-     *               - Event, gallery, file, bulletin, and group counts
-     *               - Subscription information
-     *               - Fund listings and total fund amounts
-     *               - Latest event information
-     *               - Absent members
-     *               - Monthly fund aggregation data
-     */
     public function adminDashboard(int $church_id, int $admin_id): array
     {
         $array = [];
 
-        $array['memberCount'] = Cache::remember('memberCount' . $church_id, env('CACHE_TIME'), function () use ($church_id) {
-            return User::ByChurch($church_id)->ByRole(5)->ByMembershipType('member')->ByStatus('active')->count();
+        // All six member/guest counts in one query instead of six separate ones
+        $stats = Cache::remember('memberStats' . $church_id, env('CACHE_TIME'), function () use ($church_id) {
+            return Userprofile::ByRole(5)
+                ->where('church_id', $church_id)
+                ->where('status', 'active')
+                ->selectRaw("
+                    SUM(membership_type = 'member')                          AS member_count,
+                    SUM(membership_type = 'member' AND gender = 'male')      AS male_member_count,
+                    SUM(membership_type = 'member' AND gender = 'female')    AS female_member_count,
+                    SUM(membership_type = 'guest')                           AS guest_count,
+                    SUM(membership_type = 'guest'  AND gender = 'male')      AS male_guest_count,
+                    SUM(membership_type = 'guest'  AND gender = 'female')    AS female_guest_count
+                ")
+                ->first();
         });
 
-        $array['maleMemberCount'] = Cache::remember('maleMemberCount' . $church_id, env('CACHE_TIME'), function () use ($church_id) {
-            return Userprofile::ByRole(5)->where([
-                ['church_id', $church_id],
-                ['membership_type', 'member'],
-                ['gender', 'male'],
-                ['status', 'active']
-            ])->count();
-        });
-
-        $array['femaleMemberCount'] = Cache::remember('femaleMemberCount' . $church_id, env('CACHE_TIME'), function () use ($church_id) {
-            return Userprofile::ByRole(5)->where([
-                ['church_id', $church_id],
-                ['membership_type', 'member'],
-                ['gender', 'female'],
-                ['status', 'active']
-            ])->count();
-        });
-
-        $array['guestCount'] = Cache::remember('guestCount' . $church_id, env('CACHE_TIME'), function () use ($church_id) {
-            return Userprofile::ByChurch($church_id)->ByRole(5)->ByMembershipType('guest')->ByStatus('active')->count();
-        });
-
-        $array['maleGuestCount'] = Cache::remember('maleGuestCount' . $church_id, env('CACHE_TIME'), function () use ($church_id) {
-            return Userprofile::ByRole(5)->where([
-                ['church_id', $church_id],
-                ['membership_type', 'guest'],
-                ['gender', 'male'],
-                ['status', 'active']
-            ])->count();
-        });
-
-        $array['femaleGuestCount'] = Cache::remember('femaleGuestCount' . $church_id, env('CACHE_TIME'), function () use ($church_id) {
-            return Userprofile::ByRole(5)->where([
-                ['church_id', $church_id],
-                ['membership_type', 'guest'],
-                ['gender', 'female'],
-                ['status', 'active']
-            ])->count();
-        });
+        $array['memberCount']       = (int) ($stats->member_count       ?? 0);
+        $array['maleMemberCount']   = (int) ($stats->male_member_count   ?? 0);
+        $array['femaleMemberCount'] = (int) ($stats->female_member_count ?? 0);
+        $array['guestCount']        = (int) ($stats->guest_count         ?? 0);
+        $array['maleGuestCount']    = (int) ($stats->male_guest_count    ?? 0);
+        $array['femaleGuestCount']  = (int) ($stats->female_guest_count  ?? 0);
 
         $array['longTimeMember'] = Cache::remember('longTimeMember' . $church_id, env('CACHE_TIME'), function () use ($church_id) {
-            return User::with('userprofile')->orderBy('created_at', 'asc')->ByRole(5)->ByChurch($church_id)->ByStatus('active')->take(4)->get();
+            return User::with(['userprofile.state', 'userprofile.city'])
+                ->orderBy('created_at', 'asc')
+                ->ByRole(5)->ByChurch($church_id)->ByStatus('active')
+                ->take(4)->get();
         });
 
         $array['recentMember'] = Cache::remember('recentMember' . $church_id, env('CACHE_TIME'), function () use ($church_id) {
-            return User::with('userprofile')->orderBy('created_at', 'desc')->ByRole(5)->ByChurch($church_id)->ByStatus('active')->take(4)->get();
+            return User::with(['userprofile.state', 'userprofile.city'])
+                ->orderBy('created_at', 'desc')
+                ->ByRole(5)->ByChurch($church_id)->ByStatus('active')
+                ->take(4)->get();
         });
 
         $array['eventCount'] = Cache::remember('eventCount' . $church_id, env('CACHE_TIME'), function () use ($church_id) {
@@ -131,44 +80,91 @@ trait Dashboard
         });
 
         $array['fundlist'] = Cache::remember('fundlist' . $church_id, env('CACHE_TIME'), function () use ($church_id) {
-            return Fund::where([['church_id', $church_id], ['status', 'deposited']])->orderBy('authorised_at', 'DESC')->take(5)->get();
+            return Fund::where([['church_id', $church_id], ['status', 'deposited']])
+                ->orderBy('authorised_at', 'DESC')->take(5)->get();
+        });
+
+        $array['upcomingEvents'] = Cache::remember('upcomingEvents' . $church_id, env('CACHE_TIME'), function () use ($church_id) {
+            return Events::where('church_id', $church_id)
+                ->where('start_date', '>=', date('Y-m-d H:i:s'))
+                ->orderBy('start_date', 'asc')
+                ->take(4)
+                ->get();
+        });
+
+        $array['pendingPrayers'] = Cache::remember('pendingPrayers' . $church_id, env('CACHE_TIME'), function () use ($church_id) {
+            return Prayer::forChurch($church_id)
+                ->pending()
+                ->with(['user', 'category'])
+                ->latest()
+                ->take(5)
+                ->get();
+        });
+
+        $array['pendingPrayerCount'] = Cache::remember('pendingPrayerCount' . $church_id, env('CACHE_TIME'), function () use ($church_id) {
+            return Prayer::forChurch($church_id)->pending()->count();
+        });
+
+        $array['pendingHelps'] = Cache::remember('pendingHelps' . $church_id, env('CACHE_TIME'), function () use ($church_id) {
+            return Help::where('church_id', $church_id)
+                ->where('status', 'pending')
+                ->with('user')
+                ->latest()
+                ->take(5)
+                ->get();
+        });
+
+        $array['pendingHelpCount'] = Cache::remember('pendingHelpCount' . $church_id, env('CACHE_TIME'), function () use ($church_id) {
+            return Help::where('church_id', $church_id)->where('status', 'pending')->count();
         });
 
         $array['latestevent'] = Cache::remember('latestevent' . $church_id, env('CACHE_TIME'), function () use ($church_id) {
-            return Events::where([['church_id', $church_id], ['start_date', '>=', date('Y-m-d')]])->first();
+            return Events::where('church_id', $church_id)
+                ->where('start_date', '>=', date('Y-m-d'))
+                ->first();
         });
 
         $latestevent = $array['latestevent'];
 
-        $array['latest_date'] = Cache::remember('latest_date' . $church_id, env('CACHE_TIME'), function () use ($church_id, $latestevent) {
-            return date('Y-m-d', strtotime('-1 day', strtotime($latestevent->start_date)));
-        });
+        // Guard against no upcoming events
+        $array['latest_date'] = $latestevent
+            ? date('Y-m-d', strtotime('-1 day', strtotime($latestevent->start_date)))
+            : null;
 
         $latest_date = $array['latest_date'];
 
-        $array['absentMembers'] = Cache::remember('absentMembers' . $church_id, env('CACHE_TIME'), function () use ($church_id, $latest_date) {
-            return Attendance::where([['church_id', $church_id], ['is_present', 0], ['date', '<=', $latest_date]])->orderBy('date')->take(4)->get();
-        });
+        $array['absentMembers'] = $latest_date
+            ? Cache::remember('absentMembers' . $church_id, env('CACHE_TIME'), function () use ($church_id, $latest_date) {
+                return Attendance::where('church_id', $church_id)
+                    ->where('is_present', 0)
+                    ->where('date', '<=', $latest_date)
+                    ->orderBy('date')->take(4)->get();
+            })
+            : collect();
 
         $array['total_fund'] = Cache::remember('total_fund' . $church_id, env('CACHE_TIME'), function () use ($church_id) {
             return Fund::where([['church_id', $church_id], ['status', 'deposited']])->sum('amount');
         });
 
-        $array['funds']  = Cache::remember('funds' . $church_id, env('CACHE_TIME'), function () use ($church_id) {
-            return Fund::where([['church_id', $church_id], ['status', 'deposited']])->orderBy('authorised_at', 'DESC')->get()->groupBy([function ($fund) {
-                return Carbon::parse($fund->authorised_at)->format('M-y');
-            }])->take(6);
+        $array['funds'] = Cache::remember('funds' . $church_id, env('CACHE_TIME'), function () use ($church_id) {
+            return Fund::where([['church_id', $church_id], ['status', 'deposited']])
+                ->orderBy('authorised_at', 'DESC')
+                ->get()
+                ->groupBy(function ($fund) {
+                    return Carbon::parse($fund->authorised_at)->format('M-y');
+                })
+                ->take(6);
         });
 
         $amountarray = [];
         foreach ($array['funds'] as $key => $groups) {
             foreach ($groups as $fund) {
-                $amountarray[$key] += $fund->amount;
+                $amountarray[$key] = ($amountarray[$key] ?? 0) + $fund->amount;
             }
             if ($key == null) {
-                $array['final'][] = array('y' => 0, 'label' => 0);
+                $array['final'][] = ['y' => 0, 'label' => 0];
             } else {
-                $array['final'][] = array('y' => $amountarray[$key], 'label' => $key);
+                $array['final'][] = ['y' => $amountarray[$key], 'label' => $key];
             }
         }
 

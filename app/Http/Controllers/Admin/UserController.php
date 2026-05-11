@@ -17,6 +17,7 @@ use App\Models\Userprofile;
 use App\Models\GroupLink;
 use App\Traits\Common;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 use Exception;
 use Log;
@@ -79,7 +80,13 @@ class UserController extends Controller
     public function index()
     {
 
-        $count    = User::ByRole(5)->ByChurch(Auth::user()->church_id)->ByStatus('active')->ByMembershipType('member')->count();
+        $church_id = Auth::user()->church_id;
+
+        // Cached so this doesn't fire on every paginated/filtered request
+        $count = Cache::remember("member_count_{$church_id}", 300, function () use ($church_id) {
+            return User::ByRole(5)->ByChurch($church_id)->ByStatus('active')->ByMembershipType('member')->count();
+        });
+
         $alphabet = request('alphabet') ? request('alphabet') : '';
         $query    = \Request::getQueryString();
 
@@ -94,13 +101,12 @@ class UserController extends Controller
             $type = 'location';
         }
 
-        // Load members data for Blade view with pagination
-        $church_id = Auth::user()->church_id;
-
-        // Build the query with filters
+        // Eager-load userprofile → state/city and usergroup in 3 batch queries (no N+1).
         $usersQuery = User::with(['userprofile.state', 'userprofile.city', 'usergroup'])
-            ->ByChurch($church_id)->ByRole(5)->whereHas('userprofile', function ($q) {
-                $q->where('membership_type', 'member')->orWhere('membership_type', null);
+            ->ByChurch($church_id)
+            ->ByRole(5)
+            ->whereHas('userprofile', function ($q) {
+                $q->where('membership_type', 'member')->orWhereNull('membership_type');
             });
 
         // Apply alphabet filter

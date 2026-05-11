@@ -13,6 +13,8 @@ use Illuminate\Http\Request;
 use App\Traits\LogActivity;
 use App\Events\PushEvent;
 use App\Traits\Common;
+use App\Models\Help;
+use Carbon\Carbon;
 use Exception;
 use Log;
 
@@ -69,13 +71,37 @@ class HelpsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $church_id = Auth::user()->church_id;
+        $status    = $request->get('tab', 'pending');
+        $search    = $request->get('search');
 
-        $count = $this->help->getHelps(Auth::user()->church_id)->count();
+        $query = Help::where('church_id', $church_id)
+            ->where('status', $status)
+            ->with('user');
 
-        return view('/admin/helps/index', ['count' => $count]);
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'LIKE', "%{$search}%")
+                  ->orWhere('description', 'LIKE', "%{$search}%")
+                  ->orWhereHas('user', function ($q2) use ($search) {
+                      $q2->whereHas('userprofile', function ($q3) use ($search) {
+                          $q3->where('firstname', 'LIKE', "%{$search}%")
+                             ->orWhere('lastname', 'LIKE', "%{$search}%");
+                      });
+                  });
+            });
+        }
+
+        $helps = $query->latest()->paginate(15);
+
+        $counts = Help::where('church_id', $church_id)
+            ->selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status');
+
+        return view('/admin/helps/index', compact('helps', 'counts', 'status'));
     }
 
     /**
@@ -126,15 +152,9 @@ class HelpsController extends Controller
      */
     public function edit($id)
     {
-        //
+        $help = Help::with('user')->where('church_id', Auth::user()->church_id)->findOrFail($id);
 
-        $help = $this->help->showHelp($id);
-
-        if (Gate::allows('help', $help)) {
-            return view('/admin/helps/edit', ['help' => $help]);
-        } else {
-            abort(403);
-        }
+        return view('/admin/helps/edit', compact('help'));
     }
 
     /**
@@ -146,42 +166,29 @@ class HelpsController extends Controller
      */
     public function update(HelpUpdateRequest $request, $id)
     {
-        //
         try {
-            /*$help = Help::where('id',$id)->first();
+            $help = Help::where('church_id', Auth::user()->church_id)->findOrFail($id);
 
             $help->status = $request->status;
-            if($request->status === 'approve')
-            {
-                $help->expired_at = Carbon::now()->addDay($request->expired_at)->format('Y-m-d');
+            if ($request->status === 'approve') {
+                $help->expired_at = Carbon::now()->addDays((int) $request->expired_at);
                 $help->closed_by  = Auth::id();
-            }
-            else
-            {
+            } else {
                 $help->comments = $request->comments;
             }
+            $help->save();
 
-            $help->save();*/
+            event(new PushEvent([
+                'church_id' => Auth::user()->church_id,
+                'message'   => 'Help Request Updated',
+                'type'      => 'help',
+            ]));
 
-            $help = $this->help->updateHelp($id, $request);
-
-            $data = [];
-
-            $data['church_id'] = Auth::user()->church_id;
-            $data['message'] = 'New Help created';
-            $data['type'] = 'help';
-
-            event(new PushEvent($data));
-
-            $array = [];
-
-            $array['church_id']         = Auth::user()->church_id;
-            $array['user_id']           = $help->user_id;
-            $array['details']           = 'New Help Request received';
-
-            event(new PrayerNotificationEvent($array));
-
-            $message = ('Help Approved Successfully');
+            event(new PrayerNotificationEvent([
+                'church_id' => Auth::user()->church_id,
+                'user_id'   => $help->user_id,
+                'details'   => 'Your help request status has been updated',
+            ]));
 
             $ip = $this->getRequestIP();
             $this->doActivityLog(
@@ -189,14 +196,13 @@ class HelpsController extends Controller
                 Auth::user(),
                 ['ip' => $ip, 'details' => $_SERVER['HTTP_USER_AGENT']],
                 LOGNAME_APPROVED_HELP,
-                $message
+                'Help Status Updated'
             );
 
-            $res['message'] = 'Help Status Updated Successfully';
-
-            return $res;
+            return redirect(url('/admin/helps'))->with('success', 'Help status updated successfully.');
         } catch (Exception $e) {
             Log::info($e->getMessage());
+            return back()->with('error', 'Something went wrong. Please try again.');
         }
     }
 }

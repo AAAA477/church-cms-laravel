@@ -75,6 +75,6 @@ class Group extends Model
 
     public function getCoverImagePathAttribute()
     {
-        return $this->getFilePath($this->cover_image);
+        return $this->cover_image ? $this->getFilePath($this->cover_image) : null;
     }
 }

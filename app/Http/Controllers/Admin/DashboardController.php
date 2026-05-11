@@ -6,13 +6,11 @@ use App\Http\Resources\ShowSermonLink as ShowSermonLinkResource;
 use App\Http\Resources\ShowEvent as ShowEventResource;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
-use Spatie\Analytics\Period;
-use Illuminate\Http\Request;
 use App\Models\SermonLink;
 use App\Models\Attendance;
 use App\Traits\Dashboard;
 use App\Models\Events;
-use Analytics;
+
 
 /**
  * DashboardController
@@ -35,13 +33,12 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        $admin_id  =   Auth::id();
-        $church_id =   Auth::user()->church_id;
-        $query     =   \Request::getQueryString();
+        $admin_id  = Auth::id();
+        $church_id = Auth::user()->church_id;
 
         $dashboard = $this->adminDashboard($church_id, $admin_id);
 
-        return view( '/admin/dashboard/dashboard', ['church_id' => $church_id , 'query' => $query , 'dashboard' => $dashboard ] );
+        return view('/admin/dashboard/dashboard', ['church_id' => $church_id, 'dashboard' => $dashboard]);
     }
 
     public function event()
