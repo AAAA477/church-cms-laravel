@@ -228,74 +228,87 @@ class DummyChurchDetailSeeder extends Seeder
 				'updated_at'    => date("Y-m-d H:i:s"),
 			]);
 
-            DB::table('church_details')->Insert([
-                'church_id'     => $church->id,
-                'meta_key'      => 'facebook_title',
-                'meta_value'    => 'Facebook Title',
-                'created_at'    => date("Y-m-d H:i:s"),
-                'updated_at'    => date("Y-m-d H:i:s"),
-            ]);
+			DB::table('church_details')->Insert([
+				'church_id'     => $church->id,
+				'meta_key'      => 'facebook_title',
+				'meta_value'    => 'Facebook Title',
+				'created_at'    => date("Y-m-d H:i:s"),
+				'updated_at'    => date("Y-m-d H:i:s"),
+			]);
 
-              DB::table('church_details')->Insert([
-                'church_id'     => $church->id,
-                'meta_key'      => 'facebook_description',
-                'meta_value'    => 'Facebook Description',
-                'created_at'    => date("Y-m-d H:i:s"),
-                'updated_at'    => date("Y-m-d H:i:s"),
-            ]);
-
-
-              DB::table('church_details')->Insert([
-                'church_id'     => $church->id,
-                'meta_key'      => 'facebook_url',
-                'meta_value'    => 'Facebook URL',
-                'created_at'    => date("Y-m-d H:i:s"),
-                'updated_at'    => date("Y-m-d H:i:s"),
-            ]);
-
-              DB::table('church_details')->Insert([
-                'church_id'     => $church->id,
-                'meta_key'      => 'facebook_image',
-                'meta_value'    => 'Facebook Image',
-                'created_at'    => date("Y-m-d H:i:s"),
-                'updated_at'    => date("Y-m-d H:i:s"),
-            ]);
+			DB::table('church_details')->Insert([
+				'church_id'     => $church->id,
+				'meta_key'      => 'facebook_description',
+				'meta_value'    => 'Facebook Description',
+				'created_at'    => date("Y-m-d H:i:s"),
+				'updated_at'    => date("Y-m-d H:i:s"),
+			]);
 
 
-              DB::table('church_details')->Insert([
-                'church_id'     => $church->id,
-                'meta_key'      => 'twitter_title',
-                'meta_value'    => 'Twitter Title',
-                'created_at'    => date("Y-m-d H:i:s"),
-                'updated_at'    => date("Y-m-d H:i:s"),
-            ]);
+			DB::table('church_details')->Insert([
+				'church_id'     => $church->id,
+				'meta_key'      => 'facebook_url',
+				'meta_value'    => 'Facebook URL',
+				'created_at'    => date("Y-m-d H:i:s"),
+				'updated_at'    => date("Y-m-d H:i:s"),
+			]);
 
-              DB::table('church_details')->Insert([
-                'church_id'     => $church->id,
-                'meta_key'      => 'twitter_description',
-                'meta_value'    => 'Twitter Description',
-                'created_at'    => date("Y-m-d H:i:s"),
-                'updated_at'    => date("Y-m-d H:i:s"),
-            ]);
-
-               DB::table('church_details')->Insert([
-                'church_id'     => $church->id,
-                'meta_key'      => 'twitter_url',
-                'meta_value'    => 'Twitter Url',
-                'created_at'    => date("Y-m-d H:i:s"),
-                'updated_at'    => date("Y-m-d H:i:s"),
-            ]);
-
-              DB::table('church_details')->Insert([
-                'church_id'     => $church->id,
-                'meta_key'      => 'twitter_image',
-                'meta_value'    => 'Twitter Image',
-                'created_at'    => date("Y-m-d H:i:s"),
-                'updated_at'    => date("Y-m-d H:i:s"),
-            ]);
+			DB::table('church_details')->Insert([
+				'church_id'     => $church->id,
+				'meta_key'      => 'facebook_image',
+				'meta_value'    => 'Facebook Image',
+				'created_at'    => date("Y-m-d H:i:s"),
+				'updated_at'    => date("Y-m-d H:i:s"),
+			]);
 
 
+			DB::table('church_details')->Insert([
+				'church_id'     => $church->id,
+				'meta_key'      => 'twitter_title',
+				'meta_value'    => 'Twitter Title',
+				'created_at'    => date("Y-m-d H:i:s"),
+				'updated_at'    => date("Y-m-d H:i:s"),
+			]);
 
+			DB::table('church_details')->Insert([
+				'church_id'     => $church->id,
+				'meta_key'      => 'twitter_description',
+				'meta_value'    => 'Twitter Description',
+				'created_at'    => date("Y-m-d H:i:s"),
+				'updated_at'    => date("Y-m-d H:i:s"),
+			]);
+
+			DB::table('church_details')->Insert([
+				'church_id'     => $church->id,
+				'meta_key'      => 'twitter_url',
+				'meta_value'    => 'Twitter Url',
+				'created_at'    => date("Y-m-d H:i:s"),
+				'updated_at'    => date("Y-m-d H:i:s"),
+			]);
+
+			DB::table('church_details')->Insert([
+				'church_id'     => $church->id,
+				'meta_key'      => 'twitter_image',
+				'meta_value'    => 'Twitter Image',
+				'created_at'    => date("Y-m-d H:i:s"),
+				'updated_at'    => date("Y-m-d H:i:s"),
+			]);
+
+			DB::table('church_details')->Insert([
+				'church_id'     => $church->id,
+				'meta_key'      => 'guest_register_captcha_status',
+				'meta_value'    => '0',
+				'created_at'    => date("Y-m-d H:i:s"),
+				'updated_at'    => date("Y-m-d H:i:s"),
+			]);
+
+			DB::table('church_details')->Insert([
+				'church_id'     => $church->id,
+				'meta_key'      => 'contact_captcha_status',
+				'meta_value'    => '0',
+				'created_at'    => date("Y-m-d H:i:s"),
+				'updated_at'    => date("Y-m-d H:i:s"),
+			]);
 		}
 	}
 }

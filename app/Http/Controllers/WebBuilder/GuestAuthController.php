@@ -15,9 +15,11 @@ class GuestAuthController extends Controller
 
     public function showRegister()
     {
+
         if (Auth::check()) {
             return redirect()->route('web.home');
         }
+
 
         if (config('settings.guest_registration', 1) != 1) {
             return view('theme::guest_register', ['blocked' => true, 'countries' => collect()]);
@@ -34,6 +36,9 @@ class GuestAuthController extends Controller
 
     public function register(Request $request)
     {
+
+
+
         if (Auth::check()) {
             return redirect()->route('web.home');
         }
@@ -42,16 +47,21 @@ class GuestAuthController extends Controller
             return redirect()->route('web.guest.register');
         }
 
-        $request->validate([
-            'firstname'             => 'required|string|alpha|max:50',
-            'lastname'              => 'nullable|string|alpha|max:50',
-            'gender'                => 'required|in:male,female,other',
-            'date_of_birth'         => 'required|date|before:today|after:1920-01-01',
-            'mobile_no'             => 'required|digits:10|unique:users,mobile_no',
-            'email'                 => 'required|email|max:150|unique:users,email',
-            'password'              => 'required|string|min:8|confirmed',
-            'g-recaptcha-response'  => env('GOOGLE_RECAPTCHA_KEY') ? ['required', new ValidRecaptcha()] : [],
-        ]);
+        $rules = [
+            'firstname'     => 'required|string|alpha|max:50',
+            'lastname'      => 'nullable|string|alpha|max:50',
+            'gender'        => 'required|in:male,female,other',
+            'date_of_birth' => 'required|date|before:today|after:1920-01-01',
+            'mobile_no'     => 'required|digits:10|unique:users,mobile_no',
+            'email'         => 'required|email|max:150|unique:users,email',
+            'password'      => 'required|string|min:8|confirmed',
+        ];
+
+        if (config('settings.guest_register_captcha_status') == "1") {
+            $rules['g-recaptcha-response'] = ['required', new ValidRecaptcha()];
+        }
+
+        $request->validate($rules);
 
         $church = $request->attributes->get('_church');
 
@@ -119,6 +129,18 @@ class GuestAuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            $status = Auth::user()->userprofile?->status ?? 'active';
+
+            if ($status === 'inactive' || $status === 'removed') {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return back()->withErrors([
+                    'email' => 'Your account is inactive. Please contact the church office.',
+                ])->withInput($request->only('email', 'remember'));
+            }
+
             $request->session()->regenerate();
             return redirect()->intended(route('web.prayer'));
         }

@@ -130,7 +130,7 @@
                     @endif
 
                     <form id="guest-register-form" method="POST" action="{{ route('web.guest.register.store') }}"
-                          data-sitekey="{{ env('GOOGLE_RECAPTCHA_KEY') }}" novalidate>
+                        data-sitekey="{{ env('GOOGLE_RECAPTCHA_KEY') }}" novalidate>
                         @csrf
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
@@ -207,11 +207,12 @@
                                     placeholder="Repeat password">
                             </div>
                         </div>
-
+                        @if(config('settings.guest_register_captcha_status')=="1")
                         <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response">
                         @error('g-recaptcha-response')
                         <p class="text-red-500 text-xs mb-3">{{ $message }}</p>
                         @enderror
+                        @endif
 
                         <button type="submit"
                             class="w-full py-3 rounded-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 transition text-sm">
@@ -235,16 +236,19 @@
 @endsection
 
 @push('scripts')
-@php $recaptchaKey = env('GOOGLE_RECAPTCHA_KEY', ''); @endphp
-@if($recaptchaKey)
+@php
+$recaptchaKey = env('GOOGLE_RECAPTCHA_KEY', ''); @endphp
+@if($recaptchaKey && config('settings.guest_register_captcha_status')=="1")
 <script src="https://www.google.com/recaptcha/api.js?render={{ $recaptchaKey }}"></script>
 <script>
-    grecaptcha.ready(function () {
+    grecaptcha.ready(function() {
         var form = document.getElementById('guest-register-form');
         var siteKey = form.dataset.sitekey;
-        form.addEventListener('submit', function (e) {
+        form.addEventListener('submit', function(e) {
             e.preventDefault();
-            grecaptcha.execute(siteKey, { action: 'guest_register' }).then(function (token) {
+            grecaptcha.execute(siteKey, {
+                action: 'guest_register'
+            }).then(function(token) {
                 document.getElementById('g-recaptcha-response').value = token;
                 form.submit();
             });

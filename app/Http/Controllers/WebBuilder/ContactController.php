@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ContactMail;
 use App\Models\User;
+use App\Rules\ValidRecaptcha;
 
 class ContactController extends Controller
 {
@@ -18,12 +19,18 @@ class ContactController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $rules = [
             'fullname' => 'required|string|max:255',
             'email'    => 'required|email|max:255',
             'mobile'   => 'nullable|string|max:30',
             'query'    => 'required|string|max:3000',
-        ]);
+        ];
+
+        if (config('settings.contact_captcha_status') == "1") {
+            $rules['g-recaptcha-response'] = ['required', new ValidRecaptcha()];
+        }
+
+        $validated = $request->validate($rules);
 
 
 
