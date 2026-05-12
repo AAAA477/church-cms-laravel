@@ -1,32 +1,34 @@
 @extends('layouts.admin.layout')
 @section('content')
-    <div class="w-full">
-        <div>
-            <h1 class="admin-h1 flex items-center">
-                <a href="{{ url('/admin/gallery') }}" title="Back" class="rounded-full bg-gray-100 p-2">
-                    <img src="{{ url('uploads/icons/back.svg') }}" class="w-3 h-3">
-                </a>
-                <span class="mx-3">Create Gallery Album</span>
-            </h1>
-        </div>
-        <div class="bg-white shadow px-3 my-3">
-            <form method="POST" action="{{ url('/admin/gallery/store') }}" enctype="multipart/form-data">
-                @csrf
-                <div class="py-3 px-2">
-                    <div class="">
-                        <div class="w-full lg:w-1/4">
-                            <label for="name" class="tw-form-label">Gallery Name<span
-                                    class="text-red-500">*</span></label>
-                        </div>
-                        <div class="w-full lg:w-2/5 my-2">
-                            <input type="text" name="name" id="name" class="tw-form-control w-full"
-                                placeholder="Gallery Name">
-                            <span class="text-danger text-xs">{{ $errors->first('name') }}</span>
-                        </div>
-                    </div>
-                </div>
+<div class="w-full">
+    <div>
+        <h1 class="admin-h1 flex items-center">
+            <a href="{{ url('/admin/gallery') }}" title="Back" class="rounded-full bg-gray-100 p-2">
+                <img src="{{ url('uploads/icons/back.svg') }}" class="w-3 h-3">
+            </a>
+            <span class="mx-3">Create Gallery Album</span>
+        </h1>
+    </div>
 
-                  {{-- ── Cover Image ──────────────────────────────────────────────────── --}}
+    @include('partials.message')
+
+    <div class="bg-white shadow px-3 my-3">
+        <form method="POST" action="{{ url('/admin/gallery/store') }}" enctype="multipart/form-data">
+            @csrf
+
+            {{-- Gallery Name --}}
+            <div class="py-3 px-2">
+                <div class="w-full lg:w-1/4">
+                    <label for="name" class="tw-form-label">Gallery Name <span class="text-red-500">*</span></label>
+                </div>
+                <div class="w-full lg:w-2/5 my-2">
+                    <input type="text" name="name" id="name" value="{{ old('name') }}"
+                        class="tw-form-control w-full" placeholder="Gallery Name">
+                    <span class="text-danger text-xs">{{ $errors->first('name') }}</span>
+                </div>
+            </div>
+
+            {{-- Cover Image --}}
             <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-5">
                 <div class="px-6 py-4 border-b border-gray-100">
                     <h2 class="text-sm font-semibold text-gray-700">Cover Image <span class="text-red-400 font-normal text-xs ml-1">*</span></h2>
@@ -56,7 +58,7 @@
                 </div>
             </div>
 
-            {{-- Image Picker Modal — starts hidden; JS adds 'flex' when opening --}}
+            {{-- Image Picker Modal --}}
             <div id="image-picker-modal"
                 data-images-url="{{ url('/admin/mediafile/images') }}"
                 class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 items-center justify-center p-4">
@@ -65,7 +67,6 @@
                         <h2 class="text-base font-semibold">Pick a Cover Image</h2>
                         <div class="flex items-center gap-3">
                             <button type="button" id="add-media-btn"
-                                data-upload-url="{{ url('/admin/mediafile/image/create') }}"
                                 class="text-xs text-green-700 border border-green-400 rounded px-3 py-1.5 hover:bg-green-50 transition flex items-center gap-1">
                                 <i class="fas fa-plus text-xs"></i> Add Media image
                             </button>
@@ -86,7 +87,7 @@
                 </div>
             </div>
 
-            {{-- Upload modal (nested, z-60) --}}
+            {{-- Upload modal (z-60, above picker) --}}
             <div id="upload-media-modal"
                 data-store-url="{{ url('/admin/mediafile/image/create') }}"
                 class="hidden fixed inset-0 bg-black bg-opacity-60 z-60 items-center justify-center p-4">
@@ -104,7 +105,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1">Image File <span class="text-red-500">*</span></label>
-                            <input type="file" id="upload-file" accept=".jpg,.jpeg,.png,.wmp" class="w-full text-sm border border-gray-300 rounded px-3 py-2">
+                            <input type="file" id="upload-file" accept=".jpg,.jpeg,.png,.webp" class="w-full text-sm border border-gray-300 rounded px-3 py-2">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1">Description</label>
@@ -118,37 +119,35 @@
                 </div>
             </div>
 
-                <div class="pt-3 px-2 pb-4">
-                    <button class="btn btn-primary blue-bg text-white rounded px-3 py-1 text-sm font-medium"
-                        id="create">Submit</button>
-                </div>
-            </form>
-        </div>
+            <div class="pt-3 px-2 pb-4">
+                <button type="submit" class="btn btn-primary blue-bg text-white rounded px-3 py-1 text-sm font-medium">Submit</button>
+            </div>
+        </form>
     </div>
+</div>
 @endsection
 
 @push('scripts')
 <script>
     (function() {
-        // ── Cover image picker ───────────────────────────────────────────────
-        const modal = document.getElementById('image-picker-modal');
-        const openBtn = document.getElementById('open-picker-btn');
-        const closeBtn = document.getElementById('close-picker-btn');
-        const doneBtn = document.getElementById('picker-done-btn');
-        const grid = document.getElementById('picker-grid');
+        const modal      = document.getElementById('image-picker-modal');
+        const openBtn    = document.getElementById('open-picker-btn');
+        const closeBtn   = document.getElementById('close-picker-btn');
+        const doneBtn    = document.getElementById('picker-done-btn');
+        const grid       = document.getElementById('picker-grid');
         const loadingMsg = document.getElementById('picker-loading');
-        const emptyMsg = document.getElementById('picker-empty');
+        const emptyMsg   = document.getElementById('picker-empty');
         const previewWrap = document.getElementById('cover-preview');
-        const previewImg = document.getElementById('cover-preview-img');
-        const clearBtn = document.getElementById('clear-image-btn');
-        const btnLabel = document.getElementById('picker-btn-label');
-        const inputId = document.getElementById('cover_image_id');
-        const inputPath = document.getElementById('cover_image_path');
+        const previewImg  = document.getElementById('cover-preview-img');
+        const clearBtn   = document.getElementById('clear-image-btn');
+        const btnLabel   = document.getElementById('picker-btn-label');
+        const inputId    = document.getElementById('cover_image_id');
+        const inputPath  = document.getElementById('cover_image_path');
+        const coverError = document.getElementById('cover-image-error');
 
-        var selectedId = inputId ? inputId.value : '';
+        var selectedId   = inputId   ? inputId.value   : '';
         var selectedPath = inputPath ? inputPath.value : '';
         var imagesLoaded = false;
-        var coverError = document.getElementById('cover-image-error');
 
         function openModal() {
             modal.classList.remove('hidden');
@@ -167,32 +166,21 @@
             grid.classList.add('hidden');
             grid.style.display = '';
 
-            fetch(modal.dataset.imagesUrl, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(function(r) {
-                    return r.json();
-                })
+            fetch(modal.dataset.imagesUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function(r) { return r.json(); })
                 .then(function(res) {
                     loadingMsg.classList.add('hidden');
                     var images = res.data || [];
-                    if (images.length === 0) {
-                        emptyMsg.classList.remove('hidden');
-                        return;
-                    }
+                    if (images.length === 0) { emptyMsg.classList.remove('hidden'); return; }
                     grid.innerHTML = '';
                     images.forEach(function(img) {
                         var div = document.createElement('div');
                         div.className = 'cursor-pointer border-2 rounded overflow-hidden transition';
-                        div.dataset.id = img.id;
+                        div.dataset.id  = img.id;
                         div.dataset.url = img.url;
-                        div.dataset.name = img.name || '';
                         div.classList.add(selectedId == img.id ? 'border-indigo-500' : 'border-transparent');
-                        div.innerHTML =
-                            '<img src="' + img.url + '" class="w-full h-24 object-cover">' +
-                            '<p class="text-xs text-gray-600 px-1 py-1 truncate">' + (img.name || '') + '</p>';
+                        div.innerHTML = '<img src="' + img.url + '" class="w-full h-24 object-cover">'
+                                      + '<p class="text-xs text-gray-600 px-1 py-1 truncate">' + (img.name || '') + '</p>';
                         div.addEventListener('click', function() {
                             grid.querySelectorAll('[data-id]').forEach(function(el) {
                                 el.classList.remove('border-indigo-500');
@@ -200,7 +188,7 @@
                             });
                             div.classList.add('border-indigo-500');
                             div.classList.remove('border-transparent');
-                            selectedId = img.id;
+                            selectedId   = img.id;
                             selectedPath = img.url;
                         });
                         grid.appendChild(div);
@@ -209,19 +197,14 @@
                     grid.style.display = 'grid';
                     imagesLoaded = true;
                 })
-                .catch(function() {
-                    loadingMsg.textContent = 'Failed to load images.';
-                });
+                .catch(function() { loadingMsg.textContent = 'Failed to load images.'; });
         }
 
         function applySelection() {
-            if (!selectedId) {
-                closeModal();
-                return;
-            }
-            inputId.value = selectedId;
-            inputPath.value = selectedPath;
-            previewImg.src = selectedPath;
+            if (!selectedId) { closeModal(); return; }
+            inputId.value    = 'media_' + selectedId;
+            inputPath.value  = selectedPath;
+            previewImg.src   = selectedPath;
             previewWrap.classList.remove('hidden');
             clearBtn.classList.remove('hidden');
             btnLabel.textContent = 'Change Image';
@@ -235,21 +218,19 @@
             previewWrap.classList.add('hidden');
             clearBtn.classList.add('hidden');
             btnLabel.textContent = 'Pick from Media Library';
-            if (grid) grid.querySelectorAll('[data-id]').forEach(function(el) {
+            grid.querySelectorAll('[data-id]').forEach(function(el) {
                 el.classList.remove('border-indigo-500');
                 el.classList.add('border-transparent');
             });
         }
 
-        if (openBtn) openBtn.addEventListener('click', openModal);
+        if (openBtn)  openBtn.addEventListener('click', openModal);
         if (closeBtn) closeBtn.addEventListener('click', closeModal);
-        if (doneBtn) doneBtn.addEventListener('click', applySelection);
+        if (doneBtn)  doneBtn.addEventListener('click', applySelection);
         if (clearBtn) clearBtn.addEventListener('click', clearImage);
-        if (modal) modal.addEventListener('click', function(e) {
-            if (e.target === modal) closeModal();
-        });
+        if (modal)    modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
 
-        // ── Upload media modal ───────────────────────────────────────────────
+        // ── Upload modal ──────────────────────────────────────────────────────
         var uploadModal     = document.getElementById('upload-media-modal');
         var addMediaBtn     = document.getElementById('add-media-btn');
         var closeUploadBtn  = document.getElementById('close-upload-modal-btn');
@@ -271,19 +252,14 @@
         function closeUploadModal(refresh) {
             uploadModal.classList.remove('flex');
             uploadModal.classList.add('hidden');
-            if (refresh) {
-                imagesLoaded = false;
-                loadImages();
-            }
+            if (refresh) { imagesLoaded = false; loadImages(); }
             openModal();
         }
 
         if (addMediaBtn)     addMediaBtn.addEventListener('click', openUploadModal);
-        if (closeUploadBtn)  closeUploadBtn.addEventListener('click', function() { closeUploadModal(false); });
+        if (closeUploadBtn)  closeUploadBtn.addEventListener('click',  function() { closeUploadModal(false); });
         if (closeUploadBtn2) closeUploadBtn2.addEventListener('click', function() { closeUploadModal(false); });
-        if (uploadModal)     uploadModal.addEventListener('click', function(e) {
-            if (e.target === uploadModal) closeUploadModal(false);
-        });
+        if (uploadModal)     uploadModal.addEventListener('click', function(e) { if (e.target === uploadModal) closeUploadModal(false); });
 
         if (uploadSubmitBtn) {
             uploadSubmitBtn.addEventListener('click', function() {
@@ -304,15 +280,10 @@
                 uploadSubmitBtn.textContent = 'Uploading…';
 
                 fetch(uploadModal.dataset.storeUrl, {
-                    method: 'POST',
-                    body: formData,
+                    method: 'POST', body: formData,
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 })
-                .then(function(r) {
-                    return r.json().then(function(data) {
-                        return { status: r.status, data: data };
-                    });
-                })
+                .then(function(r) { return r.json().then(function(data) { return { status: r.status, data: data }; }); })
                 .then(function(res) {
                     uploadSubmitBtn.disabled = false;
                     uploadSubmitBtn.textContent = 'Upload';
@@ -323,9 +294,7 @@
                     } else if (res.data.success) {
                         uploadResult.className = 'text-sm rounded px-3 py-2 bg-green-50 text-green-700 border border-green-200';
                         uploadResult.textContent = res.data.success;
-                        setTimeout(function() {
-                            closeUploadModal(true);
-                        }, 800);
+                        setTimeout(function() { closeUploadModal(true); }, 800);
                     } else {
                         uploadResult.className = 'text-sm rounded px-3 py-2 bg-red-50 text-red-600 border border-red-200';
                         uploadResult.textContent = res.data.error || 'Upload failed.';
@@ -340,22 +309,17 @@
             });
         }
 
-        // ── Cover image validation on submit ─────────────────────────────────
+        // ── Submit validation ─────────────────────────────────────────────────
         var form = document.querySelector('form[action*="gallery/store"]');
-
         if (form) {
             form.addEventListener('submit', function(e) {
                 if (!inputPath || !inputPath.value) {
                     e.preventDefault();
                     if (coverError) coverError.classList.remove('hidden');
-                    openBtn.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
+                    openBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             });
         }
     })();
 </script>
 @endpush
-

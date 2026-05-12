@@ -300,6 +300,8 @@ class EventsController extends Controller
                 ->with('successmessage', 'Event "' . $event->title . '" created successfully.');
         } catch (Exception $e) {
             Log::error('EventsController@storeNew: ' . $e->getMessage());
+
+           
             return back()->withInput()->with('failmessage', 'Could not save event. Please try again.');
         }
     }
