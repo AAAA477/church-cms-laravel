@@ -63,6 +63,7 @@ class GalleryController extends Controller
 
     public function store(GalleryRequest $request)
     {
+
         try
         {
             $gallery = new Gallery;
@@ -71,12 +72,25 @@ class GalleryController extends Controller
             $gallery->name         = $request->name;
             $gallery->description  = $request->description;
 
-            $file = $request->file('path');
-            if($file != null)
-            {
-                $folder = Auth::user()->church_id.'/gallery/covers';
-                $gallery->path = $this->uploadFile($folder,$file);
+            // $file = $request->file('path');
+            // if($file != null)
+            // {
+            //     $folder = Auth::user()->church_id.'/gallery/covers';
+            //     $gallery->path = $this->uploadFile($folder,$file);
+            // }
+               if ($request->cover_image_id && str_starts_with($request->cover_image_id, 'media_')) {
+                $mediaId    = str_replace('media_', '', $request->cover_image_id);
+                $mediaImage = \App\Models\MediaFile::where([
+                    ['id', $mediaId],
+                    ['church_id', Auth::user()->church_id],
+                    ['media_type', 'image'],
+                ])->first();
+                if ($mediaImage)
+                    $path = $mediaImage->url;
+            } elseif ($request->cover_image_path) {
+                $path = $request->cover_image_path;
             }
+            $gallery->path =  $path;
 
             $gallery->save();
 
@@ -112,6 +126,8 @@ class GalleryController extends Controller
         {
             Log::info($e->getMessage());
 
+            dd($e->getMessage());
+
         }
     }
 
@@ -131,16 +147,29 @@ class GalleryController extends Controller
         	$gallery->name         = $request->name;
         	$gallery->description  = $request->description;
 
-            $file = $request->file('path');
-            if($file != null)
-            {
-                $folder = Auth::user()->church_id.'/gallery/covers';
-                $gallery->path = $this->uploadFile($folder,$file);
+            // $file = $request->file('path');
+            // if($file != null)
+            // {
+            //     $folder = Auth::user()->church_id.'/gallery/covers';
+            //     $gallery->path = $this->uploadFile($folder,$file);
+            // }
+            // else
+            // {
+            //     $gallery->path = $gallery->path;
+            // }
+            if ($request->cover_image_id && str_starts_with($request->cover_image_id, 'media_')) {
+                $mediaId    = str_replace('media_', '', $request->cover_image_id);
+                $mediaImage = \App\Models\MediaFile::where([
+                    ['id', $mediaId],
+                    ['church_id', Auth::user()->church_id],
+                    ['media_type', 'image'],
+                ])->first();
+                if ($mediaImage)
+                    $path = $mediaImage->url;
+            } elseif ($request->cover_image_path) {
+                $path = $request->cover_image_path;
             }
-            else
-            {
-                $gallery->path = $gallery->path;
-            }
+            $gallery->path =  $path;
 
         	$gallery->save();
 

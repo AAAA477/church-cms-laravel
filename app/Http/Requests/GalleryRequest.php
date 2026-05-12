@@ -39,7 +39,7 @@ class GalleryRequest extends FormRequest
         return [
             
             'name'          => 'required|max:30|check_name',
-            'path'          => 'required|mimes:jpg,jpeg,png,webp',
+           // 'path'          => 'required|mimes:jpg,jpeg,png,webp',
             //'description'   => 'required|max:100|check_description',
         ];
     }

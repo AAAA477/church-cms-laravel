@@ -67,6 +67,10 @@ class Gallery extends Model
 
     public function getFullPathAttribute()
     {
+        if (!$this->path) return '';
+        if (str_starts_with($this->path, 'http://') || str_starts_with($this->path, 'https://')) {
+            return $this->path;
+        }
         return $this->getFilePath($this->path);
     }
 
