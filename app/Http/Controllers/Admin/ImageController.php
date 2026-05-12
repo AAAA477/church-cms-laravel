@@ -57,47 +57,91 @@ class ImageController extends Controller
             ['media_type', 'image'],
         ])->get()->map(function ($img) {
             return [
-                'id'   => 'media_' . $img->id,
-                'name' => $img->name,
-                'url'  => $img->UrlPath,
-                'path' => $img->url,
+                'id'     => 'media_' . $img->id,
+                'name'   => $img->name,
+                'url'    => $img->UrlPath,
+                'path'   => $img->url,
+                'folder' => 'Uploaded',
             ];
         });
 
-        $defaults = collect([
-            ['id' => 'default_1',  'name' => 'Church Building',        'file' => 'church1.jpg'],
-            ['id' => 'default_2',  'name' => 'Worship Service',        'file' => 'church2.jpg'],
-            ['id' => 'default_3',  'name' => 'Prayer Meeting',         'file' => 'church3.jpg'],
-            ['id' => 'default_4',  'name' => 'Sunday Gathering',       'file' => 'church4.jpg'],
-            ['id' => 'default_5',  'name' => 'Candles & Prayer',       'file' => 'church5.jpg'],
-            ['id' => 'default_6',  'name' => 'Cross at Sunrise',       'file' => 'church6.jpg'],
-            ['id' => 'default_7',  'name' => 'Choir Performance',      'file' => 'church7.jpg'],
-            ['id' => 'default_8',  'name' => 'Bible Study',            'file' => 'church8.jpg'],
-            ['id' => 'default_9',  'name' => 'Community Outreach',     'file' => 'church9.jpg'],
-            ['id' => 'default_10', 'name' => 'Youth Ministry',         'file' => 'church10.jpg'],
-            ['id' => 'default_11', 'name' => 'Baptism Service',        'file' => 'church11.jpg'],
-            ['id' => 'default_12', 'name' => 'Christmas Celebration',  'file' => 'church12.jpg'],
-            ['id' => 'default_13', 'name' => 'Easter Service',         'file' => 'church13.jpg'],
-            ['id' => 'default_14', 'name' => 'Wedding Ceremony',       'file' => 'church14.jpg'],
-            ['id' => 'default_15', 'name' => 'Funeral Service',        'file' => 'church15.jpg'],
-            ['id' => 'default_16', 'name' => 'Outdoor Mission',        'file' => 'church16.jpg'],
-            ['id' => 'default_17', 'name' => 'Music Worship',          'file' => 'church17.jpg'],
-            ['id' => 'default_18', 'name' => 'Children Ministry',      'file' => 'church18.jpg'],
-            ['id' => 'default_19', 'name' => 'Evening Cathedral',      'file' => 'church19.jpg'],
-            ['id' => 'default_20', 'name' => 'Communion Service',      'file' => 'church20.jpg'],
-        ])->map(function ($img) {
-            $path = 'uploads/images/defaults/' . $img['file'];
-            return [
-                'id'   => $img['id'],
-                'name' => $img['name'],
-                'url'  => \Storage::disk('public')->exists($path)
-                            ? \Storage::disk('public')->url($path)
-                            : asset('uploads/images/defaults/' . $img['file']),
-                'path' => $path,
-            ];
-        });
+        // $defaults = collect([
+        //     ['id' => 'default_1',  'name' => 'Church Building',        'file' => 'church1.jpg'],
+        //     ['id' => 'default_2',  'name' => 'Worship Service',        'file' => 'church2.jpg'],
+        //     ['id' => 'default_3',  'name' => 'Prayer Meeting',         'file' => 'church3.jpg'],
+        //     ['id' => 'default_4',  'name' => 'Sunday Gathering',       'file' => 'church4.jpg'],
+        //     ['id' => 'default_5',  'name' => 'Candles & Prayer',       'file' => 'church5.jpg'],
+        //     ['id' => 'default_6',  'name' => 'Cross at Sunrise',       'file' => 'church6.jpg'],
+        //     ['id' => 'default_7',  'name' => 'Choir Performance',      'file' => 'church7.jpg'],
+        //     ['id' => 'default_8',  'name' => 'Bible Study',            'file' => 'church8.jpg'],
+        //     ['id' => 'default_9',  'name' => 'Community Outreach',     'file' => 'church9.jpg'],
+        //     ['id' => 'default_10', 'name' => 'Youth Ministry',         'file' => 'church10.jpg'],
+        //     ['id' => 'default_11', 'name' => 'Baptism Service',        'file' => 'church11.jpg'],
+        //     ['id' => 'default_12', 'name' => 'Christmas Celebration',  'file' => 'church12.jpg'],
+        //     ['id' => 'default_13', 'name' => 'Easter Service',         'file' => 'church13.jpg'],
+        //     ['id' => 'default_14', 'name' => 'Wedding Ceremony',       'file' => 'church14.jpg'],
+        //     ['id' => 'default_15', 'name' => 'Funeral Service',        'file' => 'church15.jpg'],
+        //     ['id' => 'default_16', 'name' => 'Outdoor Mission',        'file' => 'church16.jpg'],
+        //     ['id' => 'default_17', 'name' => 'Music Worship',          'file' => 'church17.jpg'],
+        //     ['id' => 'default_18', 'name' => 'Children Ministry',      'file' => 'church18.jpg'],
+        //     ['id' => 'default_19', 'name' => 'Evening Cathedral',      'file' => 'church19.jpg'],
+        //     ['id' => 'default_20', 'name' => 'Communion Service',      'file' => 'church20.jpg'],
+        // ])->map(function ($img) {
+        //     $path = 'uploads/images/defaults/' . $img['file'];
+        //     return [
+        //         'id'     => $img['id'],
+        //         'name'   => $img['name'],
+        //         'url'    => \Storage::disk('public')->exists($path)
+        //                         ? \Storage::disk('public')->url($path)
+        //                         : asset('uploads/images/defaults/' . $img['file']),
+        //         'path'   => $path,
+        //         'folder' => 'Defaults',
+        //     ];
+        // });
 
-        return response()->json(['data' => $uploaded->merge($defaults)->values()]);
+        // Scan public/uploads/Images/ for folder-organised images
+        $folderImages = collect();
+        $baseDir = public_path('uploads/Images');
+        $imgExts  = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'wmp'];
+
+        if (is_dir($baseDir)) {
+            foreach (scandir($baseDir) as $item) {
+                if (in_array($item, ['.', '..'])) continue;
+                $itemPath = $baseDir . DIRECTORY_SEPARATOR . $item;
+
+                if (is_dir($itemPath)) {
+                    foreach (scandir($itemPath) as $file) {
+                        if (in_array($file, ['.', '..'])) continue;
+                        $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                        if (!in_array($ext, $imgExts)) continue;
+                        $relPath = 'uploads/Images/' . $item . '/' . $file;
+                        $folderImages->push([
+                            'id'     => 'img_' . md5($relPath),
+                            'name'   => pathinfo($file, PATHINFO_FILENAME),
+                            'url'    => asset($relPath),
+                            'path'   => $relPath,
+                            'folder' => $item,
+                        ]);
+                    }
+                } elseif (is_file($itemPath)) {
+                    $ext = strtolower(pathinfo($item, PATHINFO_EXTENSION));
+                    if (!in_array($ext, $imgExts)) continue;
+                    $relPath = 'uploads/Images/' . $item;
+                    $folderImages->push([
+                        'id'     => 'img_' . md5($relPath),
+                        'name'   => pathinfo($item, PATHINFO_FILENAME),
+                        'url'    => asset($relPath),
+                        'path'   => $relPath,
+                        'folder' => 'General',
+                    ]);
+                }
+            }
+        }
+
+        $all     = $uploaded->merge($folderImages)->values();
+        $folders = $all->pluck('folder')->unique()->filter()->values();
+
+        return response()->json(['data' => $all, 'folders' => $folders]);
     }
 
     public function destroy($id)

@@ -84,6 +84,7 @@
                         </div>
                     </div>
                     <div class="px-6 py-4 flex-1 overflow-y-auto">
+                        <div id="folder-tabs" class="hidden flex flex-wrap gap-1 mb-3 pb-3 border-b border-gray-100"></div>
                         <p id="picker-loading" class="text-sm text-gray-400 py-4 text-center">Loading images…</p>
                         <p id="picker-empty" class="hidden text-sm text-gray-500 py-4">
                             No images in the media library. Click <strong>Add Media image</strong> above to upload.
@@ -139,25 +140,27 @@
 @push('scripts')
 <script>
     (function() {
-        // ── Cover image picker ───────────────────────────────────────────────
-        const modal = document.getElementById('image-picker-modal');
-        const openBtn = document.getElementById('open-picker-btn');
-        const closeBtn = document.getElementById('close-picker-btn');
-        const doneBtn = document.getElementById('picker-done-btn');
-        const grid = document.getElementById('picker-grid');
-        const loadingMsg = document.getElementById('picker-loading');
-        const emptyMsg = document.getElementById('picker-empty');
+        const modal       = document.getElementById('image-picker-modal');
+        const openBtn     = document.getElementById('open-picker-btn');
+        const closeBtn    = document.getElementById('close-picker-btn');
+        const doneBtn     = document.getElementById('picker-done-btn');
+        const grid        = document.getElementById('picker-grid');
+        const loadingMsg  = document.getElementById('picker-loading');
+        const emptyMsg    = document.getElementById('picker-empty');
+        const folderTabs  = document.getElementById('folder-tabs');
         const previewWrap = document.getElementById('cover-preview');
-        const previewImg = document.getElementById('cover-preview-img');
-        const clearBtn = document.getElementById('clear-image-btn');
-        const btnLabel = document.getElementById('picker-btn-label');
-        const inputId = document.getElementById('cover_image_id');
-        const inputPath = document.getElementById('cover_image_path');
+        const previewImg  = document.getElementById('cover-preview-img');
+        const clearBtn    = document.getElementById('clear-image-btn');
+        const btnLabel    = document.getElementById('picker-btn-label');
+        const inputId     = document.getElementById('cover_image_id');
+        const inputPath   = document.getElementById('cover_image_path');
+        const coverError  = document.getElementById('cover-image-error');
 
-        var selectedId = inputId ? inputId.value : '';
-        var selectedPath = inputPath ? inputPath.value : '';
-        var imagesLoaded = false;
-        var coverError = document.getElementById('cover-image-error');
+        var selectedId    = inputId   ? inputId.value   : '';
+        var selectedPath  = inputPath ? inputPath.value : '';
+        var imagesLoaded  = false;
+        var allImages     = [];
+        var currentFolder = 'all';
 
         function openModal() {
             modal.classList.remove('hidden');
@@ -170,67 +173,90 @@
             modal.classList.add('hidden');
         }
 
+        function renderFolderTabs(folders) {
+            if (!folderTabs) return;
+            folderTabs.innerHTML = '';
+            var allFolders = ['all'].concat(folders);
+            allFolders.forEach(function(f) {
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.textContent = f === 'all' ? 'All' : f;
+                btn.dataset.folder = f;
+                var isActive = currentFolder === f;
+                btn.className = 'text-xs px-3 py-1 rounded-full border transition ' +
+                    (isActive ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-300 hover:border-indigo-400');
+                btn.addEventListener('click', function() {
+                    currentFolder = f;
+                    renderFolderTabs(folders);
+                    renderGrid();
+                });
+                folderTabs.appendChild(btn);
+            });
+            folderTabs.classList.remove('hidden');
+        }
+
+        function renderGrid() {
+            var images = currentFolder === 'all'
+                ? allImages
+                : allImages.filter(function(img) { return img.folder === currentFolder; });
+            grid.innerHTML = '';
+            if (images.length === 0) {
+                emptyMsg.classList.remove('hidden');
+                grid.classList.add('hidden');
+                grid.style.display = '';
+                return;
+            }
+            emptyMsg.classList.add('hidden');
+            images.forEach(function(img) {
+                var div = document.createElement('div');
+                div.className = 'cursor-pointer border-2 rounded overflow-hidden transition';
+                div.dataset.id  = img.id;
+                div.dataset.url = img.url;
+                div.classList.add(selectedId == img.id ? 'border-indigo-500' : 'border-transparent');
+                div.innerHTML = '<img src="' + img.url + '" class="w-full h-24 object-cover">'
+                              + '<p class="text-xs text-gray-600 px-1 py-1 truncate">' + (img.name || '') + '</p>';
+                div.addEventListener('click', function() {
+                    grid.querySelectorAll('[data-id]').forEach(function(el) {
+                        el.classList.remove('border-indigo-500');
+                        el.classList.add('border-transparent');
+                    });
+                    div.classList.add('border-indigo-500');
+                    div.classList.remove('border-transparent');
+                    selectedId   = img.id;
+                    selectedPath = img.url;
+                });
+                grid.appendChild(div);
+            });
+            grid.classList.remove('hidden');
+            grid.style.display = 'grid';
+        }
+
         function loadImages() {
             loadingMsg.classList.remove('hidden');
             emptyMsg.classList.add('hidden');
             grid.classList.add('hidden');
             grid.style.display = '';
+            if (folderTabs) folderTabs.classList.add('hidden');
 
-            fetch(modal.dataset.imagesUrl, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(function(r) {
-                    return r.json();
-                })
+            fetch(modal.dataset.imagesUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function(r) { return r.json(); })
                 .then(function(res) {
                     loadingMsg.classList.add('hidden');
-                    var images = res.data || [];
-                    if (images.length === 0) {
-                        emptyMsg.classList.remove('hidden');
-                        return;
-                    }
-                    grid.innerHTML = '';
-                    images.forEach(function(img) {
-                        var div = document.createElement('div');
-                        div.className = 'cursor-pointer border-2 rounded overflow-hidden transition';
-                        div.dataset.id = img.id;
-                        div.dataset.url = img.url;
-                        div.dataset.name = img.name || '';
-                        div.classList.add(selectedId == img.id ? 'border-indigo-500' : 'border-transparent');
-                        div.innerHTML =
-                            '<img src="' + img.url + '" class="w-full h-24 object-cover">' +
-                            '<p class="text-xs text-gray-600 px-1 py-1 truncate">' + (img.name || '') + '</p>';
-                        div.addEventListener('click', function() {
-                            grid.querySelectorAll('[data-id]').forEach(function(el) {
-                                el.classList.remove('border-indigo-500');
-                                el.classList.add('border-transparent');
-                            });
-                            div.classList.add('border-indigo-500');
-                            div.classList.remove('border-transparent');
-                            selectedId = img.id;
-                            selectedPath = img.url;
-                        });
-                        grid.appendChild(div);
-                    });
-                    grid.classList.remove('hidden');
-                    grid.style.display = 'grid';
+                    allImages = res.data || [];
+                    var folders = res.folders || [];
+                    if (allImages.length === 0) { emptyMsg.classList.remove('hidden'); return; }
+                    renderFolderTabs(folders);
+                    renderGrid();
                     imagesLoaded = true;
                 })
-                .catch(function() {
-                    loadingMsg.textContent = 'Failed to load images.';
-                });
+                .catch(function() { loadingMsg.textContent = 'Failed to load images.'; });
         }
 
         function applySelection() {
-            if (!selectedId) {
-                closeModal();
-                return;
-            }
-            inputId.value = selectedId;
+            if (!selectedId) { closeModal(); return; }
+            inputId.value   = selectedId;
             inputPath.value = selectedPath;
-            previewImg.src = selectedPath;
+            previewImg.src  = selectedPath;
             previewWrap.classList.remove('hidden');
             clearBtn.classList.remove('hidden');
             btnLabel.textContent = 'Change Image';
@@ -244,19 +270,14 @@
             previewWrap.classList.add('hidden');
             clearBtn.classList.add('hidden');
             btnLabel.textContent = 'Pick from Media Library';
-            if (grid) grid.querySelectorAll('[data-id]').forEach(function(el) {
-                el.classList.remove('border-indigo-500');
-                el.classList.add('border-transparent');
-            });
+            renderGrid();
         }
 
-        if (openBtn) openBtn.addEventListener('click', openModal);
+        if (openBtn)  openBtn.addEventListener('click', openModal);
         if (closeBtn) closeBtn.addEventListener('click', closeModal);
-        if (doneBtn) doneBtn.addEventListener('click', applySelection);
+        if (doneBtn)  doneBtn.addEventListener('click', applySelection);
         if (clearBtn) clearBtn.addEventListener('click', clearImage);
-        if (modal) modal.addEventListener('click', function(e) {
-            if (e.target === modal) closeModal();
-        });
+        if (modal)    modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
 
         // ── Upload media modal ───────────────────────────────────────────────
         var uploadModal     = document.getElementById('upload-media-modal');
@@ -280,10 +301,7 @@
         function closeUploadModal(refresh) {
             uploadModal.classList.remove('flex');
             uploadModal.classList.add('hidden');
-            if (refresh) {
-                imagesLoaded = false;
-                loadImages();
-            }
+            if (refresh) { imagesLoaded = false; }
             openModal();
         }
 
@@ -313,15 +331,10 @@
                 uploadSubmitBtn.textContent = 'Uploading…';
 
                 fetch(uploadModal.dataset.storeUrl, {
-                    method: 'POST',
-                    body: formData,
+                    method: 'POST', body: formData,
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 })
-                .then(function(r) {
-                    return r.json().then(function(data) {
-                        return { status: r.status, data: data };
-                    });
-                })
+                .then(function(r) { return r.json().then(function(data) { return { status: r.status, data: data }; }); })
                 .then(function(res) {
                     uploadSubmitBtn.disabled = false;
                     uploadSubmitBtn.textContent = 'Upload';
@@ -332,9 +345,7 @@
                     } else if (res.data.success) {
                         uploadResult.className = 'text-sm rounded px-3 py-2 bg-green-50 text-green-700 border border-green-200';
                         uploadResult.textContent = res.data.success;
-                        setTimeout(function() {
-                            closeUploadModal(true);
-                        }, 800);
+                        setTimeout(function() { closeUploadModal(true); }, 800);
                     } else {
                         uploadResult.className = 'text-sm rounded px-3 py-2 bg-red-50 text-red-600 border border-red-200';
                         uploadResult.textContent = res.data.error || 'Upload failed.';
@@ -349,18 +360,13 @@
             });
         }
 
-        // ── Cover image validation on submit ─────────────────────────────────
         var form = document.querySelector('form[action*="sermon/save"]');
-
         if (form) {
             form.addEventListener('submit', function(e) {
                 if (!inputPath || !inputPath.value) {
                     e.preventDefault();
                     if (coverError) coverError.classList.remove('hidden');
-                    openBtn.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
+                    openBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             });
         }
