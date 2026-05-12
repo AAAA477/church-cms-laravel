@@ -25,7 +25,7 @@ class ImageController extends Controller
     {
         $request->validate([
             'name'  => 'required|string|max:255',
-            'image' => 'required|image|max:5120',
+            'image' => 'required|image|mimes:jpg,jpeg,png,wmp|max:5120',
         ]);
 
         try {

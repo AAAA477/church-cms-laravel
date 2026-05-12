@@ -1,6 +1,7 @@
 @extends('layouts.admin.layout')
 
 @section('content')
+    @include('partials.message')
     <div class="flex lg:items-center md:items-center justify-between flex-col lg:flex-row md:flex-row">
         <h1 class="admin-h1">Sermon</h1>
         <div class="flex items-center gap-3">

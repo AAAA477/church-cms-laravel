@@ -48,7 +48,7 @@ class SermonsController extends Controller
                 $query->where([['title', 'LIKE', '%' . $q . '%'], ['church_id', Auth::user()->church_id]])->orWhere('name', 'LIKE', '%' . $q . '%');
             });
         }
-        $sermons = $sermons->paginate(8);
+        $sermons = $sermons->orderBy('id', 'DESC')->paginate(8);
 
         return view('admin/sermon/index', ['sermons' => $sermons])->withQuery($q);
     }

@@ -66,6 +66,7 @@
                             <i class="fas fa-times mr-1"></i>Remove
                         </button>
                     </div>
+                    <p id="cover-image-error" class="hidden text-red-500 text-xs mt-2">Please select a cover image.</p>
                 </div>
             </div>
 
@@ -76,13 +77,19 @@
                 <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl flex flex-col" style="max-height:80vh">
                     <div class="flex justify-between items-center px-6 py-4 border-b flex-shrink-0">
                         <h2 class="text-base font-semibold">Pick a Cover Image</h2>
-                        <button type="button" id="close-picker-btn" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+                        <div class="flex items-center gap-3">
+                            <button type="button" id="add-media-btn"
+                                data-upload-url="{{ url('/admin/mediafile/image/create') }}"
+                                class="text-xs text-green-700 border border-green-400 rounded px-3 py-1.5 hover:bg-green-50 transition flex items-center gap-1">
+                                <i class="fas fa-plus text-xs"></i> Add Media image
+                            </button>
+                            <button type="button" id="close-picker-btn" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+                        </div>
                     </div>
                     <div class="px-6 py-4 flex-1 overflow-y-auto">
                         <p id="picker-loading" class="text-sm text-gray-400 py-4 text-center">Loading images…</p>
                         <p id="picker-empty" class="hidden text-sm text-gray-500 py-4">
-                            No images in the media library.
-                            <a href="{{ url('/admin/mediafile/image/create') }}" target="_blank" class="text-indigo-600 underline">Upload images here</a>.
+                            No images in the media library. Click <strong>Add Media image</strong> above to upload.
                         </p>
                         <div id="picker-grid" class="hidden gap-3" style="grid-template-columns: repeat(3, minmax(0, 1fr))"></div>
                     </div>
@@ -92,6 +99,38 @@
                     </div>
                 </div>
             </div>
+            {{-- Upload modal (nested, z-60) --}}
+            <div id="upload-media-modal"
+                data-store-url="{{ url('/admin/mediafile/image/create') }}"
+                class="hidden fixed inset-0 bg-black bg-opacity-60 z-60 items-center justify-center p-4">
+                <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+                    <div class="flex justify-between items-center px-6 py-3 border-b">
+                        <h2 class="text-sm font-semibold">Upload New Image</h2>
+                        <button type="button" id="close-upload-modal-btn" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+                    </div>
+                    <div class="px-6 py-5 space-y-4">
+                        <input type="hidden" id="upload-csrf" value="{{ csrf_token() }}">
+                        <div id="upload-result" class="hidden text-sm rounded px-3 py-2"></div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Image Name <span class="text-red-500">*</span></label>
+                            <input type="text" id="upload-name" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="e.g. Sunday Worship">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Image File <span class="text-red-500">*</span></label>
+                            <input type="file" id="upload-file" accept=".jpg,.jpeg,.png,.wmp" class="w-full text-sm border border-gray-300 rounded px-3 py-2">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Description</label>
+                            <input type="text" id="upload-description" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="Optional">
+                        </div>
+                    </div>
+                    <div class="flex justify-end gap-2 px-6 py-3 border-t">
+                        <button type="button" id="close-upload-modal-btn2" class="text-sm text-gray-500 border border-gray-300 rounded px-4 py-1.5 hover:bg-gray-50">Cancel</button>
+                        <button type="button" id="upload-submit-btn" class="blue-bg text-white text-sm px-4 py-1.5 rounded">Upload</button>
+                    </div>
+                </div>
+            </div>
+
             <div class="my-6">
                 <button class="btn btn-primary blue-bg text-white rounded px-3 py-1 text-sm font-medium" id="update">Update</button>
             </div>
@@ -121,6 +160,7 @@
         var selectedId = inputId ? inputId.value : '';
         var selectedPath = inputPath ? inputPath.value : '';
         var imagesLoaded = false;
+        var coverError = document.getElementById('cover-image-error');
 
         function openModal() {
             modal.classList.remove('hidden');
@@ -197,6 +237,7 @@
             previewWrap.classList.remove('hidden');
             clearBtn.classList.remove('hidden');
             btnLabel.textContent = 'Change Image';
+            if (coverError) coverError.classList.add('hidden');
             closeModal();
         }
 
@@ -219,6 +260,108 @@
         if (modal) modal.addEventListener('click', function(e) {
             if (e.target === modal) closeModal();
         });
+
+        // ── Upload media modal ───────────────────────────────────────────────
+        var uploadModal     = document.getElementById('upload-media-modal');
+        var addMediaBtn     = document.getElementById('add-media-btn');
+        var closeUploadBtn  = document.getElementById('close-upload-modal-btn');
+        var closeUploadBtn2 = document.getElementById('close-upload-modal-btn2');
+        var uploadSubmitBtn = document.getElementById('upload-submit-btn');
+        var uploadResult    = document.getElementById('upload-result');
+
+        function openUploadModal() {
+            closeModal();
+            document.getElementById('upload-name').value = '';
+            document.getElementById('upload-file').value = '';
+            document.getElementById('upload-description').value = '';
+            uploadResult.className = 'hidden text-sm rounded px-3 py-2';
+            uploadResult.textContent = '';
+            uploadModal.classList.remove('hidden');
+            uploadModal.classList.add('flex');
+        }
+
+        function closeUploadModal(refresh) {
+            uploadModal.classList.remove('flex');
+            uploadModal.classList.add('hidden');
+            if (refresh) {
+                imagesLoaded = false;
+                loadImages();
+            }
+            openModal();
+        }
+
+        if (addMediaBtn)     addMediaBtn.addEventListener('click', openUploadModal);
+        if (closeUploadBtn)  closeUploadBtn.addEventListener('click', function() { closeUploadModal(false); });
+        if (closeUploadBtn2) closeUploadBtn2.addEventListener('click', function() { closeUploadModal(false); });
+        if (uploadModal)     uploadModal.addEventListener('click', function(e) {
+            if (e.target === uploadModal) closeUploadModal(false);
+        });
+
+        if (uploadSubmitBtn) {
+            uploadSubmitBtn.addEventListener('click', function() {
+                var name = document.getElementById('upload-name').value.trim();
+                var file = document.getElementById('upload-file').files[0];
+                if (!name || !file) {
+                    uploadResult.className = 'text-sm rounded px-3 py-2 bg-red-50 text-red-600 border border-red-200';
+                    uploadResult.textContent = 'Name and image file are required.';
+                    return;
+                }
+                var formData = new FormData();
+                formData.append('name', name);
+                formData.append('image', file);
+                formData.append('description', document.getElementById('upload-description').value);
+                formData.append('_token', document.getElementById('upload-csrf').value);
+
+                uploadSubmitBtn.disabled = true;
+                uploadSubmitBtn.textContent = 'Uploading…';
+
+                fetch(uploadModal.dataset.storeUrl, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(function(r) {
+                    return r.json().then(function(data) {
+                        return { status: r.status, data: data };
+                    });
+                })
+                .then(function(res) {
+                    uploadSubmitBtn.disabled = false;
+                    uploadSubmitBtn.textContent = 'Upload';
+                    if (res.status === 422 && res.data.errors) {
+                        var msgs = Object.values(res.data.errors).flat();
+                        uploadResult.className = 'text-sm rounded px-3 py-2 bg-red-50 text-red-600 border border-red-200';
+                        uploadResult.textContent = msgs[0] || 'Validation failed.';
+                    } else if (res.data.success) {
+                        uploadResult.className = 'text-sm rounded px-3 py-2 bg-green-50 text-green-700 border border-green-200';
+                        uploadResult.textContent = res.data.success;
+                        setTimeout(function() {
+                            closeUploadModal(true);
+                        }, 800);
+                    } else {
+                        uploadResult.className = 'text-sm rounded px-3 py-2 bg-red-50 text-red-600 border border-red-200';
+                        uploadResult.textContent = res.data.error || 'Upload failed.';
+                    }
+                })
+                .catch(function() {
+                    uploadSubmitBtn.disabled = false;
+                    uploadSubmitBtn.textContent = 'Upload';
+                    uploadResult.className = 'text-sm rounded px-3 py-2 bg-red-50 text-red-600 border border-red-200';
+                    uploadResult.textContent = 'Upload failed. Please try again.';
+                });
+            });
+        }
+
+        var form = document.querySelector('form[action*="sermon/edit"]');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                if (!inputPath || !inputPath.value) {
+                    e.preventDefault();
+                    if (coverError) coverError.classList.remove('hidden');
+                    openBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+        }
     })();
 </script>
 @endpush
