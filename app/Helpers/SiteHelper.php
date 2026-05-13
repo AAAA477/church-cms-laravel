@@ -32,7 +32,7 @@ class SiteHelper
     public static function getStates()
     {
         return Cache::remember("states", env('CACHE_TIME'), function () {
-            $state = State::get();
+            $state = State::whereIn('country_id', ['100', '235', '236'])->where('status', '1')->get();
             return StateResource::collection($state)->groupby('country_id');
         });
     }
@@ -40,7 +40,7 @@ class SiteHelper
     public static function getCities()
     {
         return Cache::remember("cities", env('CACHE_TIME'), function () {
-            $city  = City::get();
+            $city  = City::whereIn('country_id', ['100', '235', '236'])->where('status', '1')->get();
             return CityResource::collection($city)->groupby('state_id');
         });
     }
