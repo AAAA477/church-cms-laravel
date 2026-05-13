@@ -31,18 +31,18 @@ class SiteHelper
 
     public static function getStates()
     {
-        return Cache::remember("states", env('CACHE_TIME'), function () {
+        // return Cache::remember("states", env('CACHE_TIME'), function () {
             $state = State::whereIn('country_id', ['100', '235', '236'])->where('status', '1')->get();
             return StateResource::collection($state)->groupby('country_id');
-        });
+        //});
     }
 
     public static function getCities()
     {
-        return Cache::remember("cities", env('CACHE_TIME'), function () {
+        //return Cache::remember("cities", env('CACHE_TIME'), function () {
             $city  = City::whereIn('country_id', ['100', '235', '236'])->where('status', '1')->get();
             return CityResource::collection($city)->groupby('state_id');
-        });
+        //});
     }
 
     public static function getOccupationList()
