@@ -101,13 +101,14 @@ class VideoController extends Controller
             $message = 'Videos Added Successfully';
 
             $ip = $this->getRequestIP();
-            $this->doActivityLog(
-                $video,
-                Auth::user(),
-                ['ip' => $ip, 'details' => $_SERVER['HTTP_USER_AGENT']],
-                LOGNAME_ADD_VIDEO,
-                $message
-            );
+
+            // $this->doActivityLog(
+            //     $video,
+            //     Auth::user(),
+            //     ['ip' => $ip, 'details' => $_SERVER['HTTP_USER_AGENT']],
+            //     LOGNAME_ADD_VIDEO,
+            //     $message
+            // );
 
             $res['success'] = $message;
             return $res;
