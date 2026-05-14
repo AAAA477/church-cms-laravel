@@ -11,10 +11,6 @@
 ['label' => 'Events'],
 ],
 ])
-
-@php
-use Illuminate\Support\Str;
-@endphp
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
     {{-- Upcoming Events --}}
@@ -23,25 +19,31 @@ use Illuminate\Support\Str;
             <span class="inline-block w-3 h-3 rounded-full bg-green-500"></span>
             Upcoming Events
         </h2>
+        @php
+        use Illuminate\Support\Str;
+        @endphp
 
         @if($upcoming->count())
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach($upcoming as $event)
             <a href="{{ route('web.event', $event->id) }}" class="block bg-white rounded-lg shadow hover:shadow-md overflow-hidden transition">
+                @if($event->image)
+                <img src="{{ \Storage::url($event->image) }}" alt="{{ $event->title }}" class="w-full h-44 object-cover">
+                @else
+                <div class="w-full h-44 bg-green-50 flex items-center justify-center text-green-300 text-5xl">&#128197;</div>
+                @endif
 
 
                 @if($event->image)
                 <img
                     src="{{ Str::startsWith($event->image, ['http://', 'https://']) 
             ? $event->image 
-            : Storage::url($event->image) }}"
+            : \Storage::url($event->image) }}"
                     alt="{{ $event->title }}"
                     class="w-full h-44 object-cover">
                 @else
                 <div class="w-full h-44 bg-green-50 flex items-center justify-center text-green-300 text-5xl">&#128197;</div>
                 @endif
-
-
 
                 <div class="p-4">
                     @if($event->category)
