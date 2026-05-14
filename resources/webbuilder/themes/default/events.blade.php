@@ -36,7 +36,7 @@
 
                 @if($event->image)
                 <img
-                    src="{{ Str::startsWith($event->image, ['http://', 'https://']) 
+                    src="{{ \Str::startsWith($event->image, ['http://', 'https://']) 
             ? $event->image 
             : \Storage::url($event->image) }}"
                     alt="{{ $event->title }}"
