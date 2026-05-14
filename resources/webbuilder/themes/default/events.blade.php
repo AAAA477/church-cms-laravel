@@ -8,8 +8,7 @@
 'heroSubtitle' => 'Upcoming services, gatherings, and community events',
 'breadcrumbs' => [
 ['label' => 'Home', 'url' => route('web.home')],
-['label' => 'Events'],
-],
+['label' => 'Events']],
 ])
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
