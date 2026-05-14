@@ -6,16 +6,29 @@
 @section('content')
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
+    @php
+    use Illuminate\Support\Str;
+    @endphp
+
     @if($event->image)
-        <img src="{{ \Storage::disk('public')->url($event->image) }}" alt="{{ $event->title }}" class="w-full h-64 object-cover rounded-lg mb-8">
+    <img src="{{ \Storage::disk('public')->url($event->image) }}" alt="{{ $event->title }}" class="w-full h-64 object-cover rounded-lg mb-8">
+    @endif
+
+    @if($event->image)
+    <img
+        src="{{ Str::startsWith($event->image, ['http://', 'https://']) 
+            ? $event->image 
+            : \Storage::url($event->image) }}"
+        alt="{{ $event->title }}"
+        class="w-full h-64 object-cover rounded-lg mb-8">
     @endif
 
     <div class="flex flex-wrap gap-2 mb-3">
         @if($event->category)
-            <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full">{{ $event->category }}</span>
+        <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full">{{ $event->category }}</span>
         @endif
         @if($event->allDay)
-            <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">All Day</span>
+        <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">All Day</span>
         @endif
     </div>
 
@@ -25,18 +38,18 @@
         <div>
             <span class="font-medium">Start:</span>
             @if($event->allDay)
-                {{ \Carbon\Carbon::parse($event->start_date)->format('l, d M Y') }}
+            {{ \Carbon\Carbon::parse($event->start_date)->format('l, d M Y') }}
             @else
-                {{ \Carbon\Carbon::parse($event->start_date)->format('l, d M Y \a\t g:i A') }}
+            {{ \Carbon\Carbon::parse($event->start_date)->format('l, d M Y \a\t g:i A') }}
             @endif
         </div>
         @if($event->end_date)
         <div>
             <span class="font-medium">End:</span>
             @if($event->allDay)
-                {{ \Carbon\Carbon::parse($event->end_date)->format('l, d M Y') }}
+            {{ \Carbon\Carbon::parse($event->end_date)->format('l, d M Y') }}
             @else
-                {{ \Carbon\Carbon::parse($event->end_date)->format('l, d M Y \a\t g:i A') }}
+            {{ \Carbon\Carbon::parse($event->end_date)->format('l, d M Y \a\t g:i A') }}
             @endif
         </div>
         @endif
@@ -59,9 +72,9 @@
         <h2 class="text-xl font-semibold text-gray-800 mb-4">Event Photos</h2>
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
             @foreach($event->gallery as $photo)
-                <a href="{{ \Storage::disk('public')->url($photo->path) }}" target="_blank" class="block overflow-hidden rounded-lg">
-                    <img src="{{ \Storage::disk('public')->url($photo->path) }}" alt="{{ $event->title }}" class="w-full h-36 object-cover hover:opacity-90 transition-opacity">
-                </a>
+            <a href="{{ \Storage::disk('public')->url($photo->path) }}" target="_blank" class="block overflow-hidden rounded-lg">
+                <img src="{{ \Storage::disk('public')->url($photo->path) }}" alt="{{ $event->title }}" class="w-full h-36 object-cover hover:opacity-90 transition-opacity">
+            </a>
             @endforeach
         </div>
     </div>
