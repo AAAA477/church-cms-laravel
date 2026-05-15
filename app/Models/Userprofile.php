@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\Common;
-
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 /**
  * Userprofile Model
  *
@@ -75,6 +75,7 @@ class Userprofile extends Model
     use PresentableTrait;
     use SoftDeletes;
     use Common;
+    use HasFactory;
 
     protected $presenter = "App\Presenters\UserprofilePresenter";
 

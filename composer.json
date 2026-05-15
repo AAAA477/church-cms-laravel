@@ -41,7 +41,7 @@
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.9",
-        "fakerphp/faker": "^1.21",
+        "fakerphp/faker": "^1.24",
         "filp/whoops": "^2.14",
         "laravel/dusk": "^7.0",
         "laravel/legacy-factories": "^1.4",

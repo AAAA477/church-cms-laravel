@@ -10,7 +10,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Nckg\Impersonate\Traits\CanImpersonate;
 use Carbon\Carbon;
-
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 /**
  * User Model
  *
@@ -71,6 +71,7 @@ class User extends Authenticatable
     use SoftDeletes;
     use Notifiable;
     use CanImpersonate;
+    use HasFactory;
 
     protected $presenter = "App\Presenters\UserprofilePresenter";
 

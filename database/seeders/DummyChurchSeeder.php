@@ -22,12 +22,14 @@ class DummyChurchSeeder extends Seeder
         $staffRole    = Role::where('name', 'staff')->first();
 
         // 1 Sub-admin
-        factory(User::class, 1)->create([
+       //User::factory()->count(10)->create();
+         User::factory()->count(1)->create([
             'email'        => 'subadmin@demo.churchcms.app',
             'church_id'    => $church->id,
             'usergroup_id' => 4,
         ])->each(function ($user) use ($subadminRole) {
-            factory(Userprofile::class, 1)->create([
+
+            Userprofile::factory()->count(1)->create([
                 'user_id'         => $user->id,
                 'church_id'       => $user->church_id,
                 'membership_type' => 'member',
@@ -39,11 +41,11 @@ class DummyChurchSeeder extends Seeder
         });
 
         // 6 Staff
-        factory(User::class, 6)->create([
+        User::factory()->count(6)->create([
             'church_id'    => $church->id,
             'usergroup_id' => 4,
         ])->each(function ($staff) use ($staffRole) {
-            factory(Userprofile::class, 1)->create([
+            Userprofile::factory()->count(1)->create([
                 'user_id'         => $staff->id,
                 'church_id'       => $staff->church_id,
                 'membership_type' => 'member',
@@ -55,11 +57,11 @@ class DummyChurchSeeder extends Seeder
         });
 
         // 100 Members
-        factory(User::class, 100)->create([
+        User::factory()->count(100)->create([
             'church_id'    => $church->id,
             'usergroup_id' => 5,
         ])->each(function ($member) {
-            factory(Userprofile::class, 1)->create([
+            Userprofile::factory()->count(1)->create([
                 'user_id'         => $member->id,
                 'church_id'       => $member->church_id,
                 'membership_type' => 'member',
@@ -68,11 +70,11 @@ class DummyChurchSeeder extends Seeder
         });
 
         // 20 Guests
-        factory(User::class, 20)->create([
+        User::factory()->count(20)->create([
             'church_id'    => $church->id,
             'usergroup_id' => 5,
         ])->each(function ($guest) {
-            factory(Userprofile::class, 1)->create([
+            Userprofile::factory()->count(1)->create([
                 'user_id'         => $guest->id,
                 'church_id'       => $guest->church_id,
                 'membership_type' => 'guest',

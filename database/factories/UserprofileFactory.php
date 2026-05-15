@@ -1,76 +1,75 @@
 <?php
 
-use Faker\Generator as Faker;
+namespace Database\Factories;
+
+use App\Models\Userprofile;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Carbon\Carbon;
 
-$factory->define(App\Models\Userprofile::class, function (Faker $faker) {
-    
-    $profession = $faker->randomElement(['business','doctor','home_maker','professionals','self_employed','student','others']);
+class UserprofileFactory extends Factory
+{
+    protected $model = Userprofile::class;
 
-    $date_of_birth = $faker->dateTimeBetween($startDate = '-30 years', $endDate = '-2 years', $timezone = null);
-
-    //$gender = $faker->randomElement(['male', 'female' , 'transgender']);
-    $gender = $faker->randomElement(['male', 'female']);
-    if($gender == 'male')
+    public function definition(): array
     {
-        $avatar = "uploads/male.png";
-    }
-    elseif($gender == 'female')
-    {
-        $avatar = "uploads/female.png";
-    }
-    else
-    {
-        $avatar = "uploads/images.jpg";
-    }
+        $profession = fake()->randomElement([
+            'business',
+            'doctor',
+            'home_maker',
+            'professionals',
+            'self_employed',
+            'student',
+            'others'
+        ]);
 
-    $city = $faker->randomElement(['Bangalore' , 'Chennai' , 'Hyderabad' , 'Mumbai' , 'Thiruvananthapuram']);
+        $date_of_birth = fake()->dateTimeBetween('-30 years', '-2 years');
 
-    $city_id = $faker->randomElement(['12' , '24' , '25' , '15' , '13']);
+        $gender = fake()->randomElement(['male', 'female']);
 
-    $state_id = $faker->randomElement(['12' , '24' , '25' ,  '15' , '13']);
+        if ($gender == 'male') {
+            $avatar = "uploads/male.png";
+        } elseif ($gender == 'female') {
+            $avatar = "uploads/female.png";
+        } else {
+            $avatar = "uploads/images.jpg";
+        }
 
-    $membership_type = $faker->randomElement(['member', 'guest']);
-    
-    $was_baptized = $faker->randomElement(['yes', 'no']);
-    
-    if($was_baptized == 'yes')
-    {
-        $baptism_date = $faker->dateTimeBetween($startDate = '-29 years', $endDate = '-2 years', $timezone = null);
+        $city_id = fake()->randomElement(['12', '24', '25', '15', '13']);
+
+        $state_id = fake()->randomElement(['12', '24', '25', '15', '13']);
+
+        $membership_type = fake()->randomElement(['member', 'guest']);
+
+        $was_baptized = fake()->randomElement(['yes', 'no']);
+
+        if ($was_baptized == 'yes') {
+            $baptism_date = fake()->dateTimeBetween('-29 years', '-2 years');
+        } else {
+            $baptism_date = null;
+        }
+
+        if ($membership_type == 'member') {
+            $membership_start_date = Carbon::now();
+        } else {
+            $membership_start_date = null;
+        }
+
+        return [
+            'firstname'             => fake()->firstName(),
+            'lastname'              => fake()->lastName(),
+            'profession'            => $profession,
+            'date_of_birth'         => $date_of_birth,
+            'gender'                => $gender,
+            'avatar'                => $avatar,
+            'country_id'            => 7,
+            'address'               => fake()->address(),
+            'city_id'               => $city_id,
+            'state_id'              => $state_id,
+            'notes'                 => fake()->text(),
+            'membership_type'       => $membership_type,
+            'membership_start_date' => $membership_start_date,
+            'was_baptized'          => $was_baptized,
+            'baptism_date'          => $baptism_date,
+        ];
     }
-    else
-    {
-        $baptism_date = null;
-    }
-
-    if($membership_type == 'member')
-    {
-        $membership_start_date = Carbon::now();
-    }
-    else
-    {
-        $membership_start_date = null;
-    }
-    //$aadhar_number = $faker->unique()->randomNumber($nbDigits = 12, $strict = false);
-
-    $faker->addProvider(new \Faker\Provider\en_US\Text($faker));
-
-    return [
-        'firstname'                 => $faker->firstName,
-        'lastname'                  => $faker->lastName,
-        'profession'                => $profession,
-        'date_of_birth'             => $date_of_birth, 
-        'gender'                    => $gender, 
-        'avatar'                    => $avatar, 
-        'country_id'                => "7",
-        'address'                   => $faker->address,
-        'city_id'                   => $city_id,
-        'state_id'                  => $state_id,
-        'notes'                     => $faker->text,
-        'membership_type'           => $membership_type,
-        'membership_start_date'     => $membership_start_date,
-        'was_baptized'              => $was_baptized,
-        'baptism_date'              => $baptism_date,
-        //'aadhar_number'             => $aadhar_number,
-    ];
-});
+}
