@@ -138,9 +138,19 @@ class ImageController extends Controller
             }
         }
 
-        $all     = $uploaded->merge($folderImages)->values();
-        $folders = $all->pluck('folder')->unique()->filter()->values();
 
+
+        //    $all = $uploaded->merge($folderImages)->values(); 
+        //    $folders = $all->pluck('folder')->unique()->filter()->values(); 
+        //    return response()->json(['data' => $all, 'folders' => $folders]);
+
+        if ($uploaded->isEmpty()) {
+            $all = $folderImages;
+            $folders = $all->pluck('folder')->unique()->filter()->values();
+        } else {
+            $all = $uploaded->merge($folderImages)->values();
+            $folders = $all->pluck('folder')->unique()->filter()->values();
+        }
         return response()->json(['data' => $all, 'folders' => $folders]);
     }
 
