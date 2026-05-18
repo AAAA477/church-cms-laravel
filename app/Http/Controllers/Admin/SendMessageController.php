@@ -22,6 +22,7 @@ use Exception;
 use Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+
 /**
  * SendMessageController
  *
@@ -51,25 +52,25 @@ class SendMessageController extends Controller
     {
 
 
-       $sub = SendMail::selectRaw('MAX(id) as id')
-        ->where([
-            ['church_id', Auth::user()->church_id],
-            ['entity_id', null],
-            ['entity_name', null]
-        ])
-        ->when($request->mode != '', function ($q) use ($request) {
-            $q->where('mode', $request->mode);
-        })
-        ->groupBy('batch_id');
+        $sub = SendMail::selectRaw('MAX(id) as id')
+            ->where([
+                ['church_id', Auth::user()->church_id],
+                ['entity_id', null],
+                ['entity_name', null]
+            ])
+            ->when($request->mode != '', function ($q) use ($request) {
+                $q->where('mode', $request->mode);
+            })
+            ->groupBy('batch_id');
 
-       $messages = SendMail::whereIn('id', $sub)
-        ->orderBy('executed_at', 'desc')
-        ->paginate(20);
+        $messages = SendMail::whereIn('id', $sub)
+            ->orderBy('executed_at', 'desc')
+            ->paginate(20);
 
 
         //dd($messages);
 
-        return view('/admin/messages/index',['messages' => $messages]);
+        return view('/admin/messages/index', ['messages' => $messages]);
     }
 
 
@@ -77,17 +78,16 @@ class SendMessageController extends Controller
     {
 
 
-       $messages = SendMail::where([['batch_id',$batch_id]])->orderBy('executed_at','desc');
+        $messages = SendMail::where([['batch_id', $batch_id]])->orderBy('executed_at', 'desc');
 
-        if($request->mode!= '')
-        {
-            $messages = $messages->where('mode',$request->mode);
+        if ($request->mode != '') {
+            $messages = $messages->where('mode', $request->mode);
         }
 
         $messages = $messages->paginate(20);
 
 
-        return view('/admin/messages/batch-index',['messages' => $messages]);
+        return view('/admin/messages/batch-index', ['messages' => $messages]);
     }
 
 
@@ -99,21 +99,15 @@ class SendMessageController extends Controller
      */
     public function show($id)
     {
-        $sent = SendMail::where('id',$id)->first();
-        if(Gate::allows('member',$sent))
-        {
-            if($_SERVER['HTTP_REFERER'] != null)
-            {
+        $sent = SendMail::where('id', $id)->first();
+        if (Gate::allows('member', $sent)) {
+            if ($_SERVER['HTTP_REFERER'] != null) {
                 $prev_url = $_SERVER['HTTP_REFERER'];
-            }
-            else
-            {
+            } else {
                 $prev_url = url('/admin/messages');
             }
-            return view('/admin/messages/show',['sent' => $sent , 'prev_url' => $prev_url]);
-        }
-        else
-        {
+            return view('/admin/messages/show', ['sent' => $sent, 'prev_url' => $prev_url]);
+        } else {
             abort(403);
         }
     }
@@ -124,52 +118,49 @@ class SendMessageController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(SendMailRequest $request,$name)
+    public function store(SendMailRequest $request, $name)
     {
         //
 
-       // dd($request);
-        try
-        {
-            $batch_id=(string) Str::uuid();
-            $user = User::where('name',$name)->first();
-            $this->sendMessage($request , Auth::user()->church_id , Auth::user()->email , $user , Auth::user(),$batch_id);
+        // dd($request);
+        try {
+            $batch_id = (string) Str::uuid();
+            $user = User::where('name', $name)->first();
+            $this->sendMessage($request, Auth::user()->church_id, Auth::user()->email, $user, Auth::user(), $batch_id);
 
             $res['success'] = 'Message Sent Successfully';
             return $res;
-        }
-        catch(Exception $e)
-        {
+        } catch (Exception $e) {
             Log::info($e->getMessage());
-
         }
     }
 
     public function memberstore(SendMailRequest $request)
     {
+
+        // dd("jJ");
         //
-        try
-        {
-            $data=[];
-            $data['selected'] =explode(",",$request->selected);
-            $data['membership_type']=$request->membership_type;
-            $data['subject']=$request->subject;
-            $data['message']=$request->message;
-            $data['send_later']=$request->send_later;
-            $data['executed_at']=$request->executed_at;
-            $data['mode']=$request->mode;
-            $data['attachments']=$request->attachments;
-            $data['count']=$request->count;
-            $datas=(object)$data;
-            event (new SendMessageAllEvent ($datas , Auth::user()->church_id , Auth::user()->email , Auth::user() ) );
+        try {
+
+            $data = [];
+            $data['selected']       = array_filter(array_map('trim', explode(",", $request->selected ?? '')));
+            $data['membership_type'] = $request->membership_type;
+            $data['subject']        = $request->subject;
+            $data['message']        = $request->message;
+            $data['send_later']     = $request->send_later;
+            $data['executed_at']    = $request->executed_at ?: null;
+            $data['mode']           = $request->mode;
+            $data['attachments']    = $request->file('attachments');
+            $data['count']          = $request->count;
+            $data['entity_id']      = null;
+            $data['entity_name']    = null;
+            $datas = (object)$data;
+            event(new SendMessageAllEvent($datas, Auth::user()->church_id, Auth::user()->email, Auth::user()));
 
             $res['message'] = 'Message Sent Successfully';
             return $res;
-        }
-        catch(Exception $e)
-        {
-            Log::info($e->getMessage());
-
+        } catch (\Throwable $e) {
+            Log::error('memberstore error: ' . $e->getMessage());
         }
     }
 }

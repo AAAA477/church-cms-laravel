@@ -434,12 +434,7 @@
                 formData.append('send_later', sendLaterCheckbox && sendLaterCheckbox.checked ? 1 : 0);
                 formData.append('executed_at', document.getElementById('executed-at').value || '');
                 formData.append('count', selectedMembers.size);
-
-                let i = 0;
-                selectedMembers.forEach(memberId => {
-                    formData.append(`user${i}`, memberId);
-                    i++;
-                });
+                formData.append('selected', Array.from(selectedMembers).join(','));
                 formData.append('membership_type', 'member');
 
                 const attachmentsInput = document.getElementById('attachments');
@@ -597,7 +592,7 @@
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.4);
-        display: none !important;
+        display: none;
         align-items: center;
         justify-content: center;
     }

@@ -30,7 +30,7 @@ class ChurchController extends Controller
 
 
         $array = [];
-        $cities = City::where('country_id',100)->where('status',1)->take(25)->get();
+        $cities = City::where('country_id',100)->where('status',1)->take(10)->get();
         $i = 0;
 
         //dd($cities);

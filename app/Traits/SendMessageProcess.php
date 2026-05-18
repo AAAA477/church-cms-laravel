@@ -71,14 +71,14 @@ trait SendMessageProcess
             $sendmail->subject       = $data->subject;
             $sendmail->message       = $data->message;
 
-            if($data->attachments != null)
-            {
-               // $file = $data->file('attachments');
-                 $file = $data->attachments;
-                if($file != null)
-                {
-                    $folder = $church_id.'/sendmessage';
-                    $sendmail->attachments  = $this->uploadFile($folder,$file);
+            if (!empty($data->attachments)) {
+                if (is_string($data->attachments)) {
+                    $sendmail->attachments = $data->attachments;
+                } else {
+                    $folder = $church_id . '/sendmessage';
+                    $uploadedPath = $this->uploadFile($folder, $data->attachments);
+                    $data->attachments = $uploadedPath;
+                    $sendmail->attachments = $uploadedPath;
                 }
             }
 
