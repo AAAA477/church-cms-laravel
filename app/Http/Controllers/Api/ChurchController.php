@@ -24,11 +24,16 @@ class ChurchController extends Controller
      */
     public function locationList()
     {
+        //dd("jJ");
         //
         $churches = Church::where('status',1)->get()->groupBy('city_id');
+
+
         $array = [];
-        $cities = City::where('status',1)->get();
+        $cities = City::where('country_id',100)->where('status',1)->take(25)->get();
         $i = 0;
+
+        //dd($cities);
         foreach ($cities as $city)
         {
             $church = Church::where('city_id',$city->id)->count();

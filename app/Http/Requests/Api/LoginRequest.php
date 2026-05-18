@@ -46,7 +46,7 @@ class LoginRequest extends FormRequest
 
      Validator::extend('checkstatus', function ($attribute, $value, $parameters, $validator) {
             
-          if (count($this->user) > 0) 
+          if ($this->user!=null) 
           {
             if ($this->user->userprofile->status == 'active') 
             {
@@ -61,7 +61,7 @@ class LoginRequest extends FormRequest
 
      Validator::extend('checkexit', function ($attribute, $value, $parameters, $validator) {
             
-          if (count($this->user) > 0) 
+          if($this->user!=null)  
           {
             if ($this->user->userprofile->status == 'exit') 
             {
@@ -84,7 +84,7 @@ class LoginRequest extends FormRequest
       });
 
       Validator::extend('checkpassword', function ($attribute, $value, $parameters, $validator) {
-        if (count($this->user) > 0) 
+        if ($this->user!=null)  
         {
           $password = $this->user->password;
           if (Hash::check(request('password'), $password)) 
@@ -96,7 +96,7 @@ class LoginRequest extends FormRequest
       });
 
       Validator::extend('checkusergroupid', function ($attribute, $value, $parameters, $validator) {
-        if (count($this->user) > 0) 
+        if ($this->user!=null) 
         {
           if ($this->user->usergroup_id == '5') 
           {
