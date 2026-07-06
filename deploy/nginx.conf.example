@@ -1,0 +1,66 @@
+# Church CMS — single-origin reverse proxy
+#
+# Splits one public domain between Laravel (admin panel, real /api mobile
+# API, storage, uploads) and the Next.js frontend (public site, /member/*,
+# and its own internal /bff/* server routes).
+#
+# Locally verified against:
+#   - Laravel: php artisan serve on 127.0.0.1:8000
+#   - Next.js: `npm run build` (output: 'standalone') + pm2, on 127.0.0.1:3000
+#     (see frontend/ecosystem.config.js)
+#
+# For real production: change `listen 8090` to `listen 80` (and add a
+# second `server` block with `listen 443 ssl` + certificates), set
+# `server_name` to your real domain, and point API_URL / FRONTEND_URL /
+# SITE_URL at the public hostname instead of localhost.
+
+server {
+    listen       8090;
+    server_name  localhost;
+
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    # ---- Laravel-owned paths ----
+    location /admin/ {
+        proxy_pass http://127.0.0.1:8000;
+    }
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:8000;
+    }
+
+    location = /login {
+        proxy_pass http://127.0.0.1:8000;
+    }
+
+    location /storage/ {
+        proxy_pass http://127.0.0.1:8000;
+    }
+
+    location /uploads/ {
+        proxy_pass http://127.0.0.1:8000;
+    }
+
+    location /guest/ {
+        proxy_pass http://127.0.0.1:8000;
+    }
+
+    location /vendor/ {
+        proxy_pass http://127.0.0.1:8000;
+    }
+
+    location /_debugbar/ {
+        proxy_pass http://127.0.0.1:8000;
+    }
+
+    # ---- Everything else: Next.js (public site, /member/*, /bff/*) ----
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
