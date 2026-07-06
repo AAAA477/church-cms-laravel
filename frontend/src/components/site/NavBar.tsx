@@ -60,6 +60,12 @@ export default function NavBar({ churchName, tagline }: NavBarProps) {
               </Link>
             ))}
             <Link
+              href="/login"
+              className="text-sm font-medium tracking-wide text-ink transition-colors hover:text-primary"
+            >
+              Sign In
+            </Link>
+            <Link
               href="/member/give"
               className="bg-primary border-2 border-primary text-white text-sm font-medium uppercase tracking-wider px-6 py-2.5 rounded-sm transition-all hover:bg-primary-dark hover:border-primary-dark"
             >
@@ -107,6 +113,13 @@ export default function NavBar({ churchName, tagline }: NavBarProps) {
                 {link.label}
               </Link>
             ))}
+            <Link
+              href="/login"
+              onClick={() => setOpen(false)}
+              className="px-4 py-2 text-sm font-medium rounded transition-colors text-ink hover:bg-warm hover:text-primary"
+            >
+              Sign In
+            </Link>
             <Link
               href="/member/give"
               onClick={() => setOpen(false)}

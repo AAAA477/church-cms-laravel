@@ -69,7 +69,8 @@ class GuestAddRequest extends FormRequest
             'gender'            =>  'required',
             'date_of_birth'     =>  'required|date|check_date_of_birth',
             'mobile_no'         =>  'required|numeric|digits:10|check_unique_mobile',
-            'email'             =>  'nullable|email|check_unique_email',
+            'email'             =>  'required|email|check_unique_email',
+            'password'          =>  'required|string|min:8|confirmed',
         ];
     }
 
@@ -95,6 +96,10 @@ class GuestAddRequest extends FormRequest
             'email.required'                    =>  'Email ID Is Required',
             'email.email'                       =>  'Enter A valid Email ID ',
             'email.check_unique_email'          =>  'Email ID Already In Use. Enter Different Email ID',
+
+            'password.required'                 =>  'Password Is Required',
+            'password.min'                      =>  'Password Must Be At Least 8 Characters',
+            'password.confirmed'                =>  'Passwords Do Not Match',
         ];
     }
 }

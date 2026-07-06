@@ -117,12 +117,18 @@ class LoginController extends Controller
             $path = '';
             $user = $this->createGuest($request, $church->id, $path, 5);
 
+            // createGuest() sets a shared placeholder password; overwrite it
+            // with the password the user actually chose (same as the web
+            // registration flow in WebBuilder\GuestAuthController@register).
+            $user->password = bcrypt($request->password);
+            $user->save();
+
             $message = 'Guest Added Successfully';
 
             $ip = $this->getRequestIP();
             $this->doActivityLog(
                 $user,
-                1,
+                $user,
                 ['ip' => $ip, 'details' => $_SERVER['HTTP_USER_AGENT']],
                 LOGNAME_ADD_GUEST,
                 $message

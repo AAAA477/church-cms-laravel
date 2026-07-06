@@ -25,7 +25,14 @@ export default function LoginPage() {
           <LoginForm />
         </Suspense>
 
-        <p className="mt-8 text-center text-sm text-ink-soft">
+        <p className="mt-6 text-center text-sm text-ink-soft">
+          New here?{" "}
+          <Link href="/register" className="text-primary hover:text-primary-dark">
+            Create an account
+          </Link>
+        </p>
+
+        <p className="mt-4 text-center text-sm text-ink-soft">
           <Link href="/" className="text-primary hover:text-primary-dark">
             ← Back to Home
           </Link>
