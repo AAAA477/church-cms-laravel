@@ -35,7 +35,7 @@ export default function LiftPrayerButton({ prayerId, category, onLifted }: Props
     setState({ kind: "submitting" });
 
     try {
-      const res = await fetch("/api/public/prayer-lift", {
+      const res = await fetch("/bff/public/prayer-lift", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prayerId }),

@@ -6,7 +6,7 @@ import clsx from "clsx";
 import type { Notification } from "@/lib/api-types";
 
 async function post(path: string) {
-  await fetch(`/api/member/notifications/${path}`, { method: "POST" });
+  await fetch(`/bff/member/notifications/${path}`, { method: "POST" });
 }
 
 export default function NotificationList({

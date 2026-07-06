@@ -60,7 +60,7 @@ export default function NavBar({ churchName, tagline }: NavBarProps) {
               </Link>
             ))}
             <Link
-              href="/login"
+              href="/member/login"
               className="text-sm font-medium tracking-wide text-ink transition-colors hover:text-primary"
             >
               Sign In
@@ -114,7 +114,7 @@ export default function NavBar({ churchName, tagline }: NavBarProps) {
               </Link>
             ))}
             <Link
-              href="/login"
+              href="/member/login"
               onClick={() => setOpen(false)}
               className="px-4 py-2 text-sm font-medium rounded transition-colors text-ink hover:bg-warm hover:text-primary"
             >

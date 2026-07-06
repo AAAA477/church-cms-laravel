@@ -27,7 +27,7 @@ export default function LoginPage() {
 
         <p className="mt-6 text-center text-sm text-ink-soft">
           New here?{" "}
-          <Link href="/register" className="text-primary hover:text-primary-dark">
+          <Link href="/member/register" className="text-primary hover:text-primary-dark">
             Create an account
           </Link>
         </p>

@@ -20,7 +20,7 @@ export default function RegisterForm() {
     const data = Object.fromEntries(new FormData(form));
 
     try {
-      const registerRes = await fetch("/api/auth/register", {
+      const registerRes = await fetch("/bff/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -36,7 +36,7 @@ export default function RegisterForm() {
         return;
       }
 
-      const loginRes = await fetch("/api/auth/login", {
+      const loginRes = await fetch("/bff/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: data.email, password: data.password }),
@@ -44,7 +44,7 @@ export default function RegisterForm() {
 
       if (!loginRes.ok) {
         // Registered fine but auto-login failed — send them to sign in manually.
-        router.push("/login");
+        router.push("/member/login");
         return;
       }
 

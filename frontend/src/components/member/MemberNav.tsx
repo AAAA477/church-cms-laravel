@@ -18,7 +18,7 @@ export default function MemberNav({ name }: { name: string }) {
   const router = useRouter();
 
   async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
+    await fetch("/bff/auth/logout", { method: "POST" });
     router.push("/");
     router.refresh();
   }

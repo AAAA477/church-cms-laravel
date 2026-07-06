@@ -20,7 +20,7 @@ export default function ChangePasswordForm() {
     const data = Object.fromEntries(new FormData(form));
 
     try {
-      const res = await fetch("/api/member/change-password", {
+      const res = await fetch("/bff/member/change-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),

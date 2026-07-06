@@ -38,7 +38,7 @@ export default function DonationForm({ gateways }: { gateways: PayGateway[] }) {
   }, []);
 
   async function post(path: string, body: object) {
-    const url = path ? `/api/member/donate/${path}` : "/api/member/donate";
+    const url = path ? `/bff/member/donate/${path}` : "/bff/member/donate";
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -111,7 +111,7 @@ export default function DonationForm({ gateways }: { gateways: PayGateway[] }) {
 
   function startPolling(id: number) {
     pollRef.current = setInterval(async () => {
-      const res = await fetch(`/api/member/donate/status/${id}`);
+      const res = await fetch(`/bff/member/donate/status/${id}`);
       const data = await res.json().catch(() => ({}));
       if (data.status && data.status !== "pending") {
         if (pollRef.current) clearInterval(pollRef.current);

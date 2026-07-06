@@ -21,7 +21,7 @@ export default function ContactForm() {
     const data = Object.fromEntries(new FormData(form));
 
     try {
-      const res = await fetch("/api/public/contact", {
+      const res = await fetch("/bff/public/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),

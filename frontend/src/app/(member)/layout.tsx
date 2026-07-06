@@ -20,7 +20,9 @@ export default async function MemberLayout({
     if (profile) name = `${profile.firstname} ${profile.lastname}`.trim();
   } catch (e) {
     if (e instanceof ApiError && e.status === 401) {
-      redirect("/login?next=/member");
+      // Fallback for a present-but-expired/invalid token — proxy.ts only
+      // checks cookie presence, so an expired token reaches this far.
+      redirect("/member/login?next=/member");
     }
     // Non-auth errors: keep the cookie-derived name, page content will
     // surface its own error state.

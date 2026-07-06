@@ -18,7 +18,7 @@ export default function GroupMessageForm({ groupId }: { groupId: number }) {
     setError(null);
 
     try {
-      const res = await fetch("/api/member/group-message", {
+      const res = await fetch("/bff/member/group-message", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ groupId, message }),
