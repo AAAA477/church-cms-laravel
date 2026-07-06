@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { cookies } from "next/headers";
 import PageHeader from "@/components/site/PageHeader";
+import HelpRequestForm from "@/components/site/HelpRequestForm";
 import EmptyState from "@/components/ui/EmptyState";
 import { guestGet } from "@/lib/api";
 
@@ -21,6 +24,7 @@ type Help = {
 
 export default async function HelpRequestsPage() {
   const helps = await guestGet<{ data: Help[] }>("/helps");
+  const isSignedIn = Boolean((await cookies()).get("member_token")?.value);
 
   const approved = helps.data.filter((h) => h.status === "approve");
 
@@ -80,6 +84,27 @@ export default async function HelpRequestsPage() {
               ))}
             </ul>
           )}
+
+          <div className="mt-16 max-w-xl mx-auto">
+            {isSignedIn ? (
+              <HelpRequestForm />
+            ) : (
+              <div className="rounded-sm bg-warm px-8 py-10 text-center">
+                <h3 className="font-display text-2xl text-ink mb-2">
+                  Need a helping hand?
+                </h3>
+                <p className="text-ink-soft mb-6">
+                  Sign in to post a request for our community to see.
+                </p>
+                <Link
+                  href="/member/login?next=/help-requests"
+                  className="inline-block bg-primary text-white text-sm font-medium uppercase tracking-wider px-6 py-2.5 rounded-sm hover:bg-primary-dark transition-colors"
+                >
+                  Sign In
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </section>
     </>

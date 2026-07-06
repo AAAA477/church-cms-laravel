@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 const API = process.env.API_URL ?? "http://localhost:8000";
 const CHURCH = process.env.CHURCH_ID ?? "1";
-const SITE = process.env.SITE_URL ?? "http://localhost:3000";
+const SITE = process.env.SITE_URL ?? process.env.DEPLOY_PRIME_URL ?? process.env.URL ?? "http://localhost:3000";
 
 async function ids(path: string, key = "id"): Promise<number[]> {
   try {

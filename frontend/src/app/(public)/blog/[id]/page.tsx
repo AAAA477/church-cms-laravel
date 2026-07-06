@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
+import Breadcrumbs from "@/components/site/Breadcrumbs";
 import Button from "@/components/ui/Button";
+import PostLikeButton from "@/components/site/PostLikeButton";
+import PostCommentForm from "@/components/site/PostCommentForm";
 import { guestGet, ApiError } from "@/lib/api";
 import { cleanHtml } from "@/lib/html";
 import type { Post } from "@/lib/api-types";
@@ -48,11 +53,19 @@ export default async function PostDetailPage({ params }: Props) {
   if (!post) notFound();
 
   const { data, comments } = post;
+  const isSignedIn = Boolean((await cookies()).get("member_token")?.value);
 
   return (
     <article>
       <header className="hero-gradient texture-overlay">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 text-center">
+          <Breadcrumbs
+            crumbs={[
+              { label: "Home", href: "/" },
+              { label: "Blog", href: "/blog" },
+              { label: data.title },
+            ]}
+          />
           <div className="flex items-center justify-center gap-4 mb-4 text-sm">
             {data.category && (
               <span className="font-medium uppercase tracking-[0.2em] text-primary">
@@ -100,6 +113,10 @@ export default async function PostDetailPage({ params }: Props) {
           </div>
         )}
 
+        <div className="mt-8 pt-8 border-t border-warm-deep">
+          <PostLikeButton kind="post" id={data.id} initialCount={data.like_count} />
+        </div>
+
         <section className="mt-16 border-t border-warm-deep pt-12">
           <h2 className="font-display text-3xl text-ink mb-8">
             Comments {comments.total > 0 && `(${comments.total})`}
@@ -117,17 +134,27 @@ export default async function PostDetailPage({ params }: Props) {
                     </p>
                     <p className="text-xs text-ink-soft">{comment.date}</p>
                   </div>
-                  <p className="text-sm text-ink-soft leading-relaxed">
+                  <p className="text-sm text-ink-soft leading-relaxed mb-3">
                     {comment.comment}
                   </p>
+                  <PostLikeButton kind="comment" id={comment.id} initialCount={comment.like_count} />
                 </li>
               ))}
             </ul>
           )}
 
-          <p className="mt-8 text-sm text-ink-soft">
-            Members can comment after signing in — coming soon.
-          </p>
+          <div className="mt-8">
+            {isSignedIn ? (
+              <PostCommentForm postId={data.id} />
+            ) : (
+              <p className="text-sm text-ink-soft">
+                <Link href={`/member/login?next=/blog/${data.id}`} className="text-primary hover:text-primary-dark font-medium">
+                  Sign in
+                </Link>{" "}
+                to leave a comment.
+              </p>
+            )}
+          </div>
         </section>
 
         <div className="mt-16 text-center">

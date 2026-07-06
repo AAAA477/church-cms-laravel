@@ -29,8 +29,28 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## Deploy on Netlify
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The repository root includes `netlify.toml`, which tells Netlify to build this
+Next.js app from the `frontend/` directory.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Use these settings when creating the Netlify site:
+
+- Base directory: `frontend`
+- Build command: `npm run build`
+- Publish directory: `.next`
+
+Set these environment variables in Netlify:
+
+- `API_URL`: public HTTPS URL for the Laravel backend, without a trailing slash
+- `CHURCH_ID`: single-church id, usually `1`
+- `SITE_URL`: optional canonical frontend URL; Netlify's `URL`/`DEPLOY_PRIME_URL`
+  values are used when this is not set
+
+The Laravel backend still needs to be hosted separately; Netlify serves the
+Next.js frontend and its BFF route handlers.
+
+If Netlify shows its generic "Page not found" screen at `/`, check the deploy
+log for `@netlify/plugin-nextjs`. If it is missing, Netlify is serving `.next`
+as a static folder instead of running the Next adapter. Clear the deploy cache
+and redeploy after pushing `netlify.toml` and this package lockfile.

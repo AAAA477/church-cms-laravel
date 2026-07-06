@@ -1,7 +1,32 @@
 import type { NextConfig } from "next";
 
+function remoteImagePatterns(): NonNullable<NextConfig["images"]>["remotePatterns"] {
+  const patterns: NonNullable<NextConfig["images"]>["remotePatterns"] = [
+    { protocol: "http", hostname: "localhost" },
+    { protocol: "http", hostname: "127.0.0.1" },
+  ];
+
+  if (process.env.API_URL) {
+    try {
+      const apiUrl = new URL(process.env.API_URL);
+
+      if (apiUrl.protocol === "http:" || apiUrl.protocol === "https:") {
+        patterns.push({
+          protocol: apiUrl.protocol.replace(":", "") as "http" | "https",
+          hostname: apiUrl.hostname,
+          port: apiUrl.port || undefined,
+        });
+      }
+    } catch {
+      // Invalid API_URL should fail at runtime fetches, not while loading config.
+    }
+  }
+
+  return patterns;
+}
+
 const nextConfig: NextConfig = {
-  output: "standalone",
+  ...(process.env.NETLIFY ? {} : { output: "standalone" }),
   turbopack: {
     root: process.cwd(),
   },
@@ -22,14 +47,9 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
-    // Laravel media lives under /storage (medialibrary) and /uploads (legacy)
-    remotePatterns: [
-      { protocol: "http", hostname: "localhost" },
-      { protocol: "http", hostname: "127.0.0.1" },
-    ],
-    // Local dev only: the Laravel API serves media from 127.0.0.1:8000.
-    // Remove when the API is on a public hostname in production.
-    dangerouslyAllowLocalIP: true,
+    // Laravel media lives under /storage (medialibrary) and /uploads (legacy).
+    remotePatterns: remoteImagePatterns(),
+    dangerouslyAllowLocalIP: process.env.NODE_ENV !== "production",
   },
 };
 

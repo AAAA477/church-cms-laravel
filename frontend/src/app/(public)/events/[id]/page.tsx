@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import Breadcrumbs from "@/components/site/Breadcrumbs";
 import Button from "@/components/ui/Button";
 import { guestGet, ApiError } from "@/lib/api";
 import type { Event } from "@/lib/api-types";
@@ -34,6 +35,13 @@ export default async function EventDetailPage({ params }: Props) {
     <article>
       <header className="hero-gradient texture-overlay">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 text-center">
+          <Breadcrumbs
+            crumbs={[
+              { label: "Home", href: "/" },
+              { label: "Events", href: "/events" },
+              { label: event.title },
+            ]}
+          />
           {event.category && (
             <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary mb-4">
               {event.category}

@@ -66,3 +66,36 @@ export async function memberFetch<T>(
 
   return res.json() as Promise<T>;
 }
+
+/**
+ * Fetch an authenticated /api/admin endpoint using the bearer token stored
+ * in the httpOnly `admin_token` cookie (separate from `member_token` —
+ * see bff/admin/auth/login). Never cached.
+ */
+export async function adminFetch<T>(
+  path: string,
+  init: RequestInit = {},
+): Promise<T> {
+  const token = (await cookies()).get("admin_token")?.value;
+
+  if (!token) {
+    throw new ApiError(401, "Not authenticated");
+  }
+
+  const res = await fetch(`${API}/api/admin${path}`, {
+    ...init,
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+      ...(init.body ? { "Content-Type": "application/json" } : {}),
+      ...init.headers,
+    },
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    throw new ApiError(res.status, `${init.method ?? "GET"} ${path} → ${res.status}`);
+  }
+
+  return res.json() as Promise<T>;
+}
