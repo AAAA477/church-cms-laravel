@@ -7,6 +7,8 @@ import clsx from "clsx";
 const links = [
   { href: "/member", label: "Dashboard" },
   { href: "/member/groups", label: "My Groups" },
+  { href: "/member/give", label: "Give" },
+  { href: "/member/notifications", label: "Notifications" },
   { href: "/member/profile", label: "Profile" },
   { href: "/member/change-password", label: "Password" },
 ];

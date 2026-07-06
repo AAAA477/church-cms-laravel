@@ -95,6 +95,8 @@ Route::group(
 		//members
 		Route::get('/member/show', 'UserController@show');
 
+		Route::get('/member/idcard', 'UserController@idcard');
+
 		Route::post('/member/changePassword', 'UserController@changePassword');
 
 		Route::post('/member/updatetoken', 'UserController@updatetoken');
@@ -171,6 +173,17 @@ Route::group(
 		Route::get('/paymentgateway', 'PayaccountContorller@getlist');
 
 		Route::get('/payaccount/{gateway_id}', 'PayaccountContorller@showdetails');
+
+		//donations (Next.js member portal — mirrors Member\DonationController)
+		Route::get('/donate/gateways', 'DonationController@gateways');
+		Route::get('/donate/history', 'DonationController@history');
+		Route::get('/donate/status/{id}', 'DonationController@status');
+		Route::post('/donate', 'DonationController@store');
+		Route::post('/donate/verify', 'DonationController@verify');
+		Route::post('/donate/mpesa-stk', 'DonationController@mpesaStk');
+		Route::post('/donate/gcash-init', 'DonationController@gcashInit');
+		Route::post('/donate/gcash-confirm', 'DonationController@gcashConfirm');
+		Route::post('/donate/stripe-intent', 'DonationController@stripeIntent');
 
 		//quotes
 

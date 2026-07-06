@@ -157,6 +157,58 @@ export interface GroupPostItem {
   created_at: string;
 }
 
+export type GatewayName =
+  | "cash"
+  | "paystack"
+  | "flutterwave"
+  | "mpesa"
+  | "gcash"
+  | "stripe"
+  | "pix"
+  | "telebirr";
+
+export interface PayGateway {
+  id: number;
+  gatewayname: GatewayName;
+  display_name: string;
+  instructions: string;
+  public_key: string | null;
+  currency: string | null;
+  is_online: boolean;
+}
+
+export interface Notification {
+  id: string;
+  data_message: string;
+  web_message: string;
+  read_at: string;
+  created_at: string;
+}
+
+export interface IdCard {
+  name: string;
+  member_id: number;
+  phone: string;
+  address: string;
+  membership_type: string | null;
+  membership_year: string;
+  avatar: string | null;
+  church_name: string | null;
+  church_logo: string | null;
+  qr_code: string;
+}
+
+export interface Donation {
+  id: number;
+  amount: string;
+  currency: string;
+  category: string;
+  method: string;
+  status: "pending" | "completed" | "cancelled";
+  note: string | null;
+  donated_at: string;
+}
+
 export interface MemberEvent {
   id: number;
   title: string;

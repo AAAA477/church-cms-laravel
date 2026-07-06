@@ -23,6 +23,7 @@ use Exception;
 use Hash;
 use Log;
 use OpenApi\Attributes as OA;   // ← add this line
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 class UserController extends Controller
 {
     use AuthenticationProcess;
@@ -49,6 +50,49 @@ class UserController extends Controller
         $users = UserDetailResource::collection($users);
 
         return $users;
+    }
+
+    #[OA\Get(
+        path: '/api/v1/member/idcard',
+        tags: ['User'],
+        summary: 'Get the authenticated member\'s digital ID card data',
+        security: [['sanctum' => []]],
+    )]
+    public function idcard()
+    {
+        $user = User::with('userprofile.city', 'userprofile.state', 'userprofile.country')
+            ->where('id', Auth::id())
+            ->firstOrFail();
+
+        $profile = $user->userprofile;
+
+        $currentYear = date('Y');
+        $nextYear    = date('Y', strtotime('+1 year'));
+
+        // Same attendance check-in URL encoded on the printed PDF card.
+        $qrPayload = url('/admin/attandance/' . $user->name);
+        // SVG backend — doesn't require the imagick extension the PNG backend needs.
+        $qrImage = 'data:image/svg+xml;base64,' . base64_encode(
+            QrCode::format('svg')->size(240)->margin(1)->generate($qrPayload)
+        );
+
+        return response()->json([
+            'name'            => strtoupper($user->FullName),
+            'member_id'       => $user->id,
+            'phone'           => $user->mobile_no,
+            'address'         => $profile ? trim(implode(', ', array_filter([
+                $profile->address,
+                optional($profile->city)->name,
+                optional($profile->state)->name,
+                optional($profile->country)->name,
+            ]))) : '',
+            'membership_type' => optional($profile)->membership_type,
+            'membership_year' => "{$currentYear} - {$nextYear}",
+            'avatar'          => optional($profile)->AvatarPath,
+            'church_name'     => optional($user->church)->name,
+            'church_logo'     => $user->ChurchLogo['meta_value'] !== '-' ? $user->ChurchLogoPath : null,
+            'qr_code'         => $qrImage,
+        ]);
     }
 
     #[OA\Post(
