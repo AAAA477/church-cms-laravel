@@ -1009,6 +1009,64 @@ use OpenApi\Attributes as OA;
     // ── Notifications ─────────────────────────────────────────────────────────
 
     OA\Schema(
+        schema: 'BulkReadNotificationRequest',
+        required: ['ids'],
+        properties: [
+            new OA\Property(
+                property: 'ids',
+                type: 'array',
+                items: new OA\Items(type: 'string'),
+                description: 'Array of notification UUIDs to mark as read',
+                example: ['uuid-1', 'uuid-2']
+            ),
+        ]
+    ),
+
+    OA\Response(
+        response: 'ReadNotificationResponse',
+        description: 'Notification marked as read',
+        content: new OA\JsonContent(
+            example: ['success' => true, 'message' => 'Notification has been read successfully']
+        )
+    ),
+
+    OA\Response(
+        response: 'BulkReadNotificationResponse',
+        description: 'Selected notifications marked as read',
+        content: new OA\JsonContent(
+            example: ['success' => true, 'message' => 'Selected notifications marked as read', 'updated' => 3]
+        )
+    ),
+
+    OA\Schema(
+        schema: 'BulkRemoveNotificationRequest',
+        required: ['ids'],
+        properties: [
+            new OA\Property(
+                property: 'ids',
+                type: 'array',
+                items: new OA\Items(type: 'string'),
+                description: 'Array of notification UUIDs to mark as delete',
+                example: ['uuid-1', 'uuid-2']
+            ),
+        ]
+      ),
+     OA\Response(
+        response: 'BulkRemoveNotificationResponse',
+        description: 'Selected notifications marked as read',
+        content: new OA\JsonContent(
+            example: ['success' => true, 'message' => 'Selected notifications marked as delete', 'updated' => 3]
+        )
+    ),
+    OA\Response(
+        response: 'AllReadNotificationResponse',
+        description: 'All notifications marked as read',
+        content: new OA\JsonContent(
+            example: ['success' => true, 'message' => 'All notifications marked as read', 'updated' => 5]
+        )
+    ),
+
+    OA\Schema(
         schema: 'NotificationResource',
         properties: [
             new OA\Property(property: 'id',               type: 'string',  description: 'UUID'),
@@ -1428,17 +1486,40 @@ use OpenApi\Attributes as OA;
         )
     ),
 
+    // ── Edit Profile Image ────────────────────────────────────────────────────
+
+    OA\Schema(
+        schema: 'EditProfileImgRequest',
+        properties: [
+            new OA\Property(
+                property: 'avatar',
+                type: 'string',
+                format: 'binary',
+                description: 'Profile image file (jpg, jpeg, png, bmp, webp)'
+            ),
+        ]
+    ),
+
+    OA\Response(
+        response: 'EditProfileImgResponse',
+        description: 'Profile image updated',
+        content: new OA\JsonContent(
+            example: ['status' => 'success', 'message' => 'User Profile Image Updated Successfully']
+        )
+    ),
+
     // ── Activity Log ──────────────────────────────────────────────────────────
 
     OA\Schema(
         schema: 'ActivityLogResource',
         properties: [
             new OA\Property(property: 'id',          type: 'integer'),
-            new OA\Property(property: 'name',        type: 'string',  description: 'Activity description or related entity name'),
-            new OA\Property(property: 'description', type: 'string',  nullable: true, description: 'Additional context (e.g. group member count)'),
-            new OA\Property(property: 'status',      type: 'string',  nullable: true),
+            new OA\Property(property: 'name',        type: 'string',  description: 'Entity name (event title, sermon title, group name)'),
+            new OA\Property(property: 'description', type: 'string',  nullable: true, description: 'Additional context'),
+            new OA\Property(property: 'status',      type: 'string',  nullable: true, description: '"soon" for events, "new" for sermons, "active" for groups'),
             new OA\Property(property: 'date',        type: 'string',  description: 'Formatted as d-m-Y h:i A'),
-            new OA\Property(property: 'type',        type: 'string',  description: 'Activity type (e.g. group)'),
+            new OA\Property(property: 'type',        type: 'string',  description: 'Record type: event | sermon | group'),
+            new OA\Property(property: 'type_id',     type: 'integer', description: 'ID of the related record'),
         ]
     ),
 

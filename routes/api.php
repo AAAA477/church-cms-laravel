@@ -93,7 +93,7 @@ Route::group(
 		Route::post('/notification/create', 'TestController@notification');
 
 		//members
-		Route::get('/member/show/{id}', 'UserController@show');
+		Route::get('/member/show', 'UserController@show');
 
 		Route::post('/member/changePassword', 'UserController@changePassword');
 
@@ -112,7 +112,8 @@ Route::group(
 		Route::get('/member/get/city/{id}', 'UserprofileController@city');
 
 
-		Route::post('/member/edit/{id}', 'UserprofileController@update');
+		Route::post('/member/edit', 'UserprofileController@update');
+		Route::post('/member/editprofileimg', 'UserprofileController@updateprofileImg');
 		Route::get('/member/activitylog', 'UserActivityLogController@index');
 
 
@@ -214,6 +215,10 @@ Route::group(
 		Route::get('/messages', 'SendMessageController@index');
 
 		Route::get('/notifications', 'SendMessageController@notificationList');
+		Route::post('/notification/read/{id}', 'SendMessageController@readNotification');
+		Route::post('/notification/allread', 'SendMessageController@allreadNotification');
+		Route::post('/notification/bulkread', 'SendMessageController@bulkReadNotification');
+		Route::post('/notification/bulkremove', 'SendMessageController@bulkRemoveNotification');
 
 		Route::post('/message/read/{id}', 'SendMessageController@readMessage');
 

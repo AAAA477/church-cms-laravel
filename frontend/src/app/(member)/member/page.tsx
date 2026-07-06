@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { cookies } from "next/headers";
 import Card from "@/components/ui/Card";
 import { memberFetch } from "@/lib/api";
 import type { MemberEvent, MemberGroup, MemberProfile } from "@/lib/api-types";
@@ -15,11 +14,8 @@ const quickLinks = [
 ];
 
 export default async function MemberDashboard() {
-  const cookieStore = await cookies();
-  const memberId = cookieStore.get("member_id")?.value ?? "0";
-
   const [profileRes, groupsRes, eventsRes] = await Promise.allSettled([
-    memberFetch<{ data: MemberProfile[] }>(`/member/show/${memberId}`),
+    memberFetch<{ data: MemberProfile[] }>("/member/show"),
     memberFetch<{ data: MemberGroup[] }>("/groups/list"),
     memberFetch<{ data: MemberEvent[] }>("/events/upcoming"),
   ]);

@@ -10,15 +10,12 @@ export default async function MemberLayout({
   children: React.ReactNode;
 }) {
   const cookieStore = await cookies();
-  const memberId = cookieStore.get("member_id")?.value ?? "0";
   const cookieName = cookieStore.get("member_name")?.value;
 
   let name = cookieName ?? "Member";
 
   try {
-    const res = await memberFetch<{ data: MemberProfile[] }>(
-      `/member/show/${memberId}`,
-    );
+    const res = await memberFetch<{ data: MemberProfile[] }>("/member/show");
     const profile = res.data[0];
     if (profile) name = `${profile.firstname} ${profile.lastname}`.trim();
   } catch (e) {

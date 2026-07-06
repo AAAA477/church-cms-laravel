@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import Card from "@/components/ui/Card";
 import { memberFetch } from "@/lib/api";
 import type { MemberProfile } from "@/lib/api-types";
@@ -24,12 +23,7 @@ const fields: [string, keyof MemberProfile][] = [
 ];
 
 export default async function ProfilePage() {
-  const cookieStore = await cookies();
-  const memberId = cookieStore.get("member_id")?.value ?? "0";
-
-  const res = await memberFetch<{ data: MemberProfile[] }>(
-    `/member/show/${memberId}`,
-  );
+  const res = await memberFetch<{ data: MemberProfile[] }>("/member/show");
   const profile = res.data[0];
 
   return (
