@@ -1,18 +1,1303 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "My API",
-        "description": "API description",
-        "contact": {
-            "email": "contact@example.com"
-        },
-        "license": {
-            "name": "Apache 2.0",
-            "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
-        },
+        "title": "Church CMS API",
         "version": "1.0.0"
     },
     "paths": {
+        "/api/v1/attendance/events": {
+            "get": {
+                "tags": [
+                    "EventsAttendance"
+                ],
+                "summary": "List events assigned to the authenticated staff member with attendance enabled",
+                "description": "List events the authenticated staff member is assigned to,\nwhere attendance tracking is enabled.",
+                "operationId": "0d2f80fb83d5c305051c47b3e28db0c5",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/AttendanceEventsResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/attendance/session": {
+            "post": {
+                "tags": [
+                    "EventsAttendance"
+                ],
+                "summary": "Open or retrieve an attendance session for an event",
+                "description": "Create or retrieve the attendance session for a given event + date.\nBody: { event_id, attendance_date (optional, defaults to today) }",
+                "operationId": "3795511bd2227894dd5bbdc9c58e3927",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OpenSessionRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/OpenSessionResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/attendance/scan": {
+            "post": {
+                "tags": [
+                    "EventsAttendance"
+                ],
+                "summary": "Scan a member QR code and mark them present",
+                "description": "Scan a member QR code and mark them present.\nBody: { session_id, member_username }\nThe QR code encodes url('/admin/attandance/{username}') — parse the username from it.",
+                "operationId": "46ef9498ea664f07cdce9e54bdcb51ba",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AttendanceScanRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/AttendanceScanResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/attendance/session/{id}/lock": {
+            "post": {
+                "tags": [
+                    "EventsAttendance"
+                ],
+                "summary": "Lock an attendance session to prevent further check-ins",
+                "description": "Lock an attendance session (no further check-ins).",
+                "operationId": "a039bf0ec2aaaf6915e1efbaf6cead58",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/SessionLockResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/attendance/session/{id}": {
+            "get": {
+                "tags": [
+                    "EventsAttendance"
+                ],
+                "summary": "Get the attendee report for a session",
+                "description": "Return the attendee list for a session.",
+                "operationId": "f89b40e7dca45ed008404928f0593bc7",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/SessionReportResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/bulletin/show": {
+            "get": {
+                "tags": [
+                    "Bulletins"
+                ],
+                "summary": "List church bulletins",
+                "operationId": "d79c63e4a9fb3b0b920f5c75971f86be",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/BulletinResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/church/details/{church_id}": {
+            "get": {
+                "tags": [
+                    "ChurchDetails"
+                ],
+                "summary": "Get church details by church ID",
+                "description": "Display a listing of the resource.",
+                "operationId": "21c3f4daa89e704858570f38c70e4eb4",
+                "parameters": [
+                    {
+                        "name": "church_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ChurchDetailResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/church/contact": {
+            "post": {
+                "tags": [
+                    "Contact"
+                ],
+                "summary": "Submit a church contact / enquiry form",
+                "description": "Store a newly created resource in storage.",
+                "operationId": "c841ffb280f02da51838c27ff55cfbca",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ContactRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ContactResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/events/gallery/show/{event_id}": {
+            "get": {
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Event Gallery Details",
+                "operationId": "cb7157b077791511417581267116f1f7",
+                "parameters": [
+                    {
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/EventGalleryResponse"
+                    }
+                }
+            }
+        },
+        "/api/v1/events/upcoming": {
+            "get": {
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Upcomeing Event List",
+                "operationId": "bdc03f471913e41a45fdb6b5caea7b93",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/EventResponse"
+                    }
+                }
+            }
+        },
+        "/api/v1/events/past": {
+            "get": {
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Past Event List",
+                "operationId": "5cb2ac88001c5ac39a3c3534e9fc3974",
+                "parameters": [
+                    {
+                        "name": "month",
+                        "in": "query",
+                        "description": "Month (1-12)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 12,
+                            "minimum": 1,
+                            "example": 5
+                        }
+                    },
+                    {
+                        "name": "year",
+                        "in": "query",
+                        "description": "Year",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 2050,
+                            "minimum": 2000,
+                            "example": 2026
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/EventResponse"
+                    }
+                }
+            }
+        },
+        "/api/v1/event/show/{id}": {
+            "get": {
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Event Details",
+                "operationId": "f5950f864fcddf3f0a4cddbd606b34f1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/EventResponse"
+                    }
+                }
+            }
+        },
+        "/api/v1/sermon/favorite": {
+            "post": {
+                "tags": [
+                    "Sermons"
+                ],
+                "summary": "Favorite",
+                "operationId": "e25858bf760cc2c6e3573a4f7a52c0c6",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FavoritesRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/FavoritesResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/feedbacks": {
+            "get": {
+                "tags": [
+                    "Feedback"
+                ],
+                "summary": "Get all feedbacks submitted by the authenticated user",
+                "description": "Display a listing of the resource.",
+                "operationId": "a15a31f8309a98a18a63a0cab53a13ae",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/FeedbackResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/feedback/category/list": {
+            "get": {
+                "tags": [
+                    "Feedback"
+                ],
+                "summary": "Get feedback category list",
+                "operationId": "ac6f79957960ab699e0247577733376c",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/FeedbackCategoryResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/feedback/add": {
+            "post": {
+                "tags": [
+                    "Feedback"
+                ],
+                "summary": "Submit a new feedback message",
+                "description": "Store a newly created resource in storage.",
+                "operationId": "6973684c2bac7753c462ffb7ac5169fa",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AddFeedbackRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/AddFeedbackResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/myFunds": {
+            "get": {
+                "tags": [
+                    "Fund"
+                ],
+                "summary": "Get current user's fund requests",
+                "operationId": "53327f0168e58e62dafc4e8bdb719add",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/FundResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/fund/list": {
+            "get": {
+                "tags": [
+                    "Fund"
+                ],
+                "summary": "List all deposited funds from other members",
+                "operationId": "9e00d6a23533f6119cdd61992c7c0569",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/FundResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/add/fund": {
+            "post": {
+                "tags": [
+                    "Fund"
+                ],
+                "summary": "Submit a new fund request",
+                "operationId": "1c5b0675eba2ee8a872ae28540a37929",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AddFundRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/AddFundResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/gallery/show/{church_id}": {
+            "get": {
+                "tags": [
+                    "Gallery"
+                ],
+                "summary": "show Gallery",
+                "operationId": "ada06e86e09ed40816cf94d46d1e7db0",
+                "parameters": [
+                    {
+                        "name": "church_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/EventGalleryResponse"
+                    }
+                }
+            }
+        },
+        "/api/v1/groups/list": {
+            "get": {
+                "tags": [
+                    "Groups"
+                ],
+                "summary": "List the current user's group memberships",
+                "description": "Display a listing of the resource.",
+                "operationId": "8b3dceac525f6bb128d386953ea550d5",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/GroupLinkResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/grouppost/list/{group_id}": {
+            "get": {
+                "tags": [
+                    "Groups"
+                ],
+                "summary": "List posts for a group",
+                "description": "Returns a paginated list of posts for the given group. Only accessible to authenticated members.",
+                "operationId": "3bfeb21a0d821b95b6da2c5eaad34c05",
+                "parameters": [
+                    {
+                        "name": "group_id",
+                        "in": "path",
+                        "description": "The ID of the group",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated group post list",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "group_id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "user_id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "title": {
+                                                        "type": "string",
+                                                        "nullable": true
+                                                    },
+                                                    "message": {
+                                                        "type": "string"
+                                                    },
+                                                    "attachments": {
+                                                        "type": "string",
+                                                        "nullable": true
+                                                    },
+                                                    "attachment_type": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "image",
+                                                            "video",
+                                                            "url"
+                                                        ],
+                                                        "nullable": true
+                                                    },
+                                                    "status": {
+                                                        "type": "string"
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "current_page": {
+                                            "type": "integer"
+                                        },
+                                        "per_page": {
+                                            "type": "integer"
+                                        },
+                                        "total": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/group/sendmessage/{group_id}": {
+            "post": {
+                "tags": [
+                    "Groups"
+                ],
+                "summary": "Send a message/post to a group",
+                "description": "Creates a new post in the specified group. The authenticated user must be a member of the group. Supports optional image attachment (multipart/form-data).",
+                "operationId": "13bb7a58be1792b176933c71ecff748e",
+                "parameters": [
+                    {
+                        "name": "group_id",
+                        "in": "path",
+                        "description": "The ID of the group to post in",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "message"
+                                ],
+                                "properties": {
+                                    "message": {
+                                        "description": "Post message content",
+                                        "type": "string",
+                                        "maxLength": 1000,
+                                        "example": "Hello group members!"
+                                    },
+                                    "attachments": {
+                                        "description": "Optional image attachment (jpeg, png, jpg, gif, webp — max 20 MB)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Post created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Post created successfully."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Not a member of this group",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "errors": {
+                                            "properties": {
+                                                "auth": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "You are not a member of this group."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error — message is required or attachment is invalid"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/helps": {
+            "get": {
+                "tags": [
+                    "Helps"
+                ],
+                "summary": "List approved help requests from other members",
+                "description": "Display a listing of the resource.",
+                "operationId": "d0b301ebe0dc91e3b8ec47825431dc52",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/HelpResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/helps/create": {
+            "post": {
+                "tags": [
+                    "Helps"
+                ],
+                "summary": "Submit a new help request",
+                "description": "Store a newly created resource in storage.",
+                "operationId": "3b63f8f6f6fa717817fc08bfa170a3b9",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/HelpAddRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/HelpCreateResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/helps/user": {
+            "get": {
+                "tags": [
+                    "Helps"
+                ],
+                "summary": "List the current user's own help requests",
+                "description": "Display the specified resource.",
+                "operationId": "46118bdd6fe9e692b442dad038173e8d",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/HelpUserResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/helps/close/{id}": {
+            "post": {
+                "tags": [
+                    "Helps"
+                ],
+                "summary": "Close a help request (mark as resolved)",
+                "description": "Update the specified resource in storage.",
+                "operationId": "e8b5239101363a6a4feb2164993f2008",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Help request ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/HelpCloseResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Login"
+                ],
+                "summary": "login api",
+                "operationId": "f74109d26aab35daab2d8c617c97c3fa",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/LoginResponse"
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Login"
+                ],
+                "summary": "Logout",
+                "operationId": "8f9216a1ffa35b50dda879998d4b9213",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/LogoutResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/logout/devices": {
+            "post": {
+                "tags": [
+                    "Login"
+                ],
+                "summary": "Logout All Devices",
+                "operationId": "39960d4295100f8519ecf50c6b446658",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LogoutAllRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/LogoutAllResponse"
+                    }
+                }
+            }
+        },
+        "/api/v1/mediaFiles?media_type=image": {
+            "get": {
+                "tags": [
+                    "MediaFiles"
+                ],
+                "summary": "Get Media Files",
+                "operationId": "256639229157e636ea3a8a614cb288f4",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/MediaFileResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/paymentgateway": {
+            "get": {
+                "tags": [
+                    "Payment Gateway"
+                ],
+                "summary": "List all available payment gateways",
+                "operationId": "1bdc68b460399f91ce3cdbfc27906193",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/PaymentgatewayResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/payaccount/{gateway_id}": {
+            "get": {
+                "tags": [
+                    "Payaccount"
+                ],
+                "summary": "Get payment account details for a gateway",
+                "operationId": "473517d1ab207843525007c2166bd34e",
+                "parameters": [
+                    {
+                        "name": "gateway_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/PayaccountDetailResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/prayer_participants/{id}": {
+            "post": {
+                "tags": [
+                    "Prayer"
+                ],
+                "summary": "Record that the current user is praying for a prayer request",
+                "description": "Record that the current user is praying for a prayer.\nHandles MEMBER (authenticated) and GUEST participation.\nReturns idempotently — lifting the same prayer twice is a no-op.",
+                "operationId": "4480bef19d8a0ff07c914c7e9438888f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Prayer request ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/PrayerParticipantResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/prayer_requests": {
+            "get": {
+                "tags": [
+                    "Prayer"
+                ],
+                "summary": "List active prayer requests on the public board",
+                "description": "List active prayers for the public board (excluding the current user's own prayers).",
+                "operationId": "c3811ff72536e714d52a3603b43bccbe",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/PrayerRequestResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/prayer_requests/create": {
+            "post": {
+                "tags": [
+                    "Prayer"
+                ],
+                "summary": "Submit a new prayer request",
+                "description": "Submit a new prayer request (creates a PENDING prayer).",
+                "operationId": "f29234e11bc1b4d064b23b75d1debb3c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SubmitPrayerRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/PrayerRequestCreateResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/prayer_requests/user": {
+            "get": {
+                "tags": [
+                    "Prayer"
+                ],
+                "summary": "List the current user's own prayer requests",
+                "description": "List the authenticated user's own prayers.",
+                "operationId": "c5f7d9d448a69065e515d5f85a20b1df",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/PrayerRequestUserResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/prayercategory/list": {
+            "get": {
+                "tags": [
+                    "Prayer"
+                ],
+                "summary": "List active prayer categories",
+                "operationId": "d74f1db4b6b4f7e567b4638ea45f6345",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/PrayerCategoryResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/prayer_requests/{id}/lift": {
+            "post": {
+                "tags": [
+                    "Prayer"
+                ],
+                "summary": "Prayer Participant request",
+                "description": "Submit a Prayer Participant request .",
+                "operationId": "7f5f293b84d072b475e27e4d0b646038",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/PrayerliftResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/quotes/show": {
+            "get": {
+                "tags": [
+                    "Quote"
+                ],
+                "summary": "Get today's quote for the church",
+                "operationId": "c97a3fdbef5d0c6c504c5f788c90d5a1",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/QuoteResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/messages": {
+            "get": {
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "List notification messages for the current user",
+                "description": "Display a listing of the resource.",
+                "operationId": "3d597e0c6f663ddfa3b8e8cad318d5a0",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/MessageListResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/message/read/{id}": {
+            "post": {
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Mark a message as read",
+                "description": "Store a newly created resource in storage.",
+                "operationId": "b25e76419ee9add3599877aa25d8eecf",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Message ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/MessageReadResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/notifications": {
+            "get": {
+                "tags": [
+                    "Notification"
+                ],
+                "summary": "List push notifications for the current user",
+                "operationId": "886a8d9deda28f413cea304b566587bd",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/NotificationListResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/sermon/show/{sermons_id}": {
+            "get": {
+                "tags": [
+                    "Sermons"
+                ],
+                "summary": "Show Sermons",
+                "operationId": "2e061d4ea4caf702326847e84f1eea79",
+                "parameters": [
+                    {
+                        "name": "sermons_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/SermonlinkResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/sermon/view/{church_id}": {
+            "get": {
+                "tags": [
+                    "Sermons"
+                ],
+                "summary": "Get Sermon Details  ",
+                "operationId": "9b767116711527cbabb6b737797e72dd",
+                "parameters": [
+                    {
+                        "name": "church_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/SermonsResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/notification/create": {
+            "post": {
+                "tags": [
+                    "Test"
+                ],
+                "summary": "Create a test record and fire a push notification",
+                "operationId": "c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NotificationCreateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/NotificationCreateResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/test": {
             "get": {
                 "summary": "Test API",
@@ -23,6 +1308,2700 @@
                     }
                 }
             }
+        },
+        "/api/v1/member/activitylog": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get paginated activity log for the authenticated member",
+                "operationId": "d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ActivityLogResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/member/show/{id}": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get member details",
+                "operationId": "e3db9395605c0b7d10e6514edf8ee777",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/UserDetailResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/member/updatetoken": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update the authenticated user's platform push token",
+                "operationId": "603c8c888febf5275c533656570b7a9c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateTokenRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/UpdateTokenResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/member/changePassword": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Change Password",
+                "operationId": "3af9df83ce87d2656643fe9a70fbf2c7",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ChangePasswordRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ChangePasswordResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/password/reset": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Request a password reset OTP sent via SMS",
+                "operationId": "a3e1c2d4b5f6e7a8c9d0b1e2f3c4a5d6",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ResetPasswordRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ResetPasswordResponse"
+                    }
+                }
+            }
+        },
+        "/api/v1/password/store": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Verify OTP and mark the account as ready for password change",
+                "operationId": "b4d6e7f8a9c0b1d2e3f4a5b6c7d8e9f0",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StorePasswordRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/StorePasswordResponse"
+                    },
+                    "302": {
+                        "description": "Password Does Not Match"
+                    }
+                }
+            }
+        },
+        "/api/v1/reset/change/password": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Change password using OTP-verified reset token",
+                "operationId": "f69ef19119f4f1265f8caf3460c30ffc",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ResetChangePasswordRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ResetChangePasswordResponse"
+                    }
+                }
+            }
+        },
+        "/api/v1/member/get/country": {
+            "get": {
+                "tags": [
+                    "Location"
+                ],
+                "summary": "Country List",
+                "description": "Display a listing of the resource.",
+                "operationId": "c6fccdce2017a35ad8c5ac1199babfac",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/CountryResponse"
+                    }
+                }
+            }
+        },
+        "/api/v1/member/get/state/{id}": {
+            "get": {
+                "tags": [
+                    "Location"
+                ],
+                "summary": "State List",
+                "description": "Display a listing of the resource.",
+                "operationId": "bd3973714f42b11dfe25f34a1e6fecf9",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/StateResponse"
+                    }
+                }
+            }
+        },
+        "/api/v1/member/get/city/{id}": {
+            "get": {
+                "tags": [
+                    "Location"
+                ],
+                "summary": "City List",
+                "description": "Display a listing of the resource.",
+                "operationId": "e3ae2c503db7e1340c862cfc624a2a33",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/CityResponse"
+                    }
+                }
+            }
+        },
+        "/api/v1/member/get/profession": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get profession list",
+                "description": "Show the form for creating a new resource.",
+                "operationId": "daa79a4723c4aeff90d93a583451146c",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ProfessionResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/member/get/marriage_status": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get marriage status list",
+                "operationId": "a83a402aec4f031cf54f0f658963b1c0",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/MarriageStatusResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/member/edit/{id}": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Edit user",
+                "description": "Update the specified resource in storage.",
+                "operationId": "f167b45d46b95b5615c40a63d8aed98a",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EditUserDetailRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/EditUserDetailResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/sermon/like": {
+            "post": {
+                "summary": "Like a sermon",
+                "operationId": "d89a85d7267fea2544124300c0150d44",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SermonLikeRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/SermonLikeResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/sermon/unlike": {
+            "post": {
+                "summary": "UnLike a sermon",
+                "operationId": "5ee4a962eedc5fbb1b44f40960ed2cfd",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SermonUnLikeRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/SermonUnLikeResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
         }
-    }
+    },
+    "components": {
+        "schemas": {
+            "CountryResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "integer"
+                    },
+                    "short_name": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "StateResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "country_id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "CityResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "country_id": {
+                        "type": "integer"
+                    },
+                    "state_id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "ChangePasswordRequest": {
+                "required": [
+                    "oldpassword",
+                    "newpassword"
+                ],
+                "properties": {
+                    "oldpassword": {
+                        "type": "string"
+                    },
+                    "newpassword": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "UserDetailResource": {
+                "properties": {
+                    "church_name": {
+                        "type": "string"
+                    },
+                    "user_id": {
+                        "type": "integer"
+                    },
+                    "firstname": {
+                        "type": "string"
+                    },
+                    "lastname": {
+                        "type": "string"
+                    },
+                    "birth_firstname": {
+                        "type": "string"
+                    },
+                    "birth_lastname": {
+                        "type": "string"
+                    },
+                    "gender": {
+                        "type": "string"
+                    },
+                    "date_of_birth": {
+                        "type": "string"
+                    },
+                    "profession": {
+                        "type": "string"
+                    },
+                    "sub_occupation": {
+                        "type": "string"
+                    },
+                    "address": {
+                        "type": "string"
+                    },
+                    "city_name": {
+                        "type": "string"
+                    },
+                    "state_name": {
+                        "type": "string"
+                    },
+                    "country_name": {
+                        "type": "string"
+                    },
+                    "city": {
+                        "type": "integer"
+                    },
+                    "state": {
+                        "type": "integer"
+                    },
+                    "country": {
+                        "type": "integer"
+                    },
+                    "pincode": {
+                        "type": "string"
+                    },
+                    "email_id": {
+                        "type": "string"
+                    },
+                    "mobile_no": {
+                        "type": "string"
+                    },
+                    "aadhar_number": {
+                        "type": "string"
+                    },
+                    "membership_type": {
+                        "type": "string"
+                    },
+                    "membership_start_date": {
+                        "type": "string"
+                    },
+                    "family": {
+                        "type": "string"
+                    },
+                    "marriage_status": {
+                        "type": "string"
+                    },
+                    "marriage_date": {
+                        "type": "string"
+                    },
+                    "relation": {
+                        "type": "string"
+                    },
+                    "notes": {
+                        "type": "string"
+                    },
+                    "avatar": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "EditUserDetailRequest": {
+                "required": [
+                    "firstname",
+                    "gender",
+                    "date_of_birth",
+                    "profession",
+                    "address",
+                    "city",
+                    "state",
+                    "country",
+                    "pincode",
+                    "marriage_status"
+                ],
+                "properties": {
+                    "firstname": {
+                        "type": "string"
+                    },
+                    "lastname": {
+                        "type": "string"
+                    },
+                    "birth_firstname": {
+                        "type": "string"
+                    },
+                    "birth_lastname": {
+                        "type": "string"
+                    },
+                    "gender": {
+                        "type": "string"
+                    },
+                    "date_of_birth": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "aadhar_number": {
+                        "type": "string"
+                    },
+                    "profession": {
+                        "type": "string"
+                    },
+                    "sub_occupation": {
+                        "type": "string"
+                    },
+                    "address": {
+                        "type": "string"
+                    },
+                    "city": {
+                        "type": "integer"
+                    },
+                    "state": {
+                        "type": "integer"
+                    },
+                    "country": {
+                        "type": "integer"
+                    },
+                    "pincode": {
+                        "type": "string"
+                    },
+                    "family": {
+                        "type": "string"
+                    },
+                    "marriage_status": {
+                        "type": "string"
+                    },
+                    "marriage_start_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "giving_no": {
+                        "type": "integer"
+                    },
+                    "notes": {
+                        "type": "string"
+                    },
+                    "avatar": {
+                        "type": "string",
+                        "format": "binary"
+                    }
+                },
+                "type": "object"
+            },
+            "LoginRequest": {
+                "required": [
+                    "email",
+                    "password"
+                ],
+                "properties": {
+                    "email": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "EventResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "church_id": {
+                        "type": "integer"
+                    },
+                    "select_type": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "repeats": {
+                        "type": "string"
+                    },
+                    "freq": {
+                        "type": "integer"
+                    },
+                    "freq_term": {
+                        "type": "string"
+                    },
+                    "location": {
+                        "type": "string"
+                    },
+                    "category": {
+                        "type": "string"
+                    },
+                    "image": {
+                        "type": "string"
+                    },
+                    "start_date": {
+                        "type": "string"
+                    },
+                    "end_date": {
+                        "type": "string"
+                    },
+                    "date": {
+                        "type": "string"
+                    },
+                    "month": {
+                        "type": "string"
+                    },
+                    "description_limit": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "EventGalleryResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "path": {
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "PhotosResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "church_id": {
+                        "type": "integer"
+                    },
+                    "gallery_id": {
+                        "type": "integer"
+                    },
+                    "path": {
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "SermonResource": {
+                "properties": {
+                    "sermon_id": {
+                        "type": "integer"
+                    },
+                    "author": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "cover_image": {
+                        "type": "string"
+                    },
+                    "total_likes": {
+                        "type": "integer"
+                    },
+                    "total_unlikes": {
+                        "type": "integer"
+                    },
+                    "like": {
+                        "description": "1 = liked, 0 = not liked, 2 = not yet voted",
+                        "type": "integer"
+                    },
+                    "unlike": {
+                        "description": "1 = unliked, 0 = not unliked, 2 = not yet voted",
+                        "type": "integer"
+                    },
+                    "audio_count": {
+                        "type": "integer"
+                    },
+                    "video_count": {
+                        "type": "integer"
+                    },
+                    "file_count": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "SermonLikeRequest": {
+                "required": [
+                    "entity_id"
+                ],
+                "properties": {
+                    "entity_id": {
+                        "description": "The ID of the sermon to like",
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "SermonUnLikeRequest": {
+                "required": [
+                    "entity_id"
+                ],
+                "properties": {
+                    "entity_id": {
+                        "description": "The ID of the sermon to unlike",
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "FavoritesRequest": {
+                "required": [
+                    "entity_id"
+                ],
+                "properties": {
+                    "entity_id": {
+                        "description": "The ID of the sermon to Favorites",
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "SermonsResource": {
+                "properties": {
+                    "sermon_id": {
+                        "type": "integer"
+                    },
+                    "author": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "cover_image": {
+                        "type": "string"
+                    },
+                    "total_likes": {
+                        "type": "integer"
+                    },
+                    "total_unlikes": {
+                        "type": "integer"
+                    },
+                    "like": {
+                        "description": "1 = liked, 0 = not liked, 2 = not yet voted",
+                        "type": "integer"
+                    },
+                    "unlike": {
+                        "description": "1 = unliked, 0 = not unliked, 2 = not yet voted",
+                        "type": "integer"
+                    },
+                    "audio_count": {
+                        "type": "integer"
+                    },
+                    "video_count": {
+                        "type": "integer"
+                    },
+                    "file_count": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "SermonlinkResource": {
+                "properties": {
+                    "sermons_id": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "total_likes": {
+                        "type": "integer"
+                    },
+                    "total_unlikes": {
+                        "type": "integer"
+                    },
+                    "like": {
+                        "type": "integer"
+                    },
+                    "unlike": {
+                        "type": "integer"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "location": {
+                        "type": "string"
+                    },
+                    "url": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "MediaFileResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "church_id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "media_type": {
+                        "type": "string"
+                    },
+                    "url": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "BulletinResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "church_id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "description": "Bulletin type (e.g. weekly, monthly)",
+                        "type": "string"
+                    },
+                    "week": {
+                        "description": "Week number for weekly bulletins",
+                        "type": "integer"
+                    },
+                    "month": {
+                        "description": "Month number for monthly bulletins",
+                        "type": "integer"
+                    },
+                    "year": {
+                        "type": "integer"
+                    },
+                    "cover_image": {
+                        "type": "string"
+                    },
+                    "path": {
+                        "description": "URL to the bulletin document",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "FundResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "church_id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "description": "Donor full name",
+                        "type": "string"
+                    },
+                    "method": {
+                        "description": "Payment gateway display name",
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "status": {
+                        "description": "Fund status (e.g. Request, Deposited)",
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "description": "Date formatted as d-m-Y h:i A",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "AddFundRequest": {
+                "required": [
+                    "amount",
+                    "payaccount_id"
+                ],
+                "properties": {
+                    "amount": {
+                        "description": "Donation amount",
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "payaccount_id": {
+                        "description": "Payment account ID to use",
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "PaymentgatewayResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "description": "Internal gateway name",
+                        "type": "string"
+                    },
+                    "display_name": {
+                        "description": "Human-readable gateway label",
+                        "type": "string"
+                    },
+                    "instructions": {
+                        "description": "Payment instructions for the user",
+                        "type": "string"
+                    },
+                    "status": {
+                        "description": "1 = church has an active account for this gateway, 0 = not configured",
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "PayaccountResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "paymentgateway_id": {
+                        "type": "integer"
+                    },
+                    "gatewayname": {
+                        "type": "string"
+                    },
+                    "display_name": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "integer"
+                    },
+                    "comments": {
+                        "type": "string"
+                    },
+                    "param1": {
+                        "type": "string"
+                    },
+                    "param2": {
+                        "type": "string"
+                    },
+                    "param3": {
+                        "type": "string"
+                    },
+                    "param4": {
+                        "type": "string"
+                    },
+                    "param5": {
+                        "type": "string"
+                    },
+                    "param6": {
+                        "type": "string"
+                    },
+                    "param7": {
+                        "type": "string"
+                    },
+                    "param8": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "QuoteResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "image": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "text": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "tamil_quotes": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "english_quotes": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "publish_on": {
+                        "description": "Formatted as d-m-Y H:i:s",
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "PrayerRequestResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "requested_person": {
+                        "type": "string"
+                    },
+                    "requested_person_avatar": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "category": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "text": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "status_label": {
+                        "type": "string"
+                    },
+                    "response_status": {
+                        "description": "1 = current user has prayed, 0 = not",
+                        "type": "integer"
+                    },
+                    "member_count": {
+                        "type": "integer"
+                    },
+                    "guest_count": {
+                        "type": "integer"
+                    },
+                    "anonymous_count": {
+                        "type": "integer"
+                    },
+                    "total_prayers": {
+                        "type": "integer"
+                    },
+                    "days_remaining": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "expires_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "is_pinned": {
+                        "type": "boolean"
+                    },
+                    "date": {
+                        "description": "Formatted as d-m-Y h:i A",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "PrayerRequestUserResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "avatar": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "category": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "text": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "display_status": {
+                        "type": "string"
+                    },
+                    "total_prayers": {
+                        "type": "integer"
+                    },
+                    "date": {
+                        "description": "Formatted as d-m-Y h:i A",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "PrayerCategoryResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "church_id": {
+                        "type": "integer"
+                    },
+                    "date": {
+                        "description": "Formatted as d-m-Y h:i A",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "SubmitPrayerRequest": {
+                "required": [
+                    "category_id",
+                    "text"
+                ],
+                "properties": {
+                    "category_id": {
+                        "description": "ID of the prayer category",
+                        "type": "integer"
+                    },
+                    "text": {
+                        "description": "Prayer request text",
+                        "type": "string",
+                        "maxLength": 500,
+                        "minLength": 10
+                    }
+                },
+                "type": "object"
+            },
+            "HelpResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "requested_person": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "contact_details": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "display_status": {
+                        "type": "string"
+                    },
+                    "expires_at": {
+                        "description": "Formatted as d-m-Y h:i A",
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "HelpUserResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "contact_details": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "display_status": {
+                        "type": "string"
+                    },
+                    "expires_at": {
+                        "description": "Formatted as d-m-Y h:i A",
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "HelpAddRequest": {
+                "required": [
+                    "title",
+                    "description",
+                    "contact_details"
+                ],
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "maxLength": 20
+                    },
+                    "description": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "contact_details": {
+                        "description": "10-digit contact number",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "GroupLinkResource": {
+                "properties": {
+                    "group_id": {
+                        "type": "integer"
+                    },
+                    "group_name": {
+                        "type": "string"
+                    },
+                    "cover_image": {
+                        "type": "string"
+                    },
+                    "started": {
+                        "description": "Formatted as M-Y",
+                        "type": "string"
+                    },
+                    "group_category": {
+                        "type": "string"
+                    },
+                    "group_type": {
+                        "type": "string"
+                    },
+                    "group_description": {
+                        "type": "string"
+                    },
+                    "user_permissions": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "group_members": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "SendMailResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "subject": {
+                        "type": "string"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "attachment": {
+                        "type": "string"
+                    },
+                    "sentAt": {
+                        "description": "Human-readable time difference",
+                        "type": "string"
+                    },
+                    "readStatus": {
+                        "description": "1 = read, 0 = unread",
+                        "type": "integer"
+                    },
+                    "readAt": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "NotificationResource": {
+                "properties": {
+                    "id": {
+                        "description": "UUID",
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "notifiable_type": {
+                        "type": "string"
+                    },
+                    "notifiable_id": {
+                        "type": "integer"
+                    },
+                    "data_message": {
+                        "type": "object"
+                    },
+                    "web_message": {
+                        "type": "object"
+                    },
+                    "read_at": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "description": "Human-readable time difference",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "ContactRequest": {
+                "required": [
+                    "fullname",
+                    "email",
+                    "mobile",
+                    "query_message"
+                ],
+                "properties": {
+                    "fullname": {
+                        "type": "string",
+                        "maxLength": 25
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "mobile": {
+                        "description": "10-digit mobile number",
+                        "type": "string"
+                    },
+                    "query_message": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "FeedbackMessageResource": {
+                "properties": {
+                    "type": {
+                        "description": "\"send\" or \"receive\"",
+                        "type": "string"
+                    },
+                    "time": {
+                        "description": "d-m-Y H:i:s",
+                        "type": "string"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "FeedbackResource": {
+                "properties": {
+                    "feedback_id": {
+                        "type": "integer"
+                    },
+                    "messages": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FeedbackMessageResource"
+                        }
+                    },
+                    "category": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "description": "\"Message Not Yet Viewed\" | \"Message Has Been Seen\" | \"Action Has Been Taken\"",
+                        "type": "string"
+                    },
+                    "created_on": {
+                        "description": "d-m-Y H:i:s",
+                        "type": "string"
+                    },
+                    "last_reply_by": {
+                        "type": "string"
+                    },
+                    "last_reply_on": {
+                        "description": "d-m-Y H:i:s",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "AddFeedbackRequest": {
+                "required": [
+                    "message",
+                    "category"
+                ],
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "maxLength": 300
+                    },
+                    "category": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "ChurchDetailResource": {
+                "properties": {
+                    "church_name": {
+                        "type": "string"
+                    },
+                    "church_logo": {
+                        "type": "string"
+                    },
+                    "short_summary": {
+                        "type": "string"
+                    },
+                    "long_summary": {
+                        "type": "string"
+                    },
+                    "quotes": {
+                        "type": "string"
+                    },
+                    "phone": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "address": {
+                        "type": "string"
+                    },
+                    "latitude": {
+                        "type": "string"
+                    },
+                    "longitude": {
+                        "type": "string"
+                    },
+                    "website": {
+                        "type": "string"
+                    },
+                    "facebook": {
+                        "type": "string"
+                    },
+                    "twitter": {
+                        "type": "string"
+                    },
+                    "instagram": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "UpdateTokenRequest": {
+                "required": [
+                    "platform_token"
+                ],
+                "properties": {
+                    "platform_token": {
+                        "description": "Push notification device token",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "ResetChangePasswordRequest": {
+                "required": [
+                    "mobile_no",
+                    "oldpassword",
+                    "newpassword",
+                    "confirmpassword"
+                ],
+                "properties": {
+                    "mobile_no": {
+                        "description": "Registered mobile number",
+                        "type": "string"
+                    },
+                    "oldpassword": {
+                        "description": "OTP token from SMS",
+                        "type": "string"
+                    },
+                    "newpassword": {
+                        "type": "string",
+                        "minLength": 8
+                    },
+                    "confirmpassword": {
+                        "description": "Must match newpassword",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "ResetPasswordRequest": {
+                "required": [
+                    "mobile_no"
+                ],
+                "properties": {
+                    "mobile_no": {
+                        "description": "Registered 10-digit mobile number",
+                        "type": "string",
+                        "example": "0712345678"
+                    }
+                },
+                "type": "object"
+            },
+            "StorePasswordRequest": {
+                "required": [
+                    "mobile_no",
+                    "password"
+                ],
+                "properties": {
+                    "mobile_no": {
+                        "description": "Registered 10-digit mobile number",
+                        "type": "string",
+                        "example": "0712345678"
+                    },
+                    "password": {
+                        "description": "OTP token received via SMS",
+                        "type": "string",
+                        "example": "123456"
+                    }
+                },
+                "type": "object"
+            },
+            "AttendanceEventItem": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "category": {
+                        "type": "string"
+                    },
+                    "start_date": {
+                        "type": "string"
+                    },
+                    "end_date": {
+                        "type": "string"
+                    },
+                    "today_session_id": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "is_locked": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "OpenSessionRequest": {
+                "required": [
+                    "event_id"
+                ],
+                "properties": {
+                    "event_id": {
+                        "type": "integer"
+                    },
+                    "attendance_date": {
+                        "description": "Defaults to today",
+                        "type": "string",
+                        "format": "date"
+                    }
+                },
+                "type": "object"
+            },
+            "AttendanceScanRequest": {
+                "required": [
+                    "session_id",
+                    "member_username"
+                ],
+                "properties": {
+                    "session_id": {
+                        "type": "integer"
+                    },
+                    "member_username": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "AttendeeItem": {
+                "properties": {
+                    "member_id": {
+                        "type": "integer"
+                    },
+                    "member_name": {
+                        "type": "string"
+                    },
+                    "avatar_url": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "mobile_no": {
+                        "type": "string"
+                    },
+                    "scanned_at": {
+                        "type": "string"
+                    },
+                    "scanned_by": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "LogoutAllRequest": {
+                "required": [
+                    "email"
+                ],
+                "properties": {
+                    "email": {
+                        "description": "Email",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "PrayerliftResponseSchema": {
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Prayer recorded"
+                    },
+                    "participant_count": {
+                        "type": "integer",
+                        "example": 15
+                    },
+                    "participant_breakdown": {
+                        "properties": {
+                            "total": {
+                                "type": "integer",
+                                "example": 15
+                            },
+                            "members": {
+                                "type": "integer",
+                                "example": 10
+                            },
+                            "guests": {
+                                "type": "integer",
+                                "example": 3
+                            },
+                            "anonymous": {
+                                "type": "integer",
+                                "example": 2
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "ActivityLogResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "description": "Activity description or related entity name",
+                        "type": "string"
+                    },
+                    "description": {
+                        "description": "Additional context (e.g. group member count)",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "status": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "date": {
+                        "description": "Formatted as d-m-Y h:i A",
+                        "type": "string"
+                    },
+                    "type": {
+                        "description": "Activity type (e.g. group)",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "NotificationCreateRequest": {
+                "required": [
+                    "type"
+                ],
+                "properties": {
+                    "type": {
+                        "description": "Record type to create and broadcast",
+                        "type": "string",
+                        "enum": [
+                            "event",
+                            "bulletin",
+                            "gallery",
+                            "photos",
+                            "sermon",
+                            "sermonlink"
+                        ],
+                        "example": "event"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "responses": {
+            "CountryResponse": {
+                "description": "Country List",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/CountryResource"
+                            }
+                        }
+                    }
+                }
+            },
+            "StateResponse": {
+                "description": "State List",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/StateResource"
+                            }
+                        }
+                    }
+                }
+            },
+            "CityResponse": {
+                "description": "City List",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/CityResource"
+                            }
+                        }
+                    }
+                }
+            },
+            "ChangePasswordResponse": {
+                "description": "Password Changed",
+                "content": {
+                    "application/json": {
+                        "schema": {},
+                        "example": {
+                            "message": "Changed Password Successfully"
+                        }
+                    }
+                }
+            },
+            "UserDetailResponse": {
+                "description": "User Detail",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/UserDetailResource"
+                        }
+                    }
+                }
+            },
+            "EditUserDetailResponse": {
+                "description": "User Detail Updated",
+                "content": {
+                    "application/json": {
+                        "schema": {},
+                        "example": {
+                            "message": "Profile Updated Successfully"
+                        }
+                    }
+                }
+            },
+            "LoginResponse": {
+                "description": "Login",
+                "content": {
+                    "application/json": {
+                        "schema": {},
+                        "example": {
+                            "message": "Login Successfully"
+                        }
+                    }
+                }
+            },
+            "EventResponse": {
+                "description": "Event List",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/EventResource"
+                            }
+                        }
+                    }
+                }
+            },
+            "EventGalleryResponse": {
+                "description": "Event Gallery List",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/EventGalleryResource"
+                            }
+                        }
+                    }
+                }
+            },
+            "PhotosResponse": {
+                "description": "Event Gallery List",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/PhotosResource"
+                            }
+                        }
+                    }
+                }
+            },
+            "SermonResponse": {
+                "description": "Sermon List",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/SermonResource"
+                            }
+                        }
+                    }
+                }
+            },
+            "SermonLikeResponse": {
+                "description": "Sermon Like / Unlike Result",
+                "content": {
+                    "application/json": {
+                        "schema": {},
+                        "example": {
+                            "message": "You have liked this sermon"
+                        }
+                    }
+                }
+            },
+            "SermonUnLikeResponse": {
+                "description": "Sermon Like / Unlike Result",
+                "content": {
+                    "application/json": {
+                        "schema": {},
+                        "example": {
+                            "message": "You have unliked this sermon"
+                        }
+                    }
+                }
+            },
+            "FavoritesResponse": {
+                "description": "Sermon Favorites",
+                "content": {
+                    "application/json": {
+                        "schema": {},
+                        "example": {
+                            "message": "You have favorites this sermon"
+                        }
+                    }
+                }
+            },
+            "SermonsResponse": {
+                "description": "Sermon List",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/SermonsResource"
+                            }
+                        }
+                    }
+                }
+            },
+            "SermonlinkResponse": {
+                "description": "Sermon Media List",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/SermonlinkResource"
+                            }
+                        }
+                    }
+                }
+            },
+            "MediaFileResponse": {
+                "description": "Media List",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/MediaFileResource"
+                            }
+                        }
+                    }
+                }
+            },
+            "BulletinResponse": {
+                "description": "Bulletin List",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/BulletinResource"
+                            }
+                        }
+                    }
+                }
+            },
+            "FundResponse": {
+                "description": "Fund List",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/FundResource"
+                            }
+                        }
+                    }
+                }
+            },
+            "AddFundResponse": {
+                "description": "Fund Request Submitted",
+                "content": {
+                    "application/json": {
+                        "schema": {},
+                        "example": {
+                            "status": true,
+                            "message": "Fund Requested Successfully"
+                        }
+                    }
+                }
+            },
+            "PaymentgatewayResponse": {
+                "description": "Payment Gateway List",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/PaymentgatewayResource"
+                            }
+                        }
+                    }
+                }
+            },
+            "PayaccountDetailResponse": {
+                "description": "Payment Account Details",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "success": {
+                                    "type": "boolean"
+                                },
+                                "message": {
+                                    "type": "string"
+                                },
+                                "data": {
+                                    "$ref": "#/components/schemas/PayaccountResource"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "QuoteResponse": {
+                "description": "Today's Quote",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/QuoteResource"
+                        }
+                    }
+                }
+            },
+            "PrayerRequestResponse": {
+                "description": "Public Prayer Request Board",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/PrayerRequestResource"
+                            }
+                        }
+                    }
+                }
+            },
+            "PrayerRequestUserResponse": {
+                "description": "Current user's prayer requests",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/PrayerRequestUserResource"
+                            }
+                        }
+                    }
+                }
+            },
+            "PrayerCategoryResponse": {
+                "description": "Prayer Category List",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/PrayerCategoryResource"
+                            }
+                        }
+                    }
+                }
+            },
+            "PrayerRequestCreateResponse": {
+                "description": "Prayer Request Submitted",
+                "content": {
+                    "application/json": {
+                        "schema": {},
+                        "example": {
+                            "message": "Prayer request submitted successfully"
+                        }
+                    }
+                }
+            },
+            "PrayerParticipantResponse": {
+                "description": "Prayer Participation Recorded",
+                "content": {
+                    "application/json": {
+                        "schema": {},
+                        "example": {
+                            "message": "Thank you for praying!"
+                        }
+                    }
+                }
+            },
+            "HelpResponse": {
+                "description": "Help Request List",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/HelpResource"
+                            }
+                        }
+                    }
+                }
+            },
+            "HelpUserResponse": {
+                "description": "Current user's help requests",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/HelpUserResource"
+                            }
+                        }
+                    }
+                }
+            },
+            "HelpCreateResponse": {
+                "description": "Help Request Submitted",
+                "content": {
+                    "application/json": {
+                        "schema": {},
+                        "example": {
+                            "message": "Help Request Added Successfully"
+                        }
+                    }
+                }
+            },
+            "HelpCloseResponse": {
+                "description": "Help Request Closed",
+                "content": {
+                    "application/json": {
+                        "schema": {},
+                        "example": {
+                            "message": "Help Request Closed Successfully"
+                        }
+                    }
+                }
+            },
+            "GroupLinkResponse": {
+                "description": "Group Membership List",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/GroupLinkResource"
+                            }
+                        }
+                    }
+                }
+            },
+            "MessageListResponse": {
+                "description": "Message List",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "success": {
+                                    "type": "boolean"
+                                },
+                                "message": {
+                                    "type": "string"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/SendMailResource"
+                                    }
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "MessageReadResponse": {
+                "description": "Message Marked as Read",
+                "content": {
+                    "application/json": {
+                        "schema": {},
+                        "example": {
+                            "success": true
+                        }
+                    }
+                }
+            },
+            "NotificationListResponse": {
+                "description": "Notification List",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "success": {
+                                    "type": "boolean"
+                                },
+                                "message": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/NotificationResource"
+                                    }
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "ContactResponse": {
+                "description": "Contact Form Submitted",
+                "content": {
+                    "application/json": {
+                        "schema": {},
+                        "example": {
+                            "status": true,
+                            "message": "Contact Submitted Successfully"
+                        }
+                    }
+                }
+            },
+            "FeedbackResponse": {
+                "description": "Feedback List",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/FeedbackResource"
+                            }
+                        }
+                    }
+                }
+            },
+            "FeedbackCategoryResponse": {
+                "description": "Feedback Category List",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "AddFeedbackResponse": {
+                "description": "Feedback Submitted",
+                "content": {
+                    "application/json": {
+                        "schema": {},
+                        "example": {
+                            "message": "Message Sent Successfully"
+                        }
+                    }
+                }
+            },
+            "ChurchDetailResponse": {
+                "description": "Church Detail",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/ChurchDetailResource"
+                        }
+                    }
+                }
+            },
+            "UpdateTokenResponse": {
+                "description": "Token Updated",
+                "content": {
+                    "application/json": {
+                        "schema": {},
+                        "example": {
+                            "message": "Token Updated Successfully"
+                        }
+                    }
+                }
+            },
+            "ProfessionResponse": {
+                "description": "Profession List",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "example": [
+                                        "business",
+                                        "doctor",
+                                        "engineer",
+                                        "government_employee",
+                                        "home_maker",
+                                        "lawyer",
+                                        "pastor",
+                                        "police",
+                                        "professionals",
+                                        "self_employed",
+                                        "student",
+                                        "teacher",
+                                        "others"
+                                    ]
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "MarriageStatusResponse": {
+                "description": "Marriage Status List",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "status": {
+                                    "type": "string",
+                                    "example": "success"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "ResetChangePasswordResponse": {
+                "description": "Password Change Result",
+                "content": {
+                    "application/json": {
+                        "schema": {},
+                        "example": {
+                            "message": "Changed Password Successfully"
+                        }
+                    }
+                }
+            },
+            "ResetPasswordResponse": {
+                "description": "OTP sent via SMS",
+                "content": {
+                    "application/json": {
+                        "schema": {},
+                        "example": {
+                            "success": true,
+                            "message": "Check sms to reset the password"
+                        }
+                    }
+                }
+            },
+            "StorePasswordResponse": {
+                "description": "OTP verification result",
+                "content": {
+                    "application/json": {
+                        "schema": {},
+                        "example": {
+                            "success": true,
+                            "message": "Password Reset Successfully"
+                        }
+                    }
+                }
+            },
+            "AttendanceEventsResponse": {
+                "description": "Attendance-enabled events assigned to the staff member",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/AttendanceEventItem"
+                                    }
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "OpenSessionResponse": {
+                "description": "Attendance session opened or retrieved",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "session_id": {
+                                    "type": "integer"
+                                },
+                                "event_id": {
+                                    "type": "integer"
+                                },
+                                "event_title": {
+                                    "type": "string"
+                                },
+                                "attendance_date": {
+                                    "type": "string"
+                                },
+                                "is_locked": {
+                                    "type": "boolean"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "AttendanceScanResponse": {
+                "description": "Check-in result (200 checked_in / 409 already_checked_in)",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "status": {
+                                    "description": "\"checked_in\" or \"already_checked_in\"",
+                                    "type": "string"
+                                },
+                                "member_name": {
+                                    "type": "string"
+                                },
+                                "avatar_url": {
+                                    "type": "string",
+                                    "nullable": true
+                                },
+                                "scanned_at": {
+                                    "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "SessionLockResponse": {
+                "description": "Session locked",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "message": {
+                                    "type": "string"
+                                },
+                                "locked_at": {
+                                    "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "SessionReportResponse": {
+                "description": "Session attendee report",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "session_id": {
+                                    "type": "integer"
+                                },
+                                "event_title": {
+                                    "type": "string"
+                                },
+                                "attendance_date": {
+                                    "type": "string"
+                                },
+                                "is_locked": {
+                                    "type": "boolean"
+                                },
+                                "total": {
+                                    "type": "integer"
+                                },
+                                "attendees": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/AttendeeItem"
+                                    }
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "LogoutAllResponse": {
+                "description": "Logout all devices",
+                "content": {
+                    "application/json": {
+                        "schema": {},
+                        "example": {
+                            "message": "Logout all devices Successfully"
+                        }
+                    }
+                }
+            },
+            "LogoutResponse": {
+                "description": "Logout Successfully",
+                "content": {
+                    "application/json": {
+                        "schema": {},
+                        "example": {
+                            "message": "Logout Successfully"
+                        }
+                    }
+                }
+            },
+            "PrayerliftResponse": {
+                "description": "Prayer participation recorded successfully",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/PrayerliftResponseSchema"
+                        }
+                    }
+                }
+            },
+            "ActivityLogResponse": {
+                "description": "Paginated activity log for the authenticated member",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ActivityLogResource"
+                                    }
+                                },
+                                "current_page": {
+                                    "type": "integer"
+                                },
+                                "last_page": {
+                                    "type": "integer"
+                                },
+                                "per_page": {
+                                    "type": "integer"
+                                },
+                                "total": {
+                                    "type": "integer"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "NotificationCreateResponse": {
+                "description": "Test record created and push notification fired",
+                "content": {
+                    "application/json": {
+                        "schema": {},
+                        "example": {
+                            "success": "Event Added Successfully"
+                        }
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "EventsAttendance",
+            "description": "EventsAttendance"
+        },
+        {
+            "name": "Bulletins",
+            "description": "Bulletins"
+        },
+        {
+            "name": "ChurchDetails",
+            "description": "ChurchDetails"
+        },
+        {
+            "name": "Contact",
+            "description": "Contact"
+        },
+        {
+            "name": "Events",
+            "description": "Events"
+        },
+        {
+            "name": "Sermons",
+            "description": "Sermons"
+        },
+        {
+            "name": "Feedback",
+            "description": "Feedback"
+        },
+        {
+            "name": "Fund",
+            "description": "Fund"
+        },
+        {
+            "name": "Gallery",
+            "description": "Gallery"
+        },
+        {
+            "name": "Groups",
+            "description": "Groups"
+        },
+        {
+            "name": "Helps",
+            "description": "Helps"
+        },
+        {
+            "name": "Login",
+            "description": "Login"
+        },
+        {
+            "name": "MediaFiles",
+            "description": "MediaFiles"
+        },
+        {
+            "name": "Payment Gateway",
+            "description": "Payment Gateway"
+        },
+        {
+            "name": "Payaccount",
+            "description": "Payaccount"
+        },
+        {
+            "name": "Prayer",
+            "description": "Prayer"
+        },
+        {
+            "name": "Quote",
+            "description": "Quote"
+        },
+        {
+            "name": "Messages",
+            "description": "Messages"
+        },
+        {
+            "name": "Notification",
+            "description": "Notification"
+        },
+        {
+            "name": "Test",
+            "description": "Test"
+        },
+        {
+            "name": "User",
+            "description": "User"
+        },
+        {
+            "name": "Location",
+            "description": "Location"
+        }
+    ]
 }

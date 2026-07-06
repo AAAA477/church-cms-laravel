@@ -47,6 +47,21 @@ Route::group([
 	//prayer requests
 	Route::get('/prayerRequests/{church_id}', 'PrayerRequestsController@index');
 
+	Route::post('/prayerRequests/{church_id}/{id}/lift', 'PrayerRequestsController@lift')->middleware('throttle:10,1');
+
+	//posts (blog)
+	Route::get('/posts/{church_id}', 'PostsController@index');
+
+	Route::get('/post/{church_id}/{id}', 'PostsController@show');
+
+	//faq
+	Route::get('/faqs/{church_id}', 'FaqController@index');
+
+	//pages (CMS)
+	Route::get('/pages/{church_id}', 'PagesController@index');
+
+	Route::get('/page/{church_id}/{category_slug}/{page_slug}', 'PagesController@show');
+
 	//helps
 	Route::get('/helps/{church_id}', 'HelpsController@index');
 

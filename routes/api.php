@@ -45,6 +45,13 @@ Route::get('/events/show/details/{id}', 'Api\EventsController@showdetails');
 
 //login
 Route::post('/login', 'Api\LoginController@login');
+
+//member web portal login (email-based; separate token namespace from the
+//mobile app's LoginController@login so logging into one never logs the
+//other out — see MemberAuthController for details)
+Route::post('/member/login', 'Api\MemberAuthController@login');
+
+Route::post('/member/logout', 'Api\MemberAuthController@logout')->middleware('auth:sanctum');
 //logout All Devices
 Route::post('/logout/devices', 'Api\LoginController@logoutDevices');
 //locations , churches list
