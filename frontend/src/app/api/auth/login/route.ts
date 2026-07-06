@@ -31,14 +31,21 @@ export async function POST(request: Request) {
     maxAge: 60 * 60 * 24 * 30, // 30 days
   });
 
-  // Non-httpOnly, display-only — never used for auth.
-  response.cookies.set("member_name", data.user.name, {
-    httpOnly: false,
-    secure: isProd,
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 30,
-  });
+  // Non-httpOnly, display-only — never used for auth. member_id lets pages
+  // call /v1/member/show/{id} (the endpoint ignores the param and uses the
+  // authenticated user anyway, but a real id keeps the URL meaningful).
+  for (const [name, value] of [
+    ["member_name", data.user.name],
+    ["member_id", String(data.user.id)],
+  ] as const) {
+    response.cookies.set(name, value, {
+      httpOnly: false,
+      secure: isProd,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 30,
+    });
+  }
 
   return response;
 }

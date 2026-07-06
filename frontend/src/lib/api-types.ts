@@ -116,6 +116,57 @@ export interface SermonLink {
   url: string;
 }
 
+export interface MemberProfile {
+  church_name: string;
+  user_id: number;
+  firstname: string;
+  lastname: string;
+  gender: string;
+  date_of_birth: string;
+  profession: string;
+  address: string;
+  city_name: string;
+  state_name: string;
+  country_name: string;
+  email_id: string;
+  mobile_no: string;
+  membership_type: string;
+  membership_start_date: string;
+  marriage_status: string;
+  avatar: string;
+}
+
+export interface MemberGroup {
+  group_id: number;
+  group_name: string;
+  cover_image: string | null;
+  started: string;
+  group_category: string;
+  group_type: string;
+  group_description: string;
+  user_permissions: string[];
+  group_members: string[];
+  role: string;
+}
+
+export interface GroupPostItem {
+  id: number;
+  message: string;
+  attachments: string;
+  status: string;
+  created_at: string;
+}
+
+export interface MemberEvent {
+  id: number;
+  title: string;
+  description: string;
+  location: string;
+  image: string | null;
+  start_date: string;
+  end_date: string;
+}
+
 export interface ContactPayload {
   church_id: string;
   fullname: string;

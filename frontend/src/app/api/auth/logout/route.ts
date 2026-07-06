@@ -17,5 +17,6 @@ export async function POST() {
   const response = NextResponse.json({ success: true });
   response.cookies.delete("member_token");
   response.cookies.delete("member_name");
+  response.cookies.delete("member_id");
   return response;
 }
