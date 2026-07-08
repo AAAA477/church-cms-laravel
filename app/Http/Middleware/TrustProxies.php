@@ -11,11 +11,19 @@ class TrustProxies extends Middleware
      * The trusted proxies for this application.
      *
      * Localhost is trusted so the Next.js frontend (reverse-proxying API
-     * calls) can forward the real visitor IP via X-Forwarded-For.
+     * calls) can forward the real visitor IP via X-Forwarded-For. Set
+     * TRUSTED_PROXIES=* when running behind a PaaS load balancer
+     * (Railway, Heroku, ...) so X-Forwarded-Proto is honored and
+     * generated URLs use https.
      *
-     * @var array
+     * @var array|string
      */
-    protected $proxies = ['127.0.0.1', '::1'];
+    protected $proxies;
+
+    public function __construct()
+    {
+        $this->proxies = env('TRUSTED_PROXIES') === '*' ? '*' : ['127.0.0.1', '::1'];
+    }
 
     /**
      * The headers that should be used to detect proxies.
