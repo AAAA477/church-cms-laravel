@@ -75,7 +75,7 @@ class Campaign extends Model
 
     public function mailinglist()
     {
-        return $this->belongsTo('App\Models\Mailinglist', 'mailinglist_id', 'id');
+        return $this->belongsTo('App\Models\MailingList', 'mailinglist_id', 'id');
     }
 
     public function queue()

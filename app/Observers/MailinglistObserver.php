@@ -59,14 +59,17 @@ class MailinglistObserver
         try
         {
             $campaign=\App\Models\Campaign::where('mailinglist_id',$mailinglist->id)->first();
-            $campaign->emails()->detach();
-            $campaign->delete();
             $mailinglist->subscribers()->detach();
-         
-            $data=array();
-            event(new CampaignDeleteEvent($campaign,$data));
+
+            if ($campaign) {
+                $campaign->emails()->detach();
+                $campaign->delete();
+
+                $data=array();
+                event(new CampaignDeleteEvent($campaign,$data));
+            }
         }
-        catch(Exception $e)
+        catch(\Throwable $e)
         {
             Log::info($e->getMessage());
             //dd($e->getMessage());

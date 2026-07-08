@@ -59,12 +59,14 @@ class MailingList extends Model
 
     public function subscribers()
     {
-        return $this->belongsToMany('App\Models\Subscribers')->using('App\Models\MailinglistSubscriber')->withTimeStamps();
+        return $this->belongsToMany('App\Models\Subscribers', 'mailing_list_subscribers', 'mailing_list_id', 'subscribers_id')
+            ->using('App\Models\MailinglistSubscriber')->withTimeStamps();
     }
 
     public function activesubscribers()
     {
-        return $this->belongsToMany('App\Models\Subscribers')->where('is_active', 1)->using('App\Models\MailinglistSubscriber')->withTimeStamps()->wherePivot('status', 1);
+        return $this->belongsToMany('App\Models\Subscribers', 'mailing_list_subscribers', 'mailing_list_id', 'subscribers_id')
+            ->where('is_active', 1)->using('App\Models\MailinglistSubscriber')->withTimeStamps()->wherePivot('status', 1);
     }
 
     public function totalactivesubscribers($mailinglist_id)

@@ -44,8 +44,8 @@ class MailinglistSubscriber extends Pivot
 
     protected $dates = ['deleted_at'];
 
-    /*public function subscriber()
+    public function subscriber()
     {
-        return $this->belongsTo('App\Models\Subscribers','subscriber_id','id');
-    }*/
+        return $this->belongsTo('App\Models\Subscribers', 'subscribers_id', 'id');
+    }
 }

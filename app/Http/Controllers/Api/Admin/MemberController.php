@@ -1,0 +1,280 @@
+<?php
+
+namespace App\Http\Controllers\Api\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\GroupLink;
+use App\Models\User;
+use App\Models\Userprofile;
+use App\Traits\Common;
+use App\Traits\LogActivity;
+use App\Traits\RegisterUser;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+
+/**
+ * Members CRUD for the Next.js admin console (/console/members).
+ *
+ * Mirrors app/Http/Controllers/Admin/{UserController,MemberAddController,
+ * MemberEditController} but as a single JSON resource controller, scoped
+ * to the authenticated admin's church_id (never trusts a client-supplied
+ * church id). The India-specific "required" quirks in the legacy
+ * UserProfileAddRequest (6-digit pincode, Aadhaar number, mandatory
+ * city/state/country) are relaxed to optional here — this console serves
+ * churches outside India too.
+ */
+class MemberController extends Controller
+{
+    use Common, LogActivity, RegisterUser;
+
+    public function index(Request $request)
+    {
+        $churchId = $request->user()->church_id;
+
+        $query = User::with('userprofile.city', 'userprofile.state', 'userprofile.country')
+            ->where('church_id', $churchId)
+            ->where('usergroup_id', 5)
+            ->whereHas('userprofile', fn ($p) => $p->where('membership_type', 'member'));
+
+        if ($search = $request->query('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('email', 'like', "%{$search}%")
+                    ->orWhere('mobile_no', 'like', "%{$search}%")
+                    ->orWhereHas('userprofile', function ($p) use ($search) {
+                        $p->where('firstname', 'like', "%{$search}%")
+                            ->orWhere('lastname', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        if ($status = $request->query('status')) {
+            $query->whereHas('userprofile', fn ($p) => $p->where('status', $status));
+        }
+
+        $members = $query->orderByDesc('created_at')->paginate(20);
+
+        return response()->json([
+            'data' => collect($members->items())->map(fn (User $u) => $this->summarize($u)),
+            'meta' => [
+                'current_page' => $members->currentPage(),
+                'last_page'    => $members->lastPage(),
+                'total'        => $members->total(),
+            ],
+        ]);
+    }
+
+    public function show(Request $request, $id)
+    {
+        $user = $this->findMember($request, $id, ['userprofile.city', 'userprofile.state', 'userprofile.country']);
+
+        if (! $user) {
+            return response()->json(['message' => 'Member not found'], 404);
+        }
+
+        $p = $user->userprofile;
+
+        return response()->json([
+            'id'              => $user->id,
+            'name'            => $user->name,
+            'email'           => $user->email,
+            'mobile_no'       => $user->mobile_no,
+            'firstname'       => optional($p)->firstname,
+            'lastname'        => optional($p)->lastname,
+            'gender'          => optional($p)->gender,
+            'date_of_birth'   => optional($p)->date_of_birth,
+            'profession'      => optional($p)->profession,
+            'address'         => optional($p)->address,
+            'city_id'         => optional($p)->city_id,
+            'state_id'        => optional($p)->state_id,
+            'country_id'      => optional($p)->country_id,
+            'pincode'         => optional($p)->pincode,
+            'family'          => optional($p)->family,
+            'marriage_status' => optional($p)->marriage_status,
+            'status'          => optional($p)->status,
+            'membership_type' => optional($p)->membership_type,
+            'avatar'          => optional($p)->AvatarPath,
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'firstname'       => 'required|string|max:15',
+            'lastname'        => 'nullable|string|max:15',
+            'gender'          => 'required|in:male,female,transgender',
+            'date_of_birth'   => 'required|date',
+            'profession'      => 'nullable|in:admin,business,doctor,engineer,government_employee,home_maker,lawyer,pastor,police,professionals,self_employed,student,teacher,others,guest,preacher',
+            'address'         => 'nullable|string',
+            'city_id'         => 'nullable|integer',
+            'state_id'        => 'nullable|integer',
+            'country_id'      => 'nullable|integer',
+            'pincode'         => 'nullable|string|max:10',
+            'mobile_no'       => 'required|digits:10|unique:users,mobile_no',
+            'email'           => 'nullable|email|unique:users,email',
+            'family'          => 'nullable|string|max:15',
+            'marriage_status' => 'nullable|in:single,married,ended_by_death,ended_by_divorce,separated',
+            'avatar'          => 'nullable|image|mimes:jpg,jpeg,png,webp',
+        ]);
+
+        $churchId = $request->user()->church_id;
+
+        $path = '';
+        if ($request->hasFile('avatar')) {
+            $path = $this->uploadFile("{$churchId}/member/avatar", $request->file('avatar'));
+        }
+
+        $payload = (object) array_merge($data, [
+            'membership_type' => 'member',
+            'ref_name'        => null,
+            'name'            => null,
+        ]);
+
+        $user = $this->CreateUser($payload, $churchId, $path, 5);
+
+        if (! $user) {
+            return response()->json(['message' => 'Could not create member'], 500);
+        }
+
+        Cache::forget("memberCount{$churchId}");
+        Cache::forget("maleMemberCount{$churchId}");
+        Cache::forget("femaleMemberCount{$churchId}");
+        Cache::forget("recentMember{$churchId}");
+
+        $this->doActivityLog(
+            $user,
+            $request->user(),
+            ['ip' => $this->getRequestIP(), 'details' => $request->userAgent()],
+            LOGNAME_ADD_MEMBER,
+            'Member Added Successfully'
+        );
+
+        return response()->json(['success' => true, 'id' => $user->id], 201);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $user = $this->findMember($request, $id);
+
+        if (! $user) {
+            return response()->json(['message' => 'Member not found'], 404);
+        }
+
+        $data = $request->validate([
+            'firstname'       => 'sometimes|required|string|max:15',
+            'lastname'        => 'nullable|string|max:15',
+            'gender'          => 'sometimes|required|in:male,female,transgender',
+            'date_of_birth'   => 'sometimes|required|date',
+            'profession'      => 'nullable|in:admin,business,doctor,engineer,government_employee,home_maker,lawyer,pastor,police,professionals,self_employed,student,teacher,others,guest,preacher',
+            'address'         => 'nullable|string',
+            'city_id'         => 'nullable|integer',
+            'state_id'        => 'nullable|integer',
+            'country_id'      => 'nullable|integer',
+            'pincode'         => 'nullable|string|max:10',
+            'mobile_no'       => 'sometimes|required|digits:10|unique:users,mobile_no,' . $user->id,
+            'email'           => 'nullable|email|unique:users,email,' . $user->id,
+            'family'          => 'nullable|string|max:15',
+            'marriage_status' => 'nullable|in:single,married,ended_by_death,ended_by_divorce,separated',
+        ]);
+
+        $user->fill(array_intersect_key($data, array_flip(['mobile_no', 'email'])));
+        $user->save();
+
+        $profile = Userprofile::where('user_id', $user->id)->first();
+        $profile->fill(array_diff_key($data, array_flip(['mobile_no', 'email'])));
+        $profile->save();
+
+        $this->doActivityLog(
+            $user,
+            $request->user(),
+            ['ip' => $this->getRequestIP(), 'details' => $request->userAgent()],
+            LOGNAME_EDIT_MEMBER,
+            'Member Updated Successfully'
+        );
+
+        return response()->json(['success' => true]);
+    }
+
+    public function status(Request $request, $id)
+    {
+        $request->validate(['status' => 'required|in:active,inactive,exit']);
+
+        $user = $this->findMember($request, $id);
+
+        if (! $user) {
+            return response()->json(['message' => 'Member not found'], 404);
+        }
+
+        $profile = Userprofile::where('user_id', $user->id)->first();
+        $profile->status = $request->status;
+        $profile->save();
+
+        // Exiting a member removes them from any groups + group-specific
+        // permissions, matching UserController@exitStore's cleanup.
+        if ($request->status === 'exit') {
+            $groupLinks = GroupLink::where('user_id', $user->id)->get();
+            foreach ($groupLinks as $link) {
+                $link->delete();
+            }
+        }
+
+        $this->doActivityLog(
+            $profile,
+            $request->user(),
+            ['ip' => $this->getRequestIP(), 'details' => $request->userAgent()],
+            LOGNAME_MEMBER_STATUS,
+            "Member status changed to {$request->status}"
+        );
+
+        return response()->json(['success' => true]);
+    }
+
+    public function destroy(Request $request, $id)
+    {
+        $user = $this->findMember($request, $id);
+
+        if (! $user) {
+            return response()->json(['message' => 'Member not found'], 404);
+        }
+
+        Userprofile::where('user_id', $user->id)->delete();
+        $user->delete();
+
+        Cache::forget("memberCount{$user->church_id}");
+
+        $this->doActivityLog(
+            $user,
+            $request->user(),
+            ['ip' => $this->getRequestIP(), 'details' => $request->userAgent()],
+            LOGNAME_DELETE_MEMBER,
+            'Member Deleted Successfully'
+        );
+
+        return response()->json(['success' => true]);
+    }
+
+    /** Church- and membership_type-scoped member lookup, shared by show/update/status/destroy. */
+    private function findMember(Request $request, $id, array $with = []): ?User
+    {
+        return User::with($with)
+            ->where('church_id', $request->user()->church_id)
+            ->where('usergroup_id', 5)
+            ->whereHas('userprofile', fn ($p) => $p->where('membership_type', 'member'))
+            ->find($id);
+    }
+
+    private function summarize(User $user): array
+    {
+        $p = $user->userprofile;
+
+        return [
+            'id'        => $user->id,
+            'name'      => trim(($p->firstname ?? '') . ' ' . ($p->lastname ?? '')) ?: $user->name,
+            'email'     => $user->email,
+            'mobile_no' => $user->mobile_no,
+            'gender'    => optional($p)->gender,
+            'status'    => optional($p)->status,
+            'city'      => optional(optional($p)->city)->name,
+            'avatar'    => optional($p)->AvatarPath,
+        ];
+    }
+}

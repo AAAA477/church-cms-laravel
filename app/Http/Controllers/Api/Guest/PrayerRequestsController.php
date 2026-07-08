@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Guest;
 use App\Http\Resources\API\Guest\PrayerRequest as PrayerRequestResource;
 use App\Http\Controllers\Controller;
 use App\Models\Prayer;
+use App\Models\PrayerCategory;
 use App\Models\PrayerParticipant;
 use Illuminate\Http\Request;
 
@@ -23,6 +24,47 @@ class PrayerRequestsController extends Controller
         $prayer = PrayerRequestResource::collection($prayer);
 
         return $prayer;
+    }
+
+    /** Active categories for the submission form's dropdown. */
+    public function categories($church_id)
+    {
+        return PrayerCategory::where('church_id', $church_id)
+            ->active()
+            ->ordered()
+            ->get(['id', 'name']);
+    }
+
+    /**
+     * Submit a new prayer request. Requires a signed-in member (mirrors
+     * WebBuilder\PrayerRequestController@store's webguest middleware — the
+     * legacy site required at least a lightweight guest account, never
+     * fully anonymous submission). Goes to STATUS_PENDING for moderation.
+     */
+    public function store(Request $request, $church_id)
+    {
+        $validated = $request->validate([
+            'text'        => 'required|string|min:10|max:500',
+            'category_id' => 'nullable|exists:prayer_categories,id',
+        ]);
+
+        $prayer = Prayer::create([
+            'church_id'       => $church_id,
+            'user_id'         => $request->user()->id,
+            'category_id'     => $validated['category_id'] ?? null,
+            'text'            => $validated['text'],
+            'original_text'   => $validated['text'],
+            'status'          => Prayer::STATUS_PENDING,
+            'member_count'    => 0,
+            'guest_count'     => 0,
+            'anonymous_count' => 0,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Your prayer request has been submitted and is awaiting approval.',
+            'id'      => $prayer->id,
+        ], 201);
     }
 
     /**

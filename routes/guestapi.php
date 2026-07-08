@@ -49,10 +49,20 @@ Route::group([
 
 	Route::post('/prayerRequests/{church_id}/{id}/lift', 'PrayerRequestsController@lift')->middleware('throttle:10,1');
 
+	Route::post('/prayerRequests/{church_id}', 'PrayerRequestsController@store')->middleware(['auth:sanctum', 'throttle:10,1']);
+
+	Route::get('/prayerCategories/{church_id}', 'PrayerRequestsController@categories');
+
 	//posts (blog)
 	Route::get('/posts/{church_id}', 'PostsController@index');
 
 	Route::get('/post/{church_id}/{id}', 'PostsController@show');
+
+	Route::post('/post/{church_id}/{id}/comments', 'PostsController@storeComment')->middleware(['auth:sanctum', 'throttle:20,1']);
+
+	Route::post('/post/{church_id}/{id}/like', 'PostsController@toggleLike')->middleware('throttle:30,1');
+
+	Route::post('/post/{church_id}/comments/{id}/like', 'PostsController@toggleCommentLike')->middleware('throttle:30,1');
 
 	//faq
 	Route::get('/faqs/{church_id}', 'FaqController@index');
@@ -64,6 +74,8 @@ Route::group([
 
 	//helps
 	Route::get('/helps/{church_id}', 'HelpsController@index');
+
+	Route::post('/helps/{church_id}', 'HelpsController@store')->middleware(['auth:sanctum', 'throttle:10,1']);
 
 	//groups
 	Route::get('/groups/{church_id}', 'GroupsController@index');

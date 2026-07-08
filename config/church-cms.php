@@ -86,6 +86,7 @@ defined('LOGNAME_DELETE_FUND') or define('LOGNAME_DELETE_FUND','delete_fund');
 //gallery
 defined('LOGNAME_ADD_GALLERY_ALBUM') or define('LOGNAME_ADD_GALLERY_ALBUM','add_gallery_album');
 defined('LOGNAME_EDIT_GALLERY_ALBUM') or define('LOGNAME_EDIT_GALLERY_ALBUM','edit_gallery_album');
+defined('LOGNAME_DELETE_GALLERY_ALBUM') or define('LOGNAME_DELETE_GALLERY_ALBUM','delete_gallery_album');
 defined('LOGNAME_ADD_PHOTO') or define('LOGNAME_ADD_PHOTO','add_photo');
 defined('LOGNAME_DELETE_PHOTO') or define('LOGNAME_DELETE_PHOTO','delete_photo');
 
@@ -127,6 +128,7 @@ defined('LOGNAME_ADDED_PRAYER_AUDIO') or define('LOGNAME_ADDED_PRAYER_AUDIO','ad
 //help
 defined('LOGNAME_ADD_HELP') or define('LOGNAME_ADD_HELP','add_help');
 defined('LOGNAME_APPROVED_HELP') or define('LOGNAME_APPROVED_HELP','approved_help');
+defined('LOGNAME_UPDATE_FEEDBACK_STATUS') or define('LOGNAME_UPDATE_FEEDBACK_STATUS','update_feedback_status');
 
 //news letter
 defined('LOGNAME_SEND_NEWSLETTER') or define('LOGNAME_SEND_NEWSLETTER','send_newsletter');

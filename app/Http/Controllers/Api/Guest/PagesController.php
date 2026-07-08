@@ -40,7 +40,7 @@ class PagesController extends Controller
                 'category_slug' => optional($pages->first()->pageCategory)->slug,
                 'pages'         => $pages->map(fn ($p) => [
                     'id'    => $p->id,
-                    'name'  => $p->page_name,
+                    'name'  => $p->menu_text ?: $p->page_name,
                     'slug'  => $p->slug,
                 ])->values(),
             ])->values(),
@@ -66,15 +66,24 @@ class PagesController extends Controller
             return response()->json(['message' => 'Page not found'], 404);
         }
 
+        // Same source the legacy theme's _page_content used: the page
+        // builder's rendered_html when present (falling back to the plain
+        // description), with [widget:*] tags resolved server-side.
+        $rawHtml = ($page->content && !empty($page->content['rendered_html']))
+            ? $page->content['rendered_html']
+            : ($page->description ?? '');
+
         return response()->json([
             'data' => [
-                'id'            => $page->id,
-                'name'          => $page->page_name,
-                'slug'          => $page->slug,
-                'category'      => optional($page->pageCategory)->name,
-                'category_slug' => optional($page->pageCategory)->slug,
-                'description'   => $page->description,
-                'cover_image'   => $page->cover_image ? $page->getFilePath($page->cover_image) : null,
+                'id'              => $page->id,
+                'name'            => $page->page_name,
+                'slug'            => $page->slug,
+                'category'        => optional($page->pageCategory)->name,
+                'category_slug'   => optional($page->pageCategory)->slug,
+                'description'     => \App\Helpers\SiteHelper::resolveWidgetTags($rawHtml),
+                'custom_css'      => ($page->content && !empty($page->content['css'])) ? $page->content['css'] : null,
+                'layout_template' => $page->layout_template ?: 'left-sidebar',
+                'cover_image'     => $page->cover_image ? $page->getFilePath($page->cover_image) : null,
             ],
         ]);
     }

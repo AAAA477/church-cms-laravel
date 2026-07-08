@@ -38,7 +38,7 @@ class SubscriberObserver
             $content=str_replace(':unsubscribelink',$unsubscribelink,$content);
             Mail::to($subscriber->email)->queue(new ListingMail($email->subject,$email->from_email,$email->from_name,$email->reply_to_email,$content));
         }
-        catch(Exception $e)
+        catch(\Throwable $e)
         {
             Log::info($e->getMessage());
             //dd($e->getMessage());
@@ -62,7 +62,7 @@ class SubscriberObserver
                 event(new SubscriberDeleteEvent($subscriber,$data)); 
             }
         }
-        catch(Exception $e)
+        catch(\Throwable $e)
         {
             Log::info($e->getMessage());
             //dd($e->getMessage());
@@ -85,7 +85,7 @@ class SubscriberObserver
             event(new SubscriberDeleteEvent($subscriber,$data));
             //EmailQueueProcess::deleteEmailQueueforSubscribers($subscriber,$data);
         }
-        catch(Exception $e)
+        catch(\Throwable $e)
         {
             Log::info($e->getMessage());
             //dd($e->getMessage());
