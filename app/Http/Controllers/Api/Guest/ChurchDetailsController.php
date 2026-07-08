@@ -25,7 +25,11 @@ class ChurchDetailsController extends Controller
         $churchdetails  = ChurchDetail::select('meta_key', 'meta_value')->where('church_id', $church->id)->get();
         $plucked  = $churchdetails->pluck('meta_value', 'meta_key');
 
-        $churchdetail['church_name']     = ucwords($church->name);
+        // Prefer the admin-editable church_full_name setting (what the
+        // legacy Blade site displayed via config('settings')) over the
+        // churches.name column, which Settings never updates.
+        $fullName = $plucked['church_full_name'] ?? null;
+        $churchdetail['church_name']     = ($fullName && $fullName !== '-') ? $fullName : ucwords($church->name);
         $churchdetail['church_logo']     = $plucked['church_logo'] === '-' ? '' : $this->getFilePath($plucked['church_logo']);
         $churchdetail['short_summary']   = $plucked['short_summary'] === '-' ? '' : $plucked['short_summary'];
         $churchdetail['long_summary']    = $plucked['long_summary'] === '-' ? '' : $plucked['long_summary'];

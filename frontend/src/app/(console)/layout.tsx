@@ -1,8 +1,8 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import AdminNav from "@/components/admin/AdminNav";
-import { adminFetch, ApiError } from "@/lib/api";
-import type { AdminMe } from "@/lib/api-types";
+import { adminFetch, guestGet, ApiError } from "@/lib/api";
+import type { AdminMe, ChurchDetails } from "@/lib/api-types";
 
 export default async function ConsoleLayout({
   children,
@@ -13,6 +13,12 @@ export default async function ConsoleLayout({
   const cookieName = cookieStore.get("admin_name")?.value;
 
   let name = cookieName ?? "Admin";
+
+  // Uncached: an admin who renames the church in Settings should see the
+  // sidebar update on the next page load, not after a revalidate window.
+  const churchName = await guestGet<ChurchDetails>("/church/details", 0)
+    .then((c) => c.church_name)
+    .catch(() => "Church");
 
   try {
     const me = await adminFetch<AdminMe>("/me");
@@ -29,7 +35,7 @@ export default async function ConsoleLayout({
 
   return (
     <div className="flex min-h-screen">
-      <AdminNav name={name} />
+      <AdminNav name={name} churchName={churchName} />
       <main className="flex-1 bg-warm min-h-screen overflow-x-hidden">{children}</main>
     </div>
   );

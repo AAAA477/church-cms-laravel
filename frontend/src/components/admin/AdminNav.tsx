@@ -94,7 +94,7 @@ const items: NavItem[] = [
   { type: "link", link: { href: "/console/profile", label: "My Profile", icon: "👤" } },
 ];
 
-export default function AdminNav({ name }: { name: string }) {
+export default function AdminNav({ name, churchName = "Church" }: { name: string; churchName?: string }) {
   const pathname = usePathname();
   const router = useRouter();
   const [signingOut, setSigningOut] = useState(false);
@@ -136,10 +136,10 @@ export default function AdminNav({ name }: { name: string }) {
       <div className="px-6 py-6 border-b border-cream/10">
         <Link href="/console" className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-white font-display text-lg shrink-0">
-            C
+            {churchName.charAt(0)}
           </span>
           <div>
-            <p className="font-display text-xl text-accent leading-tight">Church</p>
+            <p className="font-display text-xl text-accent leading-tight">{churchName}</p>
             <p className="text-xs text-cream/60">Admin Console</p>
           </div>
         </Link>

@@ -13,7 +13,7 @@ const links = [
   { href: "/member/change-password", label: "Password" },
 ];
 
-export default function MemberNav({ name }: { name: string }) {
+export default function MemberNav({ name, churchName = "Church" }: { name: string; churchName?: string }) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -29,10 +29,10 @@ export default function MemberNav({ name }: { name: string }) {
         <div className="flex justify-between items-center h-20">
           <Link href="/" className="flex items-center space-x-3">
             <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-white font-display text-xl">
-              C
+              {churchName.charAt(0)}
             </span>
             <span className="block font-display text-2xl font-semibold text-primary">
-              Church
+              {churchName}
             </span>
           </Link>
 

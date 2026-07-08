@@ -130,6 +130,38 @@ export default function ChurchSettingsForm({ settings }: { settings: AdminChurch
         </div>
       </Section>
 
+      <Section title="About">
+        <div className="sm:col-span-2">
+          <label htmlFor="short_summary" className={labelClasses}>
+            Short Summary
+          </label>
+          <input
+            id="short_summary"
+            name="short_summary"
+            defaultValue={settings.short_summary ?? ""}
+            className={inputClasses}
+          />
+        </div>
+        <div className="sm:col-span-2">
+          <label htmlFor="long_summary" className={labelClasses}>
+            Long Summary
+          </label>
+          <textarea
+            id="long_summary"
+            name="long_summary"
+            rows={3}
+            defaultValue={settings.long_summary ?? ""}
+            className={inputClasses}
+          />
+        </div>
+        <div className="sm:col-span-2">
+          <label htmlFor="quotes" className={labelClasses}>
+            Quote / Motto
+          </label>
+          <input id="quotes" name="quotes" defaultValue={settings.quotes ?? ""} className={inputClasses} />
+        </div>
+      </Section>
+
       <Section title="Social Media">
         <div>
           <label htmlFor="website" className={labelClasses}>

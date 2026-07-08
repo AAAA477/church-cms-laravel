@@ -1,8 +1,8 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import MemberNav from "@/components/member/MemberNav";
-import { memberFetch, ApiError } from "@/lib/api";
-import type { MemberProfile } from "@/lib/api-types";
+import { memberFetch, guestGet, ApiError } from "@/lib/api";
+import type { ChurchDetails, MemberProfile } from "@/lib/api-types";
 
 export default async function MemberLayout({
   children,
@@ -13,6 +13,10 @@ export default async function MemberLayout({
   const cookieName = cookieStore.get("member_name")?.value;
 
   let name = cookieName ?? "Member";
+
+  const churchName = await guestGet<ChurchDetails>("/church/details", 60)
+    .then((c) => c.church_name)
+    .catch(() => "Church");
 
   try {
     const res = await memberFetch<{ data: MemberProfile[] }>("/member/show");
@@ -30,7 +34,7 @@ export default async function MemberLayout({
 
   return (
     <>
-      <MemberNav name={name} />
+      <MemberNav name={name} churchName={churchName} />
       <main className="flex-1 bg-warm min-h-screen">{children}</main>
     </>
   );
