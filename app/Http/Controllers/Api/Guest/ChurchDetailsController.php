@@ -31,6 +31,8 @@ class ChurchDetailsController extends Controller
         $fullName = $plucked['church_full_name'] ?? null;
         $churchdetail['church_name']     = ($fullName && $fullName !== '-') ? $fullName : ucwords($church->name);
         $churchdetail['church_logo']     = $plucked['church_logo'] === '-' ? '' : $this->getFilePath($plucked['church_logo']);
+        $favicon = $plucked['favicon'] ?? '-';
+        $churchdetail['favicon']         = $favicon === '-' ? '' : $this->getFilePath($favicon);
         $churchdetail['short_summary']   = $plucked['short_summary'] === '-' ? '' : $plucked['short_summary'];
         $churchdetail['long_summary']    = $plucked['long_summary'] === '-' ? '' : $plucked['long_summary'];
         $churchdetail['quotes']          = $plucked['quotes'] === '-' ? '' : $plucked['quotes'];

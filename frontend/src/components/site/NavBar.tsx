@@ -38,11 +38,12 @@ export type NavMember = {
 
 type NavBarProps = {
   churchName: string;
+  churchLogo?: string | null;
   tagline?: string;
   member?: NavMember | null;
 };
 
-export default function NavBar({ churchName, tagline, member }: NavBarProps) {
+export default function NavBar({ churchName, churchLogo, tagline, member }: NavBarProps) {
   const [open, setOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
@@ -77,9 +78,18 @@ export default function NavBar({ churchName, tagline, member }: NavBarProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20 gap-4">
           <Link href="/" className="flex items-center space-x-3 shrink-0">
-            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-white font-display text-xl">
-              {churchName.charAt(0)}
-            </span>
+            {churchLogo ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={churchLogo}
+                alt={`${churchName} logo`}
+                className="h-11 w-11 rounded-full object-cover"
+              />
+            ) : (
+              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-white font-display text-xl">
+                {churchName.charAt(0)}
+              </span>
+            )}
             <span>
               <span className="block font-display text-2xl font-semibold text-primary">
                 {churchName}

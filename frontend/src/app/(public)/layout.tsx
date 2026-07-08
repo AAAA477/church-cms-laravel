@@ -47,6 +47,7 @@ export default async function PublicLayout({
     <>
       <NavBar
         churchName={church.church_name}
+        churchLogo={church.church_logo}
         tagline="Faith • Hope • Love"
         member={member}
       />

@@ -16,9 +16,9 @@ export default async function ConsoleLayout({
 
   // Uncached: an admin who renames the church in Settings should see the
   // sidebar update on the next page load, not after a revalidate window.
-  const churchName = await guestGet<ChurchDetails>("/church/details", 0)
-    .then((c) => c.church_name)
-    .catch(() => "Church");
+  const church = await guestGet<ChurchDetails>("/church/details", 0).catch(
+    () => ({ church_name: "Church", church_logo: null }) as ChurchDetails,
+  );
 
   try {
     const me = await adminFetch<AdminMe>("/me");
@@ -35,7 +35,7 @@ export default async function ConsoleLayout({
 
   return (
     <div className="flex min-h-screen">
-      <AdminNav name={name} churchName={churchName} />
+      <AdminNav name={name} churchName={church.church_name} churchLogo={church.church_logo} />
       <main className="flex-1 bg-warm min-h-screen overflow-x-hidden">{children}</main>
     </div>
   );

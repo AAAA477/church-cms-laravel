@@ -7,6 +7,7 @@
 export interface ChurchDetails {
   church_name: string;
   church_logo: string | null;
+  favicon: string | null;
   short_summary: string | null;
   long_summary: string | null;
   quotes: string | null;

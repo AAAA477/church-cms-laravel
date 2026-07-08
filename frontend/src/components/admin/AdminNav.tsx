@@ -94,7 +94,15 @@ const items: NavItem[] = [
   { type: "link", link: { href: "/console/profile", label: "My Profile", icon: "👤" } },
 ];
 
-export default function AdminNav({ name, churchName = "Church" }: { name: string; churchName?: string }) {
+export default function AdminNav({
+  name,
+  churchName = "Church",
+  churchLogo,
+}: {
+  name: string;
+  churchName?: string;
+  churchLogo?: string | null;
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const [signingOut, setSigningOut] = useState(false);
@@ -135,9 +143,18 @@ export default function AdminNav({ name, churchName = "Church" }: { name: string
     <aside className="w-64 shrink-0 bg-ink text-cream min-h-screen flex flex-col">
       <div className="px-6 py-6 border-b border-cream/10">
         <Link href="/console" className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-white font-display text-lg shrink-0">
-            {churchName.charAt(0)}
-          </span>
+          {churchLogo ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={churchLogo}
+              alt={`${churchName} logo`}
+              className="h-10 w-10 rounded-full object-cover shrink-0"
+            />
+          ) : (
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-white font-display text-lg shrink-0">
+              {churchName.charAt(0)}
+            </span>
+          )}
           <div>
             <p className="font-display text-xl text-accent leading-tight">{churchName}</p>
             <p className="text-xs text-cream/60">Admin Console</p>

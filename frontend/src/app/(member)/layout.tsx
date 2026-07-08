@@ -49,7 +49,12 @@ export default async function MemberLayout({
 
   return (
     <>
-      <NavBar churchName={church.church_name} tagline="Faith • Hope • Love" member={member} />
+      <NavBar
+        churchName={church.church_name}
+        churchLogo={church.church_logo}
+        tagline="Faith • Hope • Love"
+        member={member}
+      />
       <main className="flex-1 bg-warm min-h-screen">{children}</main>
       <Footer church={church} isSignedIn />
     </>
