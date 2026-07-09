@@ -23,7 +23,10 @@ class PostController extends Controller
     {
         $churchId = $request->user()->church_id;
 
-        $query = Post::with('category')->where('church_id', $churchId)->where('entity_name', 'App\Models\User');
+        // No default entity_name filter — the legacy admin lists every post
+        // unless an entity filter is explicitly requested, and seeded/blog
+        // posts carry entity_name NULL.
+        $query = Post::with('category')->where('church_id', $churchId);
 
         if ($search = $request->query('search')) {
             $query->where('title', 'like', "%{$search}%");

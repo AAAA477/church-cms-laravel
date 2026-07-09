@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 
@@ -24,7 +27,18 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        // Authenticated clients (admin console, member portal, mobile app)
+        // make several API calls per screen, so give them more headroom
+        // than anonymous visitors.
+        RateLimiter::for('api', function (Request $request) {
+            // The limiter runs before route middleware, so resolve the
+            // bearer token through the sanctum guard explicitly.
+            $user = $request->user('sanctum');
+
+            return $user
+                ? Limit::perMinute(240)->by('u' . $user->id)
+                : Limit::perMinute(60)->by($request->ip());
+        });
 
         parent::boot();
     }
