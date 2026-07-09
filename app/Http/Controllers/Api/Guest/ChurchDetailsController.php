@@ -45,6 +45,7 @@ class ChurchDetailsController extends Controller
         $churchdetail['facebook']        = $plucked['facebook'] === '-' ? '' : $plucked['facebook'];
         $churchdetail['twitter']         = $plucked['twitter'] === '-' ? '' : $plucked['twitter'];
         $churchdetail['instagram']       = $plucked['instagram'] === '-' ? '' : $plucked['instagram'];
+        $churchdetail['extra_links']     = $this->decodeExtraLinks($plucked['extra_social_links'] ?? null);
 
         /* $churchdetail['seo_basic']['sitetitle']                = \config::get('settings.sitetitle');
         $churchdetail['seo_basic']['site_description']         = \config::get('settings.site_description');
@@ -82,7 +83,27 @@ class ChurchDetailsController extends Controller
         $churchdetail['facebook']   = $plucked['facebook'] === '-' ? null : $plucked['facebook'];
         $churchdetail['twitter']    = $plucked['twitter'] === '-' ? null : $plucked['twitter'];
         $churchdetail['instagram']  = $plucked['instagram'] === '-' ? null : $plucked['instagram'];
+        $churchdetail['extra_links'] = $this->decodeExtraLinks($plucked['extra_social_links'] ?? null);
 
         return $churchdetail;
+    }
+
+    /**
+     * Custom social links beyond the fixed platform fields, stored as a
+     * JSON array of {label, url} in the extra_social_links setting.
+     */
+    private function decodeExtraLinks($raw): array
+    {
+        if (! $raw || $raw === '-') {
+            return [];
+        }
+
+        $links = json_decode($raw, true);
+
+        if (! is_array($links)) {
+            return [];
+        }
+
+        return array_values(array_filter($links, fn ($l) => is_array($l) && ! empty($l['label']) && ! empty($l['url'])));
     }
 }

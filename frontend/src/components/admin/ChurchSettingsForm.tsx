@@ -42,6 +42,18 @@ export default function ChurchSettingsForm({ settings }: { settings: AdminChurch
   const [error, setError] = useState<string | null>(null);
   const [area, setArea] = useState<(typeof AREAS)[number]>("General");
 
+  // Extra social links beyond the four fixed platforms, stored as one
+  // JSON setting (extra_social_links). Inputs are unnamed so FormData
+  // skips them; the serialized JSON is appended on submit instead.
+  const [extraLinks, setExtraLinks] = useState<{ label: string; url: string }[]>(() => {
+    try {
+      const parsed = JSON.parse(settings.extra_social_links ?? "[]");
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  });
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setStatus("submitting");
@@ -61,6 +73,11 @@ export default function ChurchSettingsForm({ settings }: { settings: AdminChurch
     ]) {
       if (!formData.has(key)) formData.set(key, "0");
     }
+
+    formData.set(
+      "extra_social_links",
+      JSON.stringify(extraLinks.filter((l) => l.label.trim() && l.url.trim())),
+    );
 
     try {
       const res = await fetch("/bff/admin/church-settings", { method: "POST", body: formData });
@@ -228,6 +245,47 @@ export default function ChurchSettingsForm({ settings }: { settings: AdminChurch
             Instagram
           </label>
           <input id="instagram" name="instagram" defaultValue={settings.instagram ?? ""} className={inputClasses} />
+        </div>
+
+        <div className="sm:col-span-2 pt-2">
+          <p className={labelClasses}>More Links (YouTube, TikTok, WhatsApp, …)</p>
+          <div className="space-y-3">
+            {extraLinks.map((link, i) => (
+              <div key={i} className="flex flex-wrap gap-2 items-center">
+                <input
+                  placeholder="Platform (e.g. YouTube)"
+                  value={link.label}
+                  onChange={(e) =>
+                    setExtraLinks((prev) => prev.map((l, j) => (j === i ? { ...l, label: e.target.value } : l)))
+                  }
+                  className={`${inputClasses} basis-48 flex-none`}
+                />
+                <input
+                  placeholder="https://…"
+                  value={link.url}
+                  onChange={(e) =>
+                    setExtraLinks((prev) => prev.map((l, j) => (j === i ? { ...l, url: e.target.value } : l)))
+                  }
+                  className={`${inputClasses} flex-1 min-w-56`}
+                />
+                <button
+                  type="button"
+                  aria-label={`Remove ${link.label || "link"}`}
+                  onClick={() => setExtraLinks((prev) => prev.filter((_, j) => j !== i))}
+                  className="text-xs font-medium uppercase tracking-wider px-3 py-2 rounded-sm border border-red-600 text-red-700 hover:bg-red-50"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => setExtraLinks((prev) => [...prev, { label: "", url: "" }])}
+            className="mt-3 text-xs font-medium uppercase tracking-wider px-3 py-2 rounded-sm border border-primary text-primary hover:bg-warm"
+          >
+            + Add Link
+          </button>
         </div>
       </Section>
 

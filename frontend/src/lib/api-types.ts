@@ -20,6 +20,7 @@ export interface ChurchDetails {
   facebook: string | null;
   twitter: string | null;
   instagram: string | null;
+  extra_links: { label: string; url: string }[];
 }
 
 export interface SocialMedia {
