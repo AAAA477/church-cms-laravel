@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\API;
 
+use App\Models\ChurchDetail;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserDetail extends JsonResource
@@ -34,7 +35,7 @@ class UserDetail extends JsonResource
 
             'gender'                => optional($this->userprofile)->gender ?? '',
 
-            'date_of_birth'         => date('d-m-Y',strtotime($this->userprofile->date_of_birth)),
+            'date_of_birth'         => $this->formatDateOfBirth(),
 
             /*'was_baptized'          => optional($this->userprofile)->was_baptized,
 
@@ -86,5 +87,21 @@ class UserDetail extends JsonResource
 
             'avatar'                => $this->userprofile->AvatarPath ?? '',
        ];
+   }
+
+   /**
+    * The "Hide year of birth" privacy setting (console Settings → Privacy)
+    * masks the year on member-facing profiles; admins still see full
+    * dates through the Api\Admin endpoints, which don't use this resource.
+    */
+   private function formatDateOfBirth()
+   {
+        $dob = strtotime($this->userprofile->date_of_birth);
+
+        $hideYear = ChurchDetail::where('church_id', $this->church_id)
+            ->where('meta_key', 'hide_birth_year')
+            ->value('meta_value') === '1';
+
+        return $hideYear ? date('d-m', $dob) : date('d-m-Y', $dob);
    }
 }

@@ -9,9 +9,27 @@ const inputClasses =
 
 const labelClasses = "block text-xs font-medium uppercase tracking-wide text-ink-soft mb-1.5";
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+// Key areas mirroring the legacy admin's settings sidebar (General,
+// Maintenance, SEO, HTML Code, Open Graph Tags, Social Media, Contact,
+// Location) plus About (legacy Church Details) and the new Privacy area.
+const AREAS = [
+  "General",
+  "Contact",
+  "Location",
+  "About",
+  "Social Media",
+  "SEO",
+  "HTML Code",
+  "Open Graph Tags",
+  "Maintenance",
+  "Privacy",
+] as const;
+
+// Inactive areas stay mounted but hidden so every field is still
+// submitted with the single Save button.
+function Section({ title, hidden, children }: { title: string; hidden?: boolean; children: React.ReactNode }) {
   return (
-    <div className="pb-6 mb-6 border-b border-warm-deep last:border-b-0 last:mb-0 last:pb-0">
+    <div className={hidden ? "hidden" : "pb-6"}>
       <h3 className="font-display text-xl text-ink mb-4">{title}</h3>
       <div className="grid gap-4 sm:grid-cols-2">{children}</div>
     </div>
@@ -22,6 +40,7 @@ export default function ChurchSettingsForm({ settings }: { settings: AdminChurch
   const router = useRouter();
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
+  const [area, setArea] = useState<(typeof AREAS)[number]>("General");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -38,6 +57,7 @@ export default function ChurchSettingsForm({ settings }: { settings: AdminChurch
       "guest_login",
       "guest_registration",
       "member_web_login",
+      "hide_birth_year",
     ]) {
       if (!formData.has(key)) formData.set(key, "0");
     }
@@ -60,7 +80,26 @@ export default function ChurchSettingsForm({ settings }: { settings: AdminChurch
 
   return (
     <form onSubmit={handleSubmit} className="space-y-0">
-      <Section title="General">
+      <div className="flex flex-wrap gap-1 mb-8 border-b border-warm-deep pb-3" role="tablist">
+        {AREAS.map((a) => (
+          <button
+            key={a}
+            type="button"
+            role="tab"
+            aria-selected={area === a}
+            onClick={() => setArea(a)}
+            className={
+              area === a
+                ? "px-3 py-1.5 text-sm font-medium rounded-sm bg-primary text-white"
+                : "px-3 py-1.5 text-sm font-medium rounded-sm text-ink-soft hover:bg-warm hover:text-primary transition-colors"
+            }
+          >
+            {a}
+          </button>
+        ))}
+      </div>
+
+      <Section title="General" hidden={area !== "General"}>
         <div>
           <label htmlFor="church_full_name" className={labelClasses}>
             Church Full Name
@@ -97,7 +136,7 @@ export default function ChurchSettingsForm({ settings }: { settings: AdminChurch
         </div>
       </Section>
 
-      <Section title="Contact">
+      <Section title="Contact" hidden={area !== "Contact"}>
         <div>
           <label htmlFor="phone" className={labelClasses}>
             Phone
@@ -116,6 +155,9 @@ export default function ChurchSettingsForm({ settings }: { settings: AdminChurch
           </label>
           <input id="address" name="address" defaultValue={settings.address ?? ""} className={inputClasses} />
         </div>
+      </Section>
+
+      <Section title="Location" hidden={area !== "Location"}>
         <div>
           <label htmlFor="latitude" className={labelClasses}>
             Latitude
@@ -130,7 +172,7 @@ export default function ChurchSettingsForm({ settings }: { settings: AdminChurch
         </div>
       </Section>
 
-      <Section title="About">
+      <Section title="About" hidden={area !== "About"}>
         <div className="sm:col-span-2">
           <label htmlFor="short_summary" className={labelClasses}>
             Short Summary
@@ -162,7 +204,7 @@ export default function ChurchSettingsForm({ settings }: { settings: AdminChurch
         </div>
       </Section>
 
-      <Section title="Social Media">
+      <Section title="Social Media" hidden={area !== "Social Media"}>
         <div>
           <label htmlFor="website" className={labelClasses}>
             Website
@@ -189,7 +231,7 @@ export default function ChurchSettingsForm({ settings }: { settings: AdminChurch
         </div>
       </Section>
 
-      <Section title="SEO">
+      <Section title="SEO" hidden={area !== "SEO"}>
         <div>
           <label htmlFor="site_title" className={labelClasses}>
             Site Title
@@ -216,7 +258,7 @@ export default function ChurchSettingsForm({ settings }: { settings: AdminChurch
         </div>
       </Section>
 
-      <Section title="HTML / JS Code">
+      <Section title="HTML Code" hidden={area !== "HTML Code"}>
         <div className="sm:col-span-2">
           <label htmlFor="header_code" className={labelClasses}>
             Header Code (inserted before &lt;/head&gt;)
@@ -243,7 +285,7 @@ export default function ChurchSettingsForm({ settings }: { settings: AdminChurch
         </div>
       </Section>
 
-      <Section title="Open Graph Tags">
+      <Section title="Open Graph Tags" hidden={area !== "Open Graph Tags"}>
         <div>
           <label htmlFor="facebook_title" className={labelClasses}>
             Facebook Title
@@ -306,7 +348,7 @@ export default function ChurchSettingsForm({ settings }: { settings: AdminChurch
         </div>
       </Section>
 
-      <Section title="Maintenance & Access">
+      <Section title="Maintenance" hidden={area !== "Maintenance"}>
         <label className="flex items-center gap-2 text-sm text-ink cursor-pointer">
           <input type="checkbox" name="maintenance" value="1" defaultChecked={settings.maintenance === "1"} />
           Maintenance Mode
@@ -330,6 +372,24 @@ export default function ChurchSettingsForm({ settings }: { settings: AdminChurch
         <label className="flex items-center gap-2 text-sm text-ink cursor-pointer">
           <input type="checkbox" name="member_web_login" value="1" defaultChecked={settings.member_web_login === "1"} />
           Member Web Login
+        </label>
+      </Section>
+
+      <Section title="Privacy" hidden={area !== "Privacy"}>
+        <label className="flex items-start gap-2 text-sm text-ink cursor-pointer sm:col-span-2">
+          <input
+            type="checkbox"
+            name="hide_birth_year"
+            value="1"
+            defaultChecked={settings.hide_birth_year === "1"}
+            className="mt-0.5"
+          />
+          <span>
+            Hide year of birth
+            <span className="block text-xs text-ink-soft">
+              Member-facing profiles show only the day and month of birth. Admins still see full dates in the console.
+            </span>
+          </span>
         </label>
       </Section>
 
