@@ -255,6 +255,35 @@ class GuestController extends Controller
         return response()->json(['success' => true]);
     }
 
+    /**
+     * Convert a guest into a member (the legacy admin did this implicitly
+     * by saving a guest through the member edit form, which force-set
+     * membership_type to "member" — here it's an explicit action).
+     */
+    public function makeMember(Request $request, $id)
+    {
+        $user = $this->findGuest($request, $id);
+
+        if (! $user) {
+            return response()->json(['message' => 'Guest not found'], 404);
+        }
+
+        $profile = Userprofile::where('user_id', $user->id)->first();
+        $profile->membership_type = 'member';
+        $profile->membership_start_date = now()->toDateString();
+        $profile->save();
+
+        $this->doActivityLog(
+            $profile,
+            $request->user(),
+            ['ip' => $this->getRequestIP(), 'details' => $request->userAgent()],
+            LOGNAME_EDIT_GUEST,
+            'Guest Converted To Member Successfully'
+        );
+
+        return response()->json(['success' => true, 'message' => 'Guest is now a member']);
+    }
+
     /** Church- and membership_type-scoped guest lookup, shared by show/update/status/destroy. */
     private function findGuest(Request $request, $id, array $with = []): ?User
     {

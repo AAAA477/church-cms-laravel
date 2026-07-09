@@ -284,6 +284,7 @@ Route::group(
 		Route::post('/guests', 'GuestController@store');
 		Route::put('/guests/{id}', 'GuestController@update');
 		Route::patch('/guests/{id}/status', 'GuestController@status');
+		Route::post('/guests/{id}/make-member', 'GuestController@makeMember');
 		Route::delete('/guests/{id}', 'GuestController@destroy');
 
 		Route::get('/group-categories', 'GroupController@categories');

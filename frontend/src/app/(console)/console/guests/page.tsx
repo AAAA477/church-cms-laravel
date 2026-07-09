@@ -3,6 +3,7 @@ import Link from "next/link";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import DataTable, { type Column } from "@/components/admin/DataTable";
+import MakeMemberButton from "@/components/admin/MakeMemberButton";
 import SearchBar from "@/components/admin/SearchBar";
 import Pagination from "@/components/admin/Pagination";
 import { adminFetch } from "@/lib/api";
@@ -34,6 +35,11 @@ const columns: Column<AdminGuestSummary>[] = [
     ),
   },
   { key: "city", label: "City" },
+  {
+    key: "actions",
+    label: "",
+    render: (row) => <MakeMemberButton guestId={row.id} name={row.name} />,
+  },
 ];
 
 export default async function GuestsPage({ searchParams }: Props) {

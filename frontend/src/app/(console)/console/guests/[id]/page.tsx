@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Card from "@/components/ui/Card";
 import GuestEditForm from "@/components/admin/GuestEditForm";
+import MakeMemberButton from "@/components/admin/MakeMemberButton";
 import PersonStatusActions from "@/components/admin/PersonStatusActions";
 import { adminFetch, ApiError } from "@/lib/api";
 import type { AdminGuestDetail } from "@/lib/api-types";
@@ -59,7 +60,14 @@ export default async function GuestDetailPage({ params }: Props) {
         <h2 className="text-xs font-medium uppercase tracking-wide text-ink-soft mb-3">
           Status
         </h2>
-        <PersonStatusActions resource="guests" personId={guest.id} currentStatus={guest.status} entityLabel="guest" />
+        <div className="flex flex-wrap items-center gap-3">
+          <PersonStatusActions resource="guests" personId={guest.id} currentStatus={guest.status} entityLabel="guest" />
+          <MakeMemberButton
+            guestId={guest.id}
+            name={`${guest.firstname} ${guest.lastname ?? ""}`.trim()}
+            redirectTo={`/console/members/${guest.id}`}
+          />
+        </div>
       </Card>
 
       <Card className="p-8" hover={false}>
