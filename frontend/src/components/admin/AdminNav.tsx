@@ -64,7 +64,7 @@ const items: NavItem[] = [
   },
   { type: "link", link: { href: "/console/contacts", label: "Contact Requests", icon: "📞" } },
   { type: "link", link: { href: "/console/feedbacks", label: "Feedbacks", icon: "📝" } },
-  { type: "link", link: { href: "/console/reports", label: "Reports", icon: "📈" } },
+  { type: "link", link: { href: "/console/reports", label: "Data Exports", icon: "📈" } },
   { type: "link", link: { href: "/console/activity-log", label: "Activity Logs", icon: "🕓" } },
   {
     type: "group",

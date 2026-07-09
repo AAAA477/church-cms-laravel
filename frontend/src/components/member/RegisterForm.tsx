@@ -6,10 +6,35 @@ import { useRouter } from "next/navigation";
 const inputClasses =
   "w-full rounded-sm border border-warm-deep bg-white px-4 py-3 text-ink placeholder:text-ink-soft/60 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
 
+type HouseholdMember = {
+  firstname: string;
+  lastname: string;
+  gender: string;
+  date_of_birth: string;
+  relation: string;
+  mobile_no: string;
+};
+
+const emptyMember: HouseholdMember = {
+  firstname: "",
+  lastname: "",
+  gender: "",
+  date_of_birth: "",
+  relation: "",
+  mobile_no: "",
+};
+
 export default function RegisterForm() {
   const router = useRouter();
   const [status, setStatus] = useState<"idle" | "submitting" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
+  // Household members registered along with the account holder. Controlled
+  // inputs without name attributes, so FormData below skips them.
+  const [household, setHousehold] = useState<HouseholdMember[]>([]);
+
+  function setMember(i: number, patch: Partial<HouseholdMember>) {
+    setHousehold((prev) => prev.map((m, j) => (j === i ? { ...m, ...patch } : m)));
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -23,7 +48,16 @@ export default function RegisterForm() {
       const registerRes = await fetch("/bff/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          household: household
+            .filter((m) => m.firstname.trim())
+            .map((m) => ({
+              ...m,
+              lastname: m.lastname.trim() || undefined,
+              mobile_no: m.mobile_no.trim() || undefined,
+            })),
+        }),
       });
 
       if (!registerRes.ok) {
@@ -163,6 +197,96 @@ export default function RegisterForm() {
             autoComplete="new-password"
             className={inputClasses}
           />
+        </div>
+      </div>
+
+      <div className="pt-2 border-t border-warm-deep">
+        <div className="flex items-center justify-between mb-1">
+          <p className="text-sm font-medium text-ink">Your Household</p>
+          <button
+            type="button"
+            onClick={() => setHousehold((prev) => [...prev, { ...emptyMember }])}
+            className="text-xs font-medium uppercase tracking-wider px-3 py-2 rounded-sm border border-primary text-primary hover:bg-warm"
+          >
+            + Add Member
+          </button>
+        </div>
+        <p className="text-xs text-ink-soft mb-3">
+          Optionally register your spouse, children, or other household members with you. They
+          won&apos;t get their own login.
+        </p>
+
+        <div className="space-y-4">
+          {household.map((m, i) => (
+            <div key={i} className="rounded-sm border border-warm-deep p-4 space-y-3">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <input
+                  placeholder="First name *"
+                  required
+                  value={m.firstname}
+                  onChange={(e) => setMember(i, { firstname: e.target.value })}
+                  className={inputClasses}
+                />
+                <input
+                  placeholder="Last name (yours if blank)"
+                  value={m.lastname}
+                  onChange={(e) => setMember(i, { lastname: e.target.value })}
+                  className={inputClasses}
+                />
+                <select
+                  required
+                  title="Relationship"
+                  value={m.relation}
+                  onChange={(e) => setMember(i, { relation: e.target.value })}
+                  className={inputClasses}
+                >
+                  <option value="">Relationship…</option>
+                  <option value="partner">Spouse / Partner</option>
+                  <option value="child">Child</option>
+                  <option value="father">Father</option>
+                  <option value="mother">Mother</option>
+                  <option value="sibling">Sibling</option>
+                  <option value="other">Other</option>
+                </select>
+                <select
+                  required
+                  title="Gender"
+                  value={m.gender}
+                  onChange={(e) => setMember(i, { gender: e.target.value })}
+                  className={inputClasses}
+                >
+                  <option value="">Gender…</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                </select>
+                <input
+                  type="date"
+                  required
+                  title="Date of birth"
+                  max={new Date().toISOString().split("T")[0]}
+                  value={m.date_of_birth}
+                  onChange={(e) => setMember(i, { date_of_birth: e.target.value })}
+                  className={inputClasses}
+                />
+                <input
+                  type="tel"
+                  pattern="\d{10}"
+                  title="10-digit phone number"
+                  placeholder="Mobile (optional)"
+                  value={m.mobile_no}
+                  onChange={(e) => setMember(i, { mobile_no: e.target.value })}
+                  className={inputClasses}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => setHousehold((prev) => prev.filter((_, j) => j !== i))}
+                className="text-xs font-medium uppercase tracking-wider px-3 py-1.5 rounded-sm border border-red-600 text-red-700 hover:bg-red-50"
+              >
+                Remove
+              </button>
+            </div>
+          ))}
         </div>
       </div>
 

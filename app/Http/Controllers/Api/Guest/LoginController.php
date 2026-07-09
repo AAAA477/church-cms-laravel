@@ -123,6 +123,8 @@ class LoginController extends Controller
             $user->password = bcrypt($request->password);
             $user->save();
 
+            $this->createHousehold($request, $user, $church->id);
+
             $message = 'Guest Added Successfully';
 
             $ip = $this->getRequestIP();
@@ -141,6 +143,56 @@ class LoginController extends Controller
             ], 200);
         } catch (Exception $e) {
             Log::info($e->getMessage());
+        }
+    }
+
+    /**
+     * Household members registered alongside the registrant: each becomes
+     * a user linked to the head of household via ref_id, with the
+     * relationship on the profile — the same shape the admin console's
+     * member management and DummyFamilySeeder use. They get no login
+     * credentials of their own (random password, no email required);
+     * admins can grant access later.
+     */
+    private function createHousehold(GuestAddRequest $request, User $head, int $churchId): void
+    {
+        $household = $request->validate([
+            'household'                   => 'nullable|array|max:15',
+            'household.*.firstname'       => 'required|string|max:50',
+            'household.*.lastname'        => 'nullable|string|max:50',
+            'household.*.gender'          => 'required|in:male,female',
+            'household.*.date_of_birth'   => 'required|date|before:tomorrow',
+            'household.*.relation'        => 'required|in:partner,child,father,mother,sibling,other',
+            'household.*.mobile_no'       => 'nullable|digits:10',
+        ])['household'] ?? [];
+
+        $headLastname = optional($head->userprofile)->lastname ?? '';
+
+        foreach ($household as $i => $member) {
+            $person = new User;
+            $person->church_id    = $churchId;
+            $person->usergroup_id = 5;
+            $person->ref_id       = $head->id;
+            $person->name         = strtolower($member['firstname']) . rand(1000, 9999);
+            $person->email        = null;
+            // mobile_no is NOT NULL; use a per-household placeholder when
+            // no number is given (no unique index on the column).
+            $person->mobile_no    = $member['mobile_no'] ?? '000' . str_pad((string) $head->id, 4, '0', STR_PAD_LEFT) . str_pad((string) $i, 3, '0', STR_PAD_LEFT);
+            $person->password     = bcrypt(\Illuminate\Support\Str::random(32));
+            $person->save();
+
+            $profile = new Userprofile;
+            $profile->church_id       = $churchId;
+            $profile->user_id         = $person->id;
+            $profile->firstname       = $member['firstname'];
+            $profile->lastname        = $member['lastname'] ?? $headLastname;
+            $profile->gender          = $member['gender'];
+            $profile->date_of_birth   = $member['date_of_birth'];
+            // 'relation' is not in $fillable, so assign it directly.
+            $profile->relation        = $member['relation'];
+            $profile->family          = $member['relation'];
+            $profile->membership_type = 'guest';
+            $profile->save();
         }
     }
 }
