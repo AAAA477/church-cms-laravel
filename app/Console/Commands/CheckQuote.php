@@ -44,7 +44,7 @@ class CheckQuote extends Command
         //
         try
         {
-            $quotes = Quote::WhereRaw("DATE_FORMAT(publish_on, '%y-%m-%d') = DATE_FORMAT(now() ,'%y-%m-%d')")->get();
+            $quotes = Quote::whereDate('publish_on', today())->get();
 
             foreach($quotes as $quote)
             {   

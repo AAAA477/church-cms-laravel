@@ -54,13 +54,15 @@ return [
             'engine' => null,
         ],
 
+        // Dedicated PGSQL_* keys (with DB_* fallbacks) so this connection can
+        // coexist with the mysql one during data migration.
         'pgsql' => [
             'driver' => 'pgsql',
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '5432'),
-            'database' => env('DB_DATABASE', 'forge'),
-            'username' => env('DB_USERNAME', 'forge'),
-            'password' => env('DB_PASSWORD', ''),
+            'host' => env('PGSQL_HOST', env('DB_HOST', '127.0.0.1')),
+            'port' => env('PGSQL_PORT', '5433'),
+            'database' => env('PGSQL_DATABASE', env('DB_DATABASE', 'churchcms')),
+            'username' => env('PGSQL_USERNAME', 'postgres'),
+            'password' => env('PGSQL_PASSWORD', ''),
             'charset' => 'utf8',
             'prefix' => '',
             'schema' => 'public',

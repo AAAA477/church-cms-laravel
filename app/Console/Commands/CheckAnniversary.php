@@ -49,7 +49,8 @@ class CheckAnniversary extends Command
         try
         {
             $anniversarys = Userprofile::with('user')
-                            ->WhereRaw("DATE_FORMAT(marriage_start_date, '%m-%d') = DATE_FORMAT(now() + INTERVAL 2 DAY,'%m-%d')")
+                            ->whereMonth('marriage_start_date', now()->addDays(2)->month)
+                            ->whereDay('marriage_start_date', now()->addDays(2)->day)
                             ->ByRole(5)
                             ->get();
 

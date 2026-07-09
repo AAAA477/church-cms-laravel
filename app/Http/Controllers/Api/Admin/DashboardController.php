@@ -67,7 +67,7 @@ class DashboardController extends Controller
             // latest sermons, and the monthly offerings chart (the
             // CanvasJS 'final' series from the Dashboard trait).
             'birthdays' => Userprofile::with('user')
-                ->whereRaw("DATE_FORMAT(date_of_birth, '%m-%d') = DATE_FORMAT(now(),'%m-%d')")
+                ->whereMonth('date_of_birth', now()->month)->whereDay('date_of_birth', now()->day)
                 ->ByChurch($user->church_id)
                 ->ByRole(5)
                 ->get()
@@ -76,7 +76,7 @@ class DashboardController extends Controller
                     'name' => trim(($p->firstname ?? '') . ' ' . ($p->lastname ?? '')),
                 ])->values(),
             'anniversaries' => Userprofile::with('user')
-                ->whereRaw("DATE_FORMAT(marriage_start_date, '%m-%d') = DATE_FORMAT(now(),'%m-%d')")
+                ->whereMonth('marriage_start_date', now()->month)->whereDay('marriage_start_date', now()->day)
                 ->ByChurch($user->church_id)
                 ->ByRole(5)
                 ->get()

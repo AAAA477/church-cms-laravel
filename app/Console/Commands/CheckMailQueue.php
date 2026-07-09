@@ -48,7 +48,7 @@ class CheckMailQueue extends Command
             $now       = date('Y-m-d H:i');
 
             //  $maillist = MailQueue::whereNull('fired_at')->wheredate('scheduled_at','=',$now)->get();
-            $maillist = MailQueue::whereNull('fired_at')->where(\DB::raw("(DATE_FORMAT(scheduled_at,'%Y-%m-%d %H:%i'))"), '<=', $now)->get();
+            $maillist = MailQueue::whereNull('fired_at')->where('scheduled_at', '<=', now()->endOfMinute())->get();
 
             foreach ($maillist as $list) {
                 // $smtp = Smtp::whereStatus(1)->inRandomOrder()->first();

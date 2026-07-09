@@ -27,13 +27,15 @@ trait Dashboard
             return Userprofile::ByRole(5)
                 ->where('church_id', $church_id)
                 ->where('status', 'active')
+                // CASE WHEN instead of MySQL's SUM(condition) so the same
+                // query runs on Postgres, which has no boolean SUM.
                 ->selectRaw("
-                    SUM(membership_type = 'member')                          AS member_count,
-                    SUM(membership_type = 'member' AND gender = 'male')      AS male_member_count,
-                    SUM(membership_type = 'member' AND gender = 'female')    AS female_member_count,
-                    SUM(membership_type = 'guest')                           AS guest_count,
-                    SUM(membership_type = 'guest'  AND gender = 'male')      AS male_guest_count,
-                    SUM(membership_type = 'guest'  AND gender = 'female')    AS female_guest_count
+                    SUM(CASE WHEN membership_type = 'member' THEN 1 ELSE 0 END)                        AS member_count,
+                    SUM(CASE WHEN membership_type = 'member' AND gender = 'male'   THEN 1 ELSE 0 END)  AS male_member_count,
+                    SUM(CASE WHEN membership_type = 'member' AND gender = 'female' THEN 1 ELSE 0 END)  AS female_member_count,
+                    SUM(CASE WHEN membership_type = 'guest' THEN 1 ELSE 0 END)                         AS guest_count,
+                    SUM(CASE WHEN membership_type = 'guest'  AND gender = 'male'   THEN 1 ELSE 0 END)  AS male_guest_count,
+                    SUM(CASE WHEN membership_type = 'guest'  AND gender = 'female' THEN 1 ELSE 0 END)  AS female_guest_count
                 ")
                 ->first();
         });

@@ -49,7 +49,8 @@ class CheckBirthday extends Command
         try
         {
             $birthdays = Userprofile::with('user')
-                            ->WhereRaw("DATE_FORMAT(date_of_birth, '%m-%d') = DATE_FORMAT(now() + INTERVAL 2 DAY,'%m-%d')")
+                            ->whereMonth('date_of_birth', now()->addDays(2)->month)
+                            ->whereDay('date_of_birth', now()->addDays(2)->day)
                             ->ByRole(5)
                             ->get();
 

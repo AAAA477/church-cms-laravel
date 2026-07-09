@@ -298,7 +298,7 @@ class User extends Authenticatable
     public function scopeByDateOfBirth($query, $date_of_birth)
     {
         $query->wherehas('userprofile', function ($query) use ($date_of_birth) {
-            $query->where(\DB::raw("(DATE_FORMAT(date_of_birth,'%m'))"), $date_of_birth);
+            $query->whereMonth('date_of_birth', $date_of_birth);
         });
         return $query;
     }
