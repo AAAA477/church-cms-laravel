@@ -43,6 +43,10 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')
         //          ->hourly();
 
+        $schedule->command('gego:publishscheduledposts')
+                 ->everyMinute()
+                 ->withoutOverlapping();
+
         $schedule->command('gego:checksubscription')
                  ->daily()
                  ->withoutOverlapping();

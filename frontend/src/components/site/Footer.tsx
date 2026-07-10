@@ -6,18 +6,15 @@ import type { ChurchDetails } from "@/lib/api-types";
 // Get in Touch — new palette kept.
 const exploreLinks = [
   { href: "/", label: "Home" },
-  { href: "/pages", label: "About Us" },
-  { href: "/blog", label: "Blog & News" },
-  { href: "/gallery", label: "Gallery" },
-  { href: "/bulletins", label: "Bulletins" },
-  { href: "/faq", label: "FAQ" },
+  { href: "/#about", label: "About Us" },
+  { href: "/devotions", label: "Devotions" },
+  { href: "/resources", label: "Resources" },
 ];
 
 const ministryLinks = [
-  { href: "/sermons", label: "Sermons" },
+  { href: "/resources", label: "Sermons" },
   { href: "/events", label: "Events" },
-  { href: "/prayer-board", label: "Prayer Requests" },
-  { href: "/help-requests", label: "Help Requests" },
+  { href: "/prayer-board", label: "Prayer Board" },
   { href: "/contact", label: "Contact Us" },
 ];
 

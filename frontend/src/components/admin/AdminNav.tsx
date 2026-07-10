@@ -27,7 +27,7 @@ const items: NavItem[] = [
   { type: "link", link: { href: "/console/groups", label: "Groups", icon: "🧩" } },
   { type: "link", link: { href: "/console/events", label: "Events / Calendar", icon: "📅" } },
   { type: "link", link: { href: "/console/sermons", label: "Sermons", icon: "🎙️" } },
-  { type: "link", link: { href: "/console/bulletins", label: "Bulletin", icon: "📰" } },
+  { type: "link", link: { href: "/console/bulletins", label: "Resources", icon: "📰" } },
   { type: "link", link: { href: "/console/gallery", label: "Gallery", icon: "🖼️" } },
   { type: "link", link: { href: "/console/mediafiles", label: "Media Files", icon: "🎞️" } },
   { type: "link", link: { href: "/console/quotes", label: "Quotes / Bible Verse", icon: "💬" } },
@@ -72,7 +72,7 @@ const items: NavItem[] = [
     icon: "🌐",
     links: [
       { href: "/console/pages", label: "Pages", icon: "📄" },
-      { href: "/console/posts", label: "Posts", icon: "✏️" },
+      { href: "/console/posts", label: "Devotions", icon: "✏️" },
       { href: "/console/faq", label: "FAQ", icon: "❓" },
       { href: "/console/widgets", label: "Code Snippets", icon: "🧱" },
       { href: "/console/pages/categories", label: "Page Categories", icon: "📁" },

@@ -5,19 +5,17 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import clsx from "clsx";
 
-// Same link set (and order) as the legacy theme's _nav_bar; Donation is
-// covered by the standalone Give button.
+// Slimmed-down nav (2026-07-09, per admin request): About lives on the
+// homepage as the About Us carousel; FAQ and Gallery were removed from the
+// public site; Contact is the single entry point for prayers and help
+// (tabbed forms — the community Prayer Board stays reachable via the footer
+// and the Contact page's prayer tab); sermons + bulletins merged into the
+// tabbed /resources page (sermon detail pages keep /sermons/:id).
 const links = [
   { href: "/", label: "Home" },
-  { href: "/pages", label: "About" },
-  { href: "/blog", label: "Blog" },
+  { href: "/devotions", label: "Devotions" },
   { href: "/events", label: "Events" },
-  { href: "/gallery", label: "Gallery" },
-  { href: "/sermons", label: "Sermons" },
-  { href: "/bulletins", label: "Bulletins" },
-  { href: "/faq", label: "FAQ" },
-  { href: "/prayer-board", label: "Prayer" },
-  { href: "/help-requests", label: "Help" },
+  { href: "/resources", label: "Resources" },
   { href: "/contact", label: "Contact" },
 ];
 
@@ -124,7 +122,7 @@ export default function NavBar({ churchName, churchLogo, tagline, member }: NavB
                   type="button"
                   onClick={() => setProfileOpen((v) => !v)}
                   className="flex items-center gap-2 focus:outline-none group"
-                  aria-expanded={profileOpen}
+                  aria-expanded={profileOpen ? "true" : "false"}
                   aria-haspopup="menu"
                 >
                   {member.avatar ? (
@@ -224,7 +222,7 @@ export default function NavBar({ churchName, churchLogo, tagline, member }: NavB
               type="button"
               className="xl:hidden p-2 text-primary"
               aria-label="Toggle menu"
-              aria-expanded={open}
+              aria-expanded={open ? "true" : "false"}
               onClick={() => setOpen((v) => !v)}
             >
               <svg

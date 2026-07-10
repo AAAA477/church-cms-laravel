@@ -8,7 +8,7 @@ import Pagination from "@/components/admin/Pagination";
 import { adminFetch } from "@/lib/api";
 import type { AdminPost } from "@/lib/api-types";
 
-export const metadata: Metadata = { title: "Posts" };
+export const metadata: Metadata = { title: "Devotions" };
 
 type Props = { searchParams: Promise<{ search?: string; page?: string; status?: string }> };
 
@@ -43,12 +43,12 @@ export default async function PostsPage({ searchParams }: Props) {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-        <h1 className="font-display text-4xl text-ink">Posts</h1>
+        <h1 className="font-display text-4xl text-ink">Devotions</h1>
         <div className="flex gap-3">
           <Link href="/console/posts/categories" className="text-sm text-primary hover:text-primary-dark self-center">
             Manage Categories
           </Link>
-          <Button href="/console/posts/new">Add Post</Button>
+          <Button href="/console/posts/new">Add Devotion</Button>
         </div>
       </div>
 

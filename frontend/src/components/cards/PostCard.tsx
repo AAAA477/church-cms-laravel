@@ -12,7 +12,7 @@ function excerpt(html: string, max = 140) {
 export default function PostCard({ post }: { post: Post }) {
   return (
     <Card>
-      <Link href={`/blog/${post.id}`} className="block">
+      <Link href={`/devotions/${post.id}`} className="block">
         {post.cover && (
           <div className="relative h-48">
             <Image

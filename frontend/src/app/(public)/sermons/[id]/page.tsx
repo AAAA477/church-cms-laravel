@@ -39,7 +39,7 @@ export default async function SermonDetailPage({ params }: Props) {
             <Breadcrumbs
               crumbs={[
                 { label: "Home", href: "/" },
-                { label: "Sermons", href: "/sermons" },
+                { label: "Resources", href: "/resources" },
                 { label: sermon.title },
               ]}
             />
@@ -104,7 +104,7 @@ export default async function SermonDetailPage({ params }: Props) {
           )}
 
           <div className="mt-16 text-center">
-            <Button href="/sermons" variant="outline">
+            <Button href="/resources" variant="outline">
               All Sermons
             </Button>
           </div>

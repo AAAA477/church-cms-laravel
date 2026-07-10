@@ -5,7 +5,7 @@ import PostCreateForm from "@/components/admin/PostCreateForm";
 import { adminFetch } from "@/lib/api";
 import type { AdminPostCategory } from "@/lib/api-types";
 
-export const metadata: Metadata = { title: "Add Post" };
+export const metadata: Metadata = { title: "Add Devotion" };
 
 export default async function NewPostPage() {
   const categories = await adminFetch<AdminPostCategory[]>("/post-categories");
@@ -16,7 +16,7 @@ export default async function NewPostPage() {
         ← Posts
       </Link>
 
-      <h1 className="font-display text-4xl text-ink mt-4 mb-8">Add Post</h1>
+      <h1 className="font-display text-4xl text-ink mt-4 mb-8">Add Devotion</h1>
 
       <Card className="p-8" hover={false}>
         <PostCreateForm categories={categories} />

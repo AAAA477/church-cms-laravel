@@ -20,23 +20,20 @@ async function ids(path: string, key = "id"): Promise<number[]> {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [sermons, events, posts, galleries] = await Promise.all([
+  const [sermons, events, posts] = await Promise.all([
     ids("sermons", "sermon_id"),
     ids("events"),
     ids("posts"),
-    ids("galleries"),
   ]);
 
+  // FAQ and Gallery were removed from the public site (2026-07-09); the
+  // help-requests page is unlinked (folded into Contact) so it's omitted.
   const statics = [
     "",
-    "/sermons",
+    "/resources",
     "/events",
-    "/blog",
-    "/gallery",
-    "/bulletins",
+    "/devotions",
     "/prayer-board",
-    "/help-requests",
-    "/faq",
     "/contact",
   ].map((path) => ({
     url: `${SITE}${path}`,
@@ -47,7 +44,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...statics,
     ...sermons.map((id) => ({ url: `${SITE}/sermons/${id}` })),
     ...events.map((id) => ({ url: `${SITE}/events/${id}` })),
-    ...posts.map((id) => ({ url: `${SITE}/blog/${id}` })),
-    ...galleries.map((id) => ({ url: `${SITE}/gallery/${id}` })),
+    ...posts.map((id) => ({ url: `${SITE}/devotions/${id}` })),
   ];
 }

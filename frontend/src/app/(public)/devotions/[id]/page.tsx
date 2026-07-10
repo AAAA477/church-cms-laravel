@@ -62,7 +62,7 @@ export default async function PostDetailPage({ params }: Props) {
           <Breadcrumbs
             crumbs={[
               { label: "Home", href: "/" },
-              { label: "Blog", href: "/blog" },
+              { label: "Devotions", href: "/devotions" },
               { label: data.title },
             ]}
           />
@@ -148,7 +148,7 @@ export default async function PostDetailPage({ params }: Props) {
               <PostCommentForm postId={data.id} />
             ) : (
               <p className="text-sm text-ink-soft">
-                <Link href={`/member/login?next=/blog/${data.id}`} className="text-primary hover:text-primary-dark font-medium">
+                <Link href={`/member/login?next=/devotions/${data.id}`} className="text-primary hover:text-primary-dark font-medium">
                   Sign in
                 </Link>{" "}
                 to leave a comment.
@@ -158,8 +158,8 @@ export default async function PostDetailPage({ params }: Props) {
         </section>
 
         <div className="mt-16 text-center">
-          <Button href="/blog" variant="outline">
-            All Posts
+          <Button href="/devotions" variant="outline">
+            All Devotions
           </Button>
         </div>
       </div>

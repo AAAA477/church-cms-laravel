@@ -19,14 +19,17 @@ class PostsController extends Controller
      */
     public function index(Request $request, $church_id)
     {
+        // Filter on posts_count in PHP: MySQL lets HAVING reference the
+        // withCount alias, Postgres does not (SQLSTATE 42703).
         $categories = PostCategory::withCount(['posts' => function ($q) use ($church_id) {
                 $q->where('is_posted', 1)->where('status', 'posted')->where('church_id', $church_id);
             }])
             ->where('status', 1)
             ->where('church_id', $church_id)
-            ->having('posts_count', '>', 0)
             ->orderBy('name')
-            ->get(['id', 'name']);
+            ->get(['id', 'name'])
+            ->filter(fn ($c) => $c->posts_count > 0)
+            ->values();
 
         $posts = Post::with(['category', 'tags'])
             ->where('is_posted', 1)

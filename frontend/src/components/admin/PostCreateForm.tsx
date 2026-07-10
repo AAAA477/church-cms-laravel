@@ -13,13 +13,20 @@ export default function PostCreateForm({ categories }: { categories: AdminPostCa
   const router = useRouter();
   const [status, setStatus] = useState<"idle" | "submitting" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
+  const [postLater, setPostLater] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setStatus("submitting");
     setError(null);
 
-    const data = Object.fromEntries(new FormData(e.currentTarget));
+    const data: Record<string, FormDataEntryValue | boolean> = Object.fromEntries(
+      new FormData(e.currentTarget),
+    );
+    // The API expects a boolean post_later; the scheduler command
+    // (gego:publishscheduledposts) publishes it when posted_at arrives.
+    data.post_later = postLater;
+    if (!postLater) delete data.posted_at;
 
     try {
       const res = await fetch("/bff/admin/posts", {
@@ -72,6 +79,35 @@ export default function PostCreateForm({ categories }: { categories: AdminPostCa
         <textarea id="description" name="description" rows={5} required className={inputClasses} />
       </div>
 
+      <div>
+        <label className="flex items-center gap-2 text-sm text-ink">
+          <input
+            type="checkbox"
+            checked={postLater}
+            onChange={(e) => setPostLater(e.target.checked)}
+            className="accent-[var(--color-primary)]"
+          />
+          Schedule for later
+        </label>
+        {postLater && (
+          <div className="mt-3">
+            <label htmlFor="posted_at" className={labelClasses}>
+              Publish at
+            </label>
+            <input
+              id="posted_at"
+              name="posted_at"
+              type="datetime-local"
+              required
+              className={inputClasses}
+            />
+            <p className="mt-1.5 text-xs text-ink-soft">
+              The devotion stays hidden until this time, then publishes automatically.
+            </p>
+          </div>
+        )}
+      </div>
+
       {error && (
         <p className="text-sm text-red-700" role="alert">
           {error}
@@ -83,7 +119,7 @@ export default function PostCreateForm({ categories }: { categories: AdminPostCa
         disabled={status === "submitting"}
         className="inline-flex items-center justify-center font-medium uppercase tracking-wider text-sm rounded-sm px-8 py-3 border-2 bg-primary border-primary text-white hover:bg-primary-dark hover:border-primary-dark disabled:opacity-60"
       >
-        {status === "submitting" ? "Publishing…" : "Publish Post"}
+        {status === "submitting" ? "Publishing…" : postLater ? "Schedule" : "Publish Now"}
       </button>
     </form>
   );
