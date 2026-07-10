@@ -25,7 +25,9 @@ export async function guestGet<T>(path: string, revalidate = 300): Promise<T> {
 
   const res = await fetch(url, {
     headers: { Accept: "application/json" },
-    next: { revalidate },
+    // Tagged so console mutations can revalidate all public data at once
+    // (see createAdminProxy) instead of waiting out the revalidate window.
+    next: { revalidate, tags: ["guest"] },
   });
 
   if (!res.ok) {

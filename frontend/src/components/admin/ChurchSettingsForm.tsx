@@ -3,6 +3,15 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { AdminChurchSettings } from "@/lib/api-types";
+import {
+  buildCustomPalette,
+  contrastRatio,
+  CUSTOM_PALETTE_KEY,
+  DEFAULT_PALETTE_KEY,
+  isValidCustomColors,
+  PALETTES,
+  type CustomColors,
+} from "@/lib/palettes";
 
 const inputClasses =
   "w-full rounded-sm border border-warm-deep bg-white px-4 py-2.5 text-sm text-ink placeholder:text-ink-soft/60 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
@@ -12,11 +21,24 @@ const labelClasses = "block text-xs font-medium uppercase tracking-wide text-ink
 // Key areas mirroring the legacy admin's settings sidebar (General,
 // Maintenance, SEO, HTML Code, Open Graph Tags, Social Media, Contact,
 // Location) plus About (legacy Church Details) and the new Privacy area.
+// A homepage About-carousel slide as edited in the form. `image` is the
+// stored relative path, `image_url` a displayable URL (added by the API),
+// `file` a newly chosen replacement not yet uploaded.
+type SlideDraft = {
+  image: string;
+  image_url: string;
+  title: string;
+  text: string;
+  file?: File;
+  preview?: string;
+};
+
 const AREAS = [
   "General",
   "Contact",
   "Location",
   "About",
+  "Appearance",
   "Social Media",
   "SEO",
   "HTML Code",
@@ -54,6 +76,53 @@ export default function ChurchSettingsForm({ settings }: { settings: AdminChurch
     }
   });
 
+  // Website theme palette (Appearance tab), submitted via a hidden input.
+  const [palette, setPalette] = useState(settings.theme_palette || DEFAULT_PALETTE_KEY);
+
+  // Custom palette colors; defaults seed from the Warm Earth preset.
+  const [customColors, setCustomColors] = useState<CustomColors>(() => {
+    try {
+      const parsed = JSON.parse(settings.theme_custom_colors ?? "null");
+      if (isValidCustomColors(parsed)) return parsed;
+    } catch {
+      // fall through to defaults
+    }
+    const d = PALETTES[0].colors;
+    return { primary: d.primary, accent: d.accent, background: d.cream, text: d.ink };
+  });
+
+  // Homepage About carousel slides. Same unnamed-inputs pattern as
+  // extraLinks: serialized to the about_carousel JSON on submit, with newly
+  // chosen images appended as about_carousel_image_{i} files.
+  const [slides, setSlides] = useState<SlideDraft[]>(() => {
+    try {
+      const parsed = JSON.parse(settings.about_carousel ?? "[]");
+      if (!Array.isArray(parsed)) return [];
+      return parsed.map((s) => ({
+        image: typeof s?.image === "string" ? s.image : "",
+        image_url: typeof s?.image_url === "string" ? s.image_url : "",
+        title: typeof s?.title === "string" ? s.title : "",
+        text: typeof s?.text === "string" ? s.text : "",
+      }));
+    } catch {
+      return [];
+    }
+  });
+
+  function updateSlide(i: number, patch: Partial<SlideDraft>) {
+    setSlides((prev) => prev.map((s, j) => (j === i ? { ...s, ...patch } : s)));
+  }
+
+  function moveSlide(i: number, dir: -1 | 1) {
+    setSlides((prev) => {
+      const next = [...prev];
+      const j = i + dir;
+      if (j < 0 || j >= next.length) return prev;
+      [next[i], next[j]] = [next[j], next[i]];
+      return next;
+    });
+  }
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setStatus("submitting");
@@ -79,6 +148,25 @@ export default function ChurchSettingsForm({ settings }: { settings: AdminChurch
       JSON.stringify(extraLinks.filter((l) => l.label.trim() && l.url.trim())),
     );
 
+    // Carousel: slides with a freshly chosen image reference their file by
+    // index ("upload"); the backend swaps in the uploaded path.
+    let uploadIndex = 0;
+    const slidePayload = slides.map((s) => {
+      const entry: { image: string; title: string; text: string; upload?: number } = {
+        image: s.image,
+        title: s.title,
+        text: s.text,
+      };
+      if (s.file) {
+        entry.upload = uploadIndex;
+        formData.set(`about_carousel_image_${uploadIndex}`, s.file);
+        uploadIndex += 1;
+      }
+      return entry;
+    });
+    formData.set("about_carousel", JSON.stringify(slidePayload));
+    formData.set("theme_custom_colors", JSON.stringify(customColors));
+
     try {
       const res = await fetch("/bff/admin/church-settings", { method: "POST", body: formData });
       if (!res.ok) {
@@ -103,7 +191,7 @@ export default function ChurchSettingsForm({ settings }: { settings: AdminChurch
             key={a}
             type="button"
             role="tab"
-            aria-selected={area === a}
+            aria-selected={area === a ? "true" : "false"}
             onClick={() => setArea(a)}
             className={
               area === a
@@ -218,6 +306,210 @@ export default function ChurchSettingsForm({ settings }: { settings: AdminChurch
             Quote / Motto
           </label>
           <input id="quotes" name="quotes" defaultValue={settings.quotes ?? ""} className={inputClasses} />
+        </div>
+
+        <div className="sm:col-span-2 pt-2">
+          <p className={labelClasses}>Homepage Carousel Slides</p>
+          <p className="text-xs text-ink-soft mb-3">
+            Shown as the About Us carousel on the homepage. Each slide has an image, a heading and a short text.
+          </p>
+          <div className="space-y-4">
+            {slides.map((slide, i) => (
+              <div key={i} className="rounded-sm border border-warm-deep p-4">
+                <div className="flex flex-wrap gap-4">
+                  <div className="flex-none w-36">
+                    {slide.preview || slide.image_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={slide.preview || slide.image_url}
+                        alt={slide.title || `Slide ${i + 1}`}
+                        className="w-36 h-24 object-cover rounded-sm border border-warm-deep"
+                      />
+                    ) : (
+                      <div className="w-36 h-24 rounded-sm border border-dashed border-warm-deep flex items-center justify-center text-xs text-ink-soft">
+                        No image
+                      </div>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      aria-label={`Slide ${i + 1} image`}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          updateSlide(i, { file, preview: URL.createObjectURL(file) });
+                        }
+                      }}
+                      className="mt-2 w-36 text-xs text-ink-soft"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-56 space-y-2">
+                    <input
+                      placeholder="Slide heading"
+                      value={slide.title}
+                      onChange={(e) => updateSlide(i, { title: e.target.value })}
+                      className={inputClasses}
+                    />
+                    <textarea
+                      placeholder="Slide text"
+                      rows={3}
+                      value={slide.text}
+                      onChange={(e) => updateSlide(i, { text: e.target.value })}
+                      className={inputClasses}
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-2 mt-3">
+                  <button
+                    type="button"
+                    disabled={i === 0}
+                    onClick={() => moveSlide(i, -1)}
+                    className="text-xs font-medium uppercase tracking-wider px-3 py-1.5 rounded-sm border border-warm-deep text-ink-soft hover:bg-warm disabled:opacity-40"
+                  >
+                    ↑ Up
+                  </button>
+                  <button
+                    type="button"
+                    disabled={i === slides.length - 1}
+                    onClick={() => moveSlide(i, 1)}
+                    className="text-xs font-medium uppercase tracking-wider px-3 py-1.5 rounded-sm border border-warm-deep text-ink-soft hover:bg-warm disabled:opacity-40"
+                  >
+                    ↓ Down
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSlides((prev) => prev.filter((_, j) => j !== i))}
+                    className="ml-auto text-xs font-medium uppercase tracking-wider px-3 py-1.5 rounded-sm border border-red-600 text-red-700 hover:bg-red-50"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => setSlides((prev) => [...prev, { image: "", image_url: "", title: "", text: "" }])}
+            className="mt-3 text-xs font-medium uppercase tracking-wider px-3 py-2 rounded-sm border border-primary text-primary hover:bg-warm"
+          >
+            + Add Slide
+          </button>
+        </div>
+      </Section>
+
+      <Section title="Appearance" hidden={area !== "Appearance"}>
+        <div className="sm:col-span-2">
+          <p className={labelClasses}>Website Theme Colors</p>
+          <p className="text-xs text-ink-soft mb-3">
+            Applies to the public website, member portal and this console.
+          </p>
+          <input type="hidden" name="theme_palette" value={palette} />
+          <div className="grid gap-3 sm:grid-cols-2">
+            {PALETTES.map((p) => (
+              <button
+                key={p.key}
+                type="button"
+                aria-pressed={palette === p.key ? "true" : "false"}
+                onClick={() => setPalette(p.key)}
+                className={
+                  "flex items-center gap-3 rounded-sm border p-3 text-left transition-colors " +
+                  (palette === p.key
+                    ? "border-primary ring-1 ring-primary bg-warm"
+                    : "border-warm-deep hover:border-primary/50")
+                }
+              >
+                <span className="flex -space-x-1.5 flex-none">
+                  {[p.colors.primary, p.colors.accent, p.colors.warmDeep, p.colors.cream, p.colors.ink].map(
+                    (c) => (
+                      <span
+                        key={c}
+                        className="w-6 h-6 rounded-full border border-black/10"
+                        style={{ backgroundColor: c }}
+                      />
+                    ),
+                  )}
+                </span>
+                <span className="text-sm font-medium text-ink">{p.name}</span>
+              </button>
+            ))}
+
+            <button
+              type="button"
+              aria-pressed={palette === CUSTOM_PALETTE_KEY ? "true" : "false"}
+              onClick={() => setPalette(CUSTOM_PALETTE_KEY)}
+              className={
+                "flex items-center gap-3 rounded-sm border p-3 text-left transition-colors " +
+                (palette === CUSTOM_PALETTE_KEY
+                  ? "border-primary ring-1 ring-primary bg-warm"
+                  : "border-warm-deep hover:border-primary/50")
+              }
+            >
+              <span
+                className="w-6 h-6 rounded-full border border-black/10 flex-none"
+                style={{
+                  background:
+                    "conic-gradient(#e74c3c, #f39c12, #2ecc71, #3498db, #9b59b6, #e74c3c)",
+                }}
+              />
+              <span className="text-sm font-medium text-ink">Custom…</span>
+            </button>
+          </div>
+
+          {palette === CUSTOM_PALETTE_KEY && (
+            <div className="mt-4 rounded-sm border border-warm-deep p-4">
+              <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
+                {(
+                  [
+                    ["primary", "Primary"],
+                    ["accent", "Accent"],
+                    ["background", "Background"],
+                    ["text", "Text"],
+                  ] as const
+                ).map(([key, label]) => (
+                  <div key={key}>
+                    <label htmlFor={`custom_${key}`} className={labelClasses}>
+                      {label}
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        id={`custom_${key}`}
+                        type="color"
+                        value={customColors[key]}
+                        onChange={(e) => setCustomColors((c) => ({ ...c, [key]: e.target.value }))}
+                        className="h-9 w-12 cursor-pointer rounded-sm border border-warm-deep bg-white p-0.5"
+                      />
+                      <span className="text-xs text-ink-soft font-mono">{customColors[key]}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Derived shades preview — same relationships as the presets */}
+              <div className="mt-4">
+                <p className={labelClasses}>Preview</p>
+                <div className="flex -space-x-1.5">
+                  {Object.values(buildCustomPalette(customColors)).map((c, i) => (
+                    <span
+                      key={i}
+                      className="w-6 h-6 rounded-full border border-black/10"
+                      style={{ backgroundColor: c }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {contrastRatio(customColors.primary, "#ffffff") < 4.5 && (
+                <p className="mt-3 text-xs text-red-700">
+                  ⚠ The primary color is light — white button text may be hard to read. Pick a darker shade.
+                </p>
+              )}
+              {contrastRatio(customColors.text, customColors.background) < 4.5 && (
+                <p className="mt-3 text-xs text-red-700">
+                  ⚠ Low contrast between text and background colors — the site may be hard to read.
+                </p>
+              )}
+            </div>
+          )}
         </div>
       </Section>
 

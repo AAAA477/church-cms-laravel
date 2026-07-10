@@ -42,6 +42,21 @@ class ChurchSettingsController extends Controller
             }
         }
 
+        // Carousel slides store relative image paths; the form also needs a
+        // displayable URL, so each slide gains an image_url alongside.
+        if (! empty($details['about_carousel']) && $details['about_carousel'] !== '-') {
+            $slides = json_decode($details['about_carousel'], true);
+            if (is_array($slides)) {
+                foreach ($slides as &$slide) {
+                    $image = $slide['image'] ?? '';
+                    $slide['image_url'] = $image === '' || str_starts_with($image, 'http')
+                        ? $image
+                        : $this->getFilePath($image);
+                }
+                $details['about_carousel'] = json_encode(array_values($slides));
+            }
+        }
+
         return response()->json($details);
     }
 
@@ -50,12 +65,21 @@ class ChurchSettingsController extends Controller
         $churchId = $request->user()->church_id;
 
         foreach ($request->except(self::IMAGE_KEYS) as $key => $value) {
-            if (is_string($key)) {
-                ChurchDetail::updateOrCreate(
-                    ['church_id' => $churchId, 'meta_key' => $key],
-                    ['meta_value' => $value === null ? '-' : (string) $value]
-                );
+            // Slide image files (about_carousel_image_{i}) are consumed by
+            // saveAboutCarousel, and about_carousel itself is canonicalized
+            // there — keep both out of the generic key-value loop.
+            if (! is_string($key) || str_starts_with($key, 'about_carousel')) {
+                continue;
             }
+
+            ChurchDetail::updateOrCreate(
+                ['church_id' => $churchId, 'meta_key' => $key],
+                ['meta_value' => $value === null ? '-' : (string) $value]
+            );
+        }
+
+        if ($request->has('about_carousel')) {
+            $this->saveAboutCarousel($request, $churchId);
         }
 
         foreach (self::IMAGE_KEYS as $key) {
@@ -77,5 +101,53 @@ class ChurchSettingsController extends Controller
         );
 
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * Homepage About carousel: the form sends an about_carousel JSON array
+     * of {image, title, text, upload?} plus files named
+     * about_carousel_image_{i}. A slide with "upload": i takes the uploaded
+     * file i as its image; otherwise it keeps its stored relative path.
+     */
+    private function saveAboutCarousel(Request $request, int $churchId): void
+    {
+        $slides = json_decode((string) $request->input('about_carousel'), true);
+        $slides = is_array($slides) ? $slides : [];
+
+        $clean = [];
+        foreach ($slides as $slide) {
+            if (! is_array($slide)) {
+                continue;
+            }
+
+            $image = $slide['image'] ?? '';
+            if (isset($slide['upload']) && $request->hasFile('about_carousel_image_' . $slide['upload'])) {
+                $image = $this->uploadFile(
+                    "{$churchId}/settings",
+                    $request->file('about_carousel_image_' . $slide['upload'])
+                );
+            }
+
+            // Never persist full URLs — getFilePath re-expands relative
+            // paths per-environment (the docker deploy relies on this).
+            if (str_starts_with($image, 'http')) {
+                $image = parse_url($image, PHP_URL_PATH) ?? '';
+                $image = preg_replace('#^/storage/#', '', $image) ?? '';
+            }
+
+            $title = trim((string) ($slide['title'] ?? ''));
+            $text  = trim((string) ($slide['text'] ?? ''));
+
+            if ($image === '' && $title === '' && $text === '') {
+                continue;
+            }
+
+            $clean[] = ['image' => $image, 'title' => $title, 'text' => $text];
+        }
+
+        ChurchDetail::updateOrCreate(
+            ['church_id' => $churchId, 'meta_key' => 'about_carousel'],
+            ['meta_value' => $clean === [] ? '-' : json_encode($clean)]
+        );
     }
 }

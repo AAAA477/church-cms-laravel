@@ -21,6 +21,15 @@ export interface ChurchDetails {
   twitter: string | null;
   instagram: string | null;
   extra_links: { label: string; url: string }[];
+  theme_palette: string;
+  theme_custom_colors: { primary: string; accent: string; background: string; text: string } | null;
+  about_carousel: AboutSlide[];
+}
+
+export interface AboutSlide {
+  image: string;
+  title: string;
+  text: string;
 }
 
 export interface SocialMedia {

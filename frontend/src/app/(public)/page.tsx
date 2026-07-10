@@ -1,4 +1,5 @@
 import Image from "next/image";
+import AboutCarousel from "@/components/site/AboutCarousel";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import { guestGet } from "@/lib/api";
@@ -32,7 +33,7 @@ export default async function HomePage() {
           )}
           <div className="animate-fade-in-up delay-300 mt-10 flex flex-wrap justify-center gap-4">
             <Button href="/events">Join Us</Button>
-            <Button href="/sermons" variant="outline">
+            <Button href="/resources" variant="outline">
               Watch Sermons
             </Button>
           </div>
@@ -46,6 +47,28 @@ export default async function HomePage() {
             <p className="font-display text-2xl sm:text-3xl italic leading-relaxed">
               “{church.quotes}”
             </p>
+          </div>
+        </section>
+      )}
+
+      {/* About Us — admin-managed carousel (Settings > About). Replaces the
+          old About pages entry point; falls back to long_summary text. */}
+      {/* Optional chaining: a cached pre-upgrade response may lack the field. */}
+      {((church.about_carousel?.length ?? 0) > 0 || church.long_summary) && (
+        <section id="about" className="py-24 bg-warm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="ornament font-display text-4xl text-ink">
+                About Us
+              </h2>
+            </div>
+            {(church.about_carousel?.length ?? 0) > 0 ? (
+              <AboutCarousel slides={church.about_carousel} />
+            ) : (
+              <p className="max-w-3xl mx-auto text-center text-ink-soft leading-relaxed whitespace-pre-line">
+                {church.long_summary}
+              </p>
+            )}
           </div>
         </section>
       )}
@@ -145,7 +168,7 @@ export default async function HomePage() {
           )}
 
           <div className="text-center mt-12">
-            <Button href="/sermons" variant="outline">
+            <Button href="/resources" variant="outline">
               All Sermons
             </Button>
           </div>

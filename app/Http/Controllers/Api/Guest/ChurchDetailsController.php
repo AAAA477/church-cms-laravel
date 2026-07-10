@@ -47,6 +47,12 @@ class ChurchDetailsController extends Controller
         $churchdetail['instagram']       = $plucked['instagram'] === '-' ? '' : $plucked['instagram'];
         $churchdetail['extra_links']     = $this->decodeExtraLinks($plucked['extra_social_links'] ?? null);
 
+        // Website appearance (admin console Settings > Appearance).
+        $palette = $plucked['theme_palette'] ?? '-';
+        $churchdetail['theme_palette']   = $palette === '-' ? '' : $palette;
+        $churchdetail['theme_custom_colors'] = $this->decodeCustomColors($plucked['theme_custom_colors'] ?? null);
+        $churchdetail['about_carousel']  = $this->decodeAboutCarousel($plucked['about_carousel'] ?? null);
+
         /* $churchdetail['seo_basic']['sitetitle']                = \config::get('settings.sitetitle');
         $churchdetail['seo_basic']['site_description']         = \config::get('settings.site_description');
         $churchdetail['seo_basic']['site_keyword']             = \config::get('settings.site_keyword');
@@ -86,6 +92,62 @@ class ChurchDetailsController extends Controller
         $churchdetail['extra_links'] = $this->decodeExtraLinks($plucked['extra_social_links'] ?? null);
 
         return $churchdetail;
+    }
+
+    /**
+     * Custom theme colors ({primary, accent, background, text} hex values)
+     * used when theme_palette is "custom". Null unless all four are valid.
+     */
+    private function decodeCustomColors($raw): ?array
+    {
+        if (! $raw || $raw === '-') {
+            return null;
+        }
+
+        $colors = json_decode($raw, true);
+
+        if (! is_array($colors)) {
+            return null;
+        }
+
+        foreach (['primary', 'accent', 'background', 'text'] as $key) {
+            if (empty($colors[$key]) || ! preg_match('/^#[0-9a-fA-F]{6}$/', $colors[$key])) {
+                return null;
+            }
+        }
+
+        return [
+            'primary'    => $colors['primary'],
+            'accent'     => $colors['accent'],
+            'background' => $colors['background'],
+            'text'       => $colors['text'],
+        ];
+    }
+
+    /**
+     * Homepage About Us carousel, stored as a JSON array of
+     * {image, title, text} in the about_carousel setting. Image paths are
+     * stored relative and expanded to full URLs here.
+     */
+    private function decodeAboutCarousel($raw): array
+    {
+        if (! $raw || $raw === '-') {
+            return [];
+        }
+
+        $slides = json_decode($raw, true);
+
+        if (! is_array($slides)) {
+            return [];
+        }
+
+        $slides = array_filter($slides, fn ($s) => is_array($s) && (! empty($s['title']) || ! empty($s['text']) || ! empty($s['image'])));
+
+        return array_values(array_map(fn ($s) => [
+            'image' => ! empty($s['image']) ? (str_starts_with($s['image'], 'http') ? $s['image'] : $this->getFilePath($s['image'])) : '',
+            'title' => $s['title'] ?? '',
+            'text'  => $s['text'] ?? '',
+        ], $slides));
     }
 
     /**

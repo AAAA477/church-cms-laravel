@@ -1,6 +1,7 @@
 import "server-only";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { revalidateTag } from "next/cache";
 
 const API = process.env.API_URL ?? "http://localhost:8000";
 
@@ -40,6 +41,16 @@ export function createAdminProxy(resource: string) {
     const suffix = path && path.length > 0 ? `/${path.join("/")}` : "";
     const res = await fetch(`${API}/api/admin/${resource}${suffix}${search}`, init);
     const data = await res.json().catch(() => ({}));
+
+    // Any successful console mutation invalidates the cached public-site
+    // data (guestGet fetches), so changes — theme colors, carousel slides,
+    // posts — show up immediately instead of after the revalidate window.
+    // { expire: 0 } = hard expiry (read-your-own-writes): the router.refresh
+    // after a save must see fresh data, not stale-while-revalidate.
+    if (res.ok && request.method !== "GET") {
+      revalidateTag("guest", { expire: 0 });
+    }
+
     return NextResponse.json(data, { status: res.status });
   }
 
