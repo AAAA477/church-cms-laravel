@@ -1,5 +1,9 @@
 # Production topology
 
+> **Deploying with Docker?** See [DOCKER.md](DOCKER.md) — the compose stack
+> implements this same topology with containers and is the recommended path.
+> This file documents the topology itself and the bare-process variant.
+
 One public origin, split by path between Laravel and the Next.js frontend.
 
 ```

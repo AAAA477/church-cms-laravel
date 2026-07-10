@@ -40,6 +40,7 @@ use Schema;
 use Config;
 use App\Models\ChurchDetail;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\URL;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -49,6 +50,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        // Behind the reverse proxy (and for server-to-server calls from the
+        // Next.js container) the request Host is an internal service name,
+        // so absolute URLs — media, redirects, mail links — must be built
+        // from APP_URL, never from the incoming Host header.
+        if ($rootUrl = config('app.url')) {
+            URL::forceRootUrl($rootUrl);
+            if (str_starts_with($rootUrl, 'https://')) {
+                URL::forceScheme('https');
+            }
+        }
+
         Userprofile::observe(UserprofileObserver::class);
         MediaFile::observe(MediaFileObserver::class);
         Bulletin::observe(BulletinObserver::class);

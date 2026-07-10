@@ -1,0 +1,14 @@
+node_modules
+.next
+.env
+.env.*
+!.env.example
+
+# Playwright test scripts + screenshots from dev sessions
+e2e-*.mjs
+*.png
+
+Dockerfile
+.dockerignore
+netlify.toml
+ecosystem.config.js

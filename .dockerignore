@@ -1,0 +1,32 @@
+# Context for the Laravel backend image (root Dockerfile).
+# The frontend has its own Dockerfile + .dockerignore under frontend/.
+
+.git
+.github
+.claude
+frontend
+node_modules
+vendor
+tests
+deploy/dump
+composer.phar
+
+# Never bake local secrets/config into the image — env comes from compose.
+.env
+.env.*
+!.env.example
+
+# Dev caches contain absolute paths from this machine; the image rebuilds them.
+bootstrap/cache/*.php
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/logs/*
+storage/debugbar
+
+# Symlink created at container start by `artisan storage:link`.
+public/storage
+
+# Windows/dev leftovers
+*.log
+.phpunit.result.cache

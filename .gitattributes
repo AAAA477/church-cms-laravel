@@ -3,3 +3,6 @@
 *.scss linguist-vendored
 *.js linguist-vendored
 CHANGELOG.md export-ignore
+# Shell scripts must stay LF — deploy/docker/entrypoint.sh runs inside the
+# Linux container and a CRLF shebang breaks it.
+*.sh text eol=lf
