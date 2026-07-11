@@ -32,6 +32,8 @@ export type NavMember = {
   email: string | null;
   avatar: string | null;
   isGuest: boolean;
+  /** Holds an admin console session — unlocks the Admin Console shortcut. */
+  isAdmin?: boolean;
 };
 
 type NavBarProps = {
@@ -168,7 +170,22 @@ export default function NavBar({ churchName, churchLogo, tagline, member }: NavB
                           Guest
                         </span>
                       )}
+                      {member.isAdmin && (
+                        <span className="inline-block mt-1 text-xs px-2 py-0.5 rounded-full bg-primary text-white font-medium">
+                          Admin
+                        </span>
+                      )}
                     </div>
+                    {member.isAdmin && (
+                      <Link
+                        href="/console"
+                        role="menuitem"
+                        onClick={() => setProfileOpen(false)}
+                        className="block px-4 py-2 text-sm font-medium text-primary hover:bg-warm transition-colors border-b border-warm-deep"
+                      >
+                        Admin Console →
+                      </Link>
+                    )}
                     {!member.isGuest &&
                       memberLinks.map((link) => (
                         <Link
@@ -279,7 +296,21 @@ export default function NavBar({ churchName, churchLogo, tagline, member }: NavB
                         Guest
                       </span>
                     )}
+                    {member.isAdmin && (
+                      <span className="inline-block mt-1 text-xs px-2 py-0.5 rounded-full bg-primary text-white font-medium">
+                        Admin
+                      </span>
+                    )}
                   </div>
+                  {member.isAdmin && (
+                    <Link
+                      href="/console"
+                      onClick={() => setOpen(false)}
+                      className="block px-4 py-2 text-sm font-medium rounded transition-colors text-primary hover:bg-warm"
+                    >
+                      Admin Console →
+                    </Link>
+                  )}
                   {!member.isGuest &&
                     memberLinks.map((link) => (
                       <Link

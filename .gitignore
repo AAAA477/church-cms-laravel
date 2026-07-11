@@ -75,3 +75,4 @@ deploy/docker.env
 deploy/db-init/*.sql
 deploy/db-init/*.sql.gz
 deploy/dump/
+deploy/neon.env

@@ -28,8 +28,12 @@ class MemberAuthController extends Controller
             'password' => 'required',
         ]);
 
+        // Members (5), and also church admins (3) / subadmins (4) so staff
+        // can use the public site under one login — the Next.js layer
+        // additionally gives them an admin console session (see
+        // frontend/src/app/bff/auth/login).
         $user = User::where('email', $request->email)
-            ->where('usergroup_id', 5) // member
+            ->whereIn('usergroup_id', [3, 4, 5])
             ->with('userprofile')
             ->first();
 
@@ -57,6 +61,7 @@ class MemberAuthController extends Controller
                 'id'    => $user->id,
                 'name'  => $user->name,
                 'email' => $user->email,
+                'usergroup_id' => $user->usergroup_id,
             ],
         ]);
     }

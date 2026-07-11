@@ -780,7 +780,7 @@ export interface Donation {
 }
 
 export interface MemberEvent {
-  id: number;
+  event_id: number;
   title: string;
   description: string;
   location: string;

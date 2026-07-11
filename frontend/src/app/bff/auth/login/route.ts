@@ -31,6 +31,40 @@ export async function POST(request: Request) {
     maxAge: 60 * 60 * 24 * 30, // 30 days
   });
 
+  // Church admins (3) and subadmins (4) signing in on the public site also
+  // get an admin console session, so the avatar dropdown's "Admin Console"
+  // link works without a second login. Failure here never blocks the
+  // member session.
+  if (data.user?.usergroup_id === 3 || data.user?.usergroup_id === 4) {
+    try {
+      const adminRes = await fetch(`${API}/api/admin/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const adminData = await adminRes.json().catch(() => ({}));
+
+      if (adminRes.ok && adminData.success) {
+        response.cookies.set("admin_token", adminData.token, {
+          httpOnly: true,
+          secure: isProd,
+          sameSite: "lax",
+          path: "/",
+          maxAge: 60 * 60 * 24 * 7, // matches the console login's session length
+        });
+        response.cookies.set("admin_name", adminData.user.name, {
+          httpOnly: false,
+          secure: isProd,
+          sameSite: "lax",
+          path: "/",
+          maxAge: 60 * 60 * 24 * 7,
+        });
+      }
+    } catch {
+      // Console session is a bonus — the member login already succeeded.
+    }
+  }
+
   // Non-httpOnly, display-only — never used for auth.
   response.cookies.set("member_name", data.user.name, {
     httpOnly: false,

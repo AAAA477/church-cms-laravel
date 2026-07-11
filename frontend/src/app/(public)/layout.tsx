@@ -15,21 +15,25 @@ async function getNavMember(): Promise<NavMember | null> {
   if (!cookieStore.get("member_token")?.value) return null;
 
   const cookieName = cookieStore.get("member_name")?.value ?? "Member";
+  // Set only when an admin signed in on the public site (or separately in
+  // the console) — unlocks the dropdown's Admin Console shortcut.
+  const isAdmin = Boolean(cookieStore.get("admin_token")?.value);
 
   try {
     const res = await memberFetch<{ data: MemberProfile[] }>("/member/show");
     const p = res.data[0];
-    if (!p) return { name: cookieName, email: null, avatar: null, isGuest: false };
+    if (!p) return { name: cookieName, email: null, avatar: null, isGuest: false, isAdmin };
     return {
       name: `${p.firstname} ${p.lastname}`.trim() || cookieName,
       email: p.email_id ?? null,
       avatar: p.avatar || null,
       isGuest: p.membership_type === "guest",
+      isAdmin,
     };
   } catch {
     // Expired/invalid token or API hiccup — show the basic signed-in
     // state; guarded member pages do their own 401 handling.
-    return { name: cookieName, email: null, avatar: null, isGuest: false };
+    return { name: cookieName, email: null, avatar: null, isGuest: false, isAdmin };
   }
 }
 

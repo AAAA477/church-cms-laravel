@@ -66,7 +66,7 @@ export default async function MemberDashboard() {
           ) : (
             <div className="space-y-4">
               {events.slice(0, 3).map((event) => (
-                <Card key={event.id} className="p-5">
+                <Card key={event.event_id} className="p-5">
                   <p className="text-xs uppercase tracking-wide text-primary mb-1">
                     {event.start_date}
                   </p>
