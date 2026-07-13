@@ -66,11 +66,23 @@ class GuestAddRequest extends FormRequest
             //
             'church_id'         =>  'required',
             'firstname'         =>  'required|check_firstname|max:15',
+            'lastname'          =>  'nullable|string|max:15',
             'gender'            =>  'required',
             'date_of_birth'     =>  'required|date|check_date_of_birth',
             'mobile_no'         =>  'required|numeric|digits:10|check_unique_mobile',
             'email'             =>  'required|email|check_unique_email',
             'password'          =>  'required|string|min:8|confirmed',
+
+            // Extended registration fields (2026-07-12) — all optional at
+            // the API level so older clients keep working.
+            'profession'        =>  'nullable|string|max:30',
+            'preferred_channel' =>  'nullable|in:email,phone,sms,whatsapp',
+            'address'           =>  'nullable|string|max:255',
+            'city_id'           =>  'nullable|integer|exists:cities,id',
+            'state_id'          =>  'nullable|integer|exists:states,id',
+            'country_id'        =>  'nullable|integer|exists:countries,id',
+            'pincode'           =>  'nullable|string|max:10',
+            'relation'          =>  'nullable|in:head,partner,child,father,mother,sibling,other',
         ];
     }
 

@@ -28,9 +28,11 @@ class SubAdminController extends Controller
     {
         $churchId = $request->user()->church_id;
 
+        // Admins (3) are listed alongside subadmins (4) so accounts promoted
+        // from the Members area stay visible and can be demoted again.
         $query = User::with('userprofile')
             ->where('church_id', $churchId)
-            ->where('usergroup_id', 4);
+            ->whereIn('usergroup_id', [3, 4]);
 
         if ($search = $request->query('search')) {
             $query->where(function ($q) use ($search) {
@@ -52,6 +54,7 @@ class SubAdminController extends Controller
                 'email'     => $u->email,
                 'mobile_no' => $u->mobile_no,
                 'avatar'    => optional($u->userprofile)->AvatarPath,
+                'role'      => $u->usergroup_id === 3 ? 'admin' : 'subadmin',
             ]),
             'meta' => [
                 'current_page' => $subadmins->currentPage(),
@@ -75,6 +78,7 @@ class SubAdminController extends Controller
             'id'              => $user->id,
             'name'            => $user->name,
             'email'           => $user->email,
+            'role'            => $user->usergroup_id === 3 ? 'admin' : 'subadmin',
             'mobile_no'       => $user->mobile_no,
             'firstname'       => optional($p)->firstname,
             'lastname'        => optional($p)->lastname,
@@ -175,7 +179,7 @@ class SubAdminController extends Controller
 
     public function getPermissions(Request $request, $id)
     {
-        $user = $this->findSubAdmin($request, $id);
+        $user = $this->findSubAdmin($request, $id, true);
 
         if (! $user) {
             return response()->json(['message' => 'Sub-admin not found'], 404);
@@ -189,7 +193,7 @@ class SubAdminController extends Controller
 
     public function updatePermissions(Request $request, $id)
     {
-        $user = $this->findSubAdmin($request, $id);
+        $user = $this->findSubAdmin($request, $id, true);
 
         if (! $user) {
             return response()->json(['message' => 'Sub-admin not found'], 404);
@@ -205,11 +209,16 @@ class SubAdminController extends Controller
         return response()->json(['success' => true]);
     }
 
-    private function findSubAdmin(Request $request, $id): ?User
+    /**
+     * Staff lookup. show/update work for admins and subadmins alike (the
+     * page lists both); the Laratrust permission endpoints stay
+     * subadmin-only via $subadminOnly — admins bypass permissions anyway.
+     */
+    private function findSubAdmin(Request $request, $id, bool $subadminOnly = false): ?User
     {
         return User::with('userprofile')
             ->where('church_id', $request->user()->church_id)
-            ->where('usergroup_id', 4)
+            ->whereIn('usergroup_id', $subadminOnly ? [4] : [3, 4])
             ->find($id);
     }
 }

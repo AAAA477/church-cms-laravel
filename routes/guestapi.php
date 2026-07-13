@@ -25,6 +25,11 @@ Route::get('/gender/list','Api\Guest\LoginController@index');
 
 Route::post('/guest/create','Api\Guest\LoginController@store');
 
+// Public address lookups for the self-registration form
+Route::get('/geo/countries','Api\Guest\GeoController@countries');
+Route::get('/geo/states/{country_id}','Api\Guest\GeoController@states');
+Route::get('/geo/cities/{state_id}','Api\Guest\GeoController@cities');
+
 Route::post('/guest/login','Api\Guest\LoginController@login');
 
 Route::get('/apk/church','Api\ApkController@index');

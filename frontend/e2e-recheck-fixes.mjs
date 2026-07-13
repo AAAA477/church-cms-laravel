@@ -1,0 +1,16 @@
+import { chromium } from "playwright";
+const browser = await chromium.launch({ channel: "msedge" });
+const page = await browser.newPage({ viewport: { width: 1500, height: 900 } });
+await page.goto("http://localhost:3000/console/login", { waitUntil: "networkidle" });
+await page.waitForTimeout(1500);
+await page.fill("#email", "a4nsah@gmail.com");
+await page.fill("#password", "AdminTest#2026");
+await page.click("button[type=submit]");
+await page.waitForURL(/\/console$/, { timeout: 20000 });
+await page.goto("http://localhost:3000/console/posts", { waitUntil: "networkidle" });
+const posts = await page.textContent("main");
+console.log("posts page:", posts.includes("Welcome to Our New Website") ? "OK shows posts" : "STILL EMPTY: " + posts.slice(0, 120));
+await page.goto("http://localhost:3000/console/funds", { waitUntil: "networkidle" });
+const funds = await page.textContent("main");
+console.log("funds page:", /\d+ total/.exec(funds)?.[0] ?? funds.slice(0, 100));
+await browser.close();

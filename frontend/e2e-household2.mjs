@@ -1,0 +1,27 @@
+import { chromium } from "playwright";
+const stamp = Date.now().toString().slice(-6);
+const browser = await chromium.launch({ channel: "msedge" });
+const page = await browser.newPage();
+page.on("response", async (r) => {
+  if (r.url().includes("/bff/auth/")) console.log("[res]", r.status(), r.url().slice(-30), (await r.text().catch(() => "")).slice(0, 200));
+});
+await page.goto("http://localhost:3000/member/register", { waitUntil: "networkidle" });
+await page.waitForTimeout(2000);
+await page.fill("#firstname", "Debughead");
+await page.selectOption("#gender", "female");
+await page.fill("#date_of_birth", "1991-05-05");
+await page.fill("#mobile_no", "024" + stamp + "9");
+await page.fill("#email", `debug${stamp}@example.com`);
+await page.fill("#password", "HouseUi#2026");
+await page.fill("#password_confirmation", "HouseUi#2026");
+await page.getByRole("button", { name: "+ Add Member" }).click();
+const card = page.locator("form .rounded-sm.border.border-warm-deep.p-4").first();
+await card.getByPlaceholder("First name *").fill("Kojo");
+await card.getByTitle("Relationship").selectOption("partner");
+await card.getByTitle("Gender").selectOption("male");
+await card.locator("input[type=date]").fill("1989-02-11");
+await page.getByRole("button", { name: /Create Account/i }).click();
+await page.waitForTimeout(8000);
+console.log("final url:", page.url());
+console.log("alert:", await page.locator("[role=alert]").allTextContents());
+await browser.close();

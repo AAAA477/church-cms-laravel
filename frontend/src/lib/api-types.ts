@@ -345,12 +345,14 @@ export interface AdminSubAdminSummary {
   email: string | null;
   mobile_no: string;
   avatar: string | null;
+  role: "admin" | "subadmin";
 }
 
 export interface AdminSubAdminDetail {
   id: number;
   name: string;
   email: string | null;
+  role: "admin" | "subadmin";
   mobile_no: string;
   firstname: string | null;
   lastname: string | null;

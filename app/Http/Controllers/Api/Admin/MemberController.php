@@ -252,6 +252,66 @@ class MemberController extends Controller
         return response()->json(['success' => true]);
     }
 
+    /**
+     * Change a user's role: member (5) <-> subadmin (4) <-> admin (3).
+     * Full admins only — subadmins must never be able to raise their own
+     * (or anyone's) privileges. Guests must be converted to members first.
+     */
+    public function role(Request $request, $id)
+    {
+        if ($request->user()->usergroup_id !== 3) {
+            return response()->json(['message' => 'Only a full admin can change roles'], 403);
+        }
+
+        $data = $request->validate([
+            'role' => 'required|in:admin,subadmin,member',
+        ]);
+
+        if ((int) $id === $request->user()->id) {
+            return response()->json(['message' => 'You cannot change your own role'], 422);
+        }
+
+        $user = User::with('userprofile')
+            ->where('church_id', $request->user()->church_id)
+            ->whereIn('usergroup_id', [3, 4, 5])
+            ->find($id);
+
+        if (! $user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        if ($user->usergroup_id === 5 && optional($user->userprofile)->membership_type !== 'member') {
+            return response()->json(['message' => 'Convert this guest to a member before assigning a role'], 422);
+        }
+
+        $target = ['admin' => 3, 'subadmin' => 4, 'member' => 5][$data['role']];
+
+        // Never demote the church's last full admin — the console would
+        // have nobody left who can manage roles.
+        if ($user->usergroup_id === 3 && $target !== 3) {
+            $otherAdmins = User::where('church_id', $user->church_id)
+                ->where('usergroup_id', 3)
+                ->where('id', '!=', $user->id)
+                ->count();
+            if ($otherAdmins === 0) {
+                return response()->json(['message' => 'This is the only admin — promote someone else first'], 422);
+            }
+        }
+
+        $user->usergroup_id = $target;
+        $user->save();
+
+        $this->doActivityLog(
+            $user,
+            $request->user(),
+            ['ip' => $this->getRequestIP(), 'details' => $request->userAgent()],
+            LOGNAME_EDIT_MEMBER,
+            "User Role Changed To {$data['role']} Successfully"
+        );
+
+        return response()->json(['success' => true, 'role' => $data['role']]);
+    }
+
     /** Church- and membership_type-scoped member lookup, shared by show/update/status/destroy. */
     private function findMember(Request $request, $id, array $with = []): ?User
     {

@@ -1,10 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { PROFESSION_OPTIONS } from "@/lib/member-options";
 
 const inputClasses =
   "w-full rounded-sm border border-warm-deep bg-white px-4 py-3 text-ink placeholder:text-ink-soft/60 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
+
+const MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+// Sentinel year stored when the registrant gives only day + month (1924 is
+// a leap year, so Feb 29 stays valid, and it passes the API's >= 1920
+// birth-date check). The member-facing API already hides birth years.
+const NO_YEAR = 1924;
+
+type GeoOption = { id: number; name: string };
 
 type HouseholdMember = {
   firstname: string;
@@ -32,6 +45,41 @@ export default function RegisterForm() {
   // inputs without name attributes, so FormData below skips them.
   const [household, setHousehold] = useState<HouseholdMember[]>([]);
 
+  // Cascading address selects (controlled; ids submitted explicitly).
+  const [countries, setCountries] = useState<GeoOption[]>([]);
+  const [states, setStates] = useState<GeoOption[]>([]);
+  const [cities, setCities] = useState<GeoOption[]>([]);
+  const [countryId, setCountryId] = useState("");
+  const [stateId, setStateId] = useState("");
+  const [cityId, setCityId] = useState("");
+
+  useEffect(() => {
+    fetch("/bff/public/geo/countries")
+      .then((r) => (r.ok ? r.json() : []))
+      .then(setCountries)
+      .catch(() => setCountries([]));
+  }, []);
+
+  useEffect(() => {
+    setStates([]);
+    setStateId("");
+    if (!countryId) return;
+    fetch(`/bff/public/geo/states/${countryId}`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then(setStates)
+      .catch(() => setStates([]));
+  }, [countryId]);
+
+  useEffect(() => {
+    setCities([]);
+    setCityId("");
+    if (!stateId) return;
+    fetch(`/bff/public/geo/cities/${stateId}`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then(setCities)
+      .catch(() => setCities([]));
+  }, [stateId]);
+
   function setMember(i: number, patch: Partial<HouseholdMember>) {
     setHousehold((prev) => prev.map((m, j) => (j === i ? { ...m, ...patch } : m)));
   }
@@ -42,7 +90,17 @@ export default function RegisterForm() {
     setError(null);
 
     const form = e.currentTarget;
-    const data = Object.fromEntries(new FormData(form));
+    const data: Record<string, FormDataEntryValue | undefined> = Object.fromEntries(
+      new FormData(form),
+    );
+
+    // Compose date_of_birth from the day/month(/optional year) selects.
+    const day = String(data.birth_day ?? "");
+    const month = String(data.birth_month ?? "");
+    const year = String(data.birth_year ?? "") || String(NO_YEAR);
+    delete data.birth_day;
+    delete data.birth_month;
+    delete data.birth_year;
 
     try {
       const registerRes = await fetch("/bff/auth/register", {
@@ -50,6 +108,10 @@ export default function RegisterForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...data,
+          date_of_birth: `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`,
+          country_id: countryId || undefined,
+          state_id: stateId || undefined,
+          city_id: cityId || undefined,
           household: household
             .filter((m) => m.firstname.trim())
             .map((m) => ({
@@ -108,6 +170,22 @@ export default function RegisterForm() {
           />
         </div>
         <div>
+          <label htmlFor="lastname" className="block text-sm font-medium text-ink mb-2">
+            Last Name
+          </label>
+          <input
+            id="lastname"
+            name="lastname"
+            maxLength={15}
+            pattern="[A-Za-z\s]+"
+            placeholder="Doe"
+            className={inputClasses}
+          />
+        </div>
+      </div>
+
+      <div className="grid gap-5 sm:grid-cols-2">
+        <div>
           <label htmlFor="gender" className="block text-sm font-medium text-ink mb-2">
             Gender
           </label>
@@ -118,25 +196,45 @@ export default function RegisterForm() {
             <option value="other">Other</option>
           </select>
         </div>
+        <div>
+          <span className="block text-sm font-medium text-ink mb-2">Birthday</span>
+          <div className="grid grid-cols-3 gap-2">
+            <select name="birth_day" required aria-label="Birth day" className={inputClasses}>
+              <option value="">Day…</option>
+              {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+            <select name="birth_month" required aria-label="Birth month" className={inputClasses}>
+              <option value="">Month…</option>
+              {MONTHS.map((m, i) => (
+                <option key={m} value={i + 1}>
+                  {m}
+                </option>
+              ))}
+            </select>
+            <select name="birth_year" aria-label="Birth year (optional)" className={inputClasses}>
+              <option value="">Year…</option>
+              {Array.from(
+                { length: new Date().getFullYear() - 1925 },
+                (_, i) => new Date().getFullYear() - i,
+              ).map((y) => (
+                <option key={y} value={y}>
+                  {y}
+                </option>
+              ))}
+            </select>
+          </div>
+          <p className="mt-1 text-xs text-ink-soft">Year is optional.</p>
+        </div>
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
-          <label htmlFor="date_of_birth" className="block text-sm font-medium text-ink mb-2">
-            Date of Birth
-          </label>
-          <input
-            id="date_of_birth"
-            name="date_of_birth"
-            type="date"
-            required
-            max={new Date().toISOString().split("T")[0]}
-            className={inputClasses}
-          />
-        </div>
-        <div>
           <label htmlFor="mobile_no" className="block text-sm font-medium text-ink mb-2">
-            Mobile Number
+            Phone
           </label>
           <input
             id="mobile_no"
@@ -149,21 +247,149 @@ export default function RegisterForm() {
             className={inputClasses}
           />
         </div>
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-ink mb-2">
+            Email
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            placeholder="you@example.com"
+            className={inputClasses}
+          />
+        </div>
+      </div>
+
+      <div className="grid gap-5 sm:grid-cols-2">
+        <div>
+          <label htmlFor="profession" className="block text-sm font-medium text-ink mb-2">
+            Office / Profession
+          </label>
+          <select id="profession" name="profession" className={inputClasses}>
+            <option value="">Select…</option>
+            {PROFESSION_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="preferred_channel" className="block text-sm font-medium text-ink mb-2">
+            Preferred Contact Method
+          </label>
+          <select id="preferred_channel" name="preferred_channel" className={inputClasses}>
+            <option value="">Select…</option>
+            <option value="email">Email</option>
+            <option value="phone">Phone Call</option>
+            <option value="sms">Text Message (SMS)</option>
+            <option value="whatsapp">WhatsApp</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="grid gap-5 sm:grid-cols-2">
+        <div>
+          <label htmlFor="address" className="block text-sm font-medium text-ink mb-2">
+            Street Address
+          </label>
+          <input
+            id="address"
+            name="address"
+            maxLength={255}
+            placeholder="123 Main St"
+            className={inputClasses}
+          />
+        </div>
+        <div>
+          <label htmlFor="pincode" className="block text-sm font-medium text-ink mb-2">
+            Postal Code
+          </label>
+          <input
+            id="pincode"
+            name="pincode"
+            maxLength={10}
+            placeholder="A1A 1A1"
+            className={inputClasses}
+          />
+        </div>
+      </div>
+
+      <div className="grid gap-5 sm:grid-cols-3">
+        <div>
+          <label htmlFor="country" className="block text-sm font-medium text-ink mb-2">
+            Country
+          </label>
+          <select
+            id="country"
+            value={countryId}
+            onChange={(e) => setCountryId(e.target.value)}
+            className={inputClasses}
+          >
+            <option value="">Select…</option>
+            {countries.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="province" className="block text-sm font-medium text-ink mb-2">
+            Province / State
+          </label>
+          <select
+            id="province"
+            value={stateId}
+            onChange={(e) => setStateId(e.target.value)}
+            disabled={!countryId}
+            className={inputClasses}
+          >
+            <option value="">{countryId ? "Select…" : "Pick a country first"}</option>
+            {states.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="city" className="block text-sm font-medium text-ink mb-2">
+            City
+          </label>
+          <select
+            id="city"
+            value={cityId}
+            onChange={(e) => setCityId(e.target.value)}
+            disabled={!stateId}
+            className={inputClasses}
+          >
+            <option value="">{stateId ? "Select…" : "Pick a province first"}</option>
+            {cities.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-ink mb-2">
-          Email
+        <label htmlFor="relation" className="block text-sm font-medium text-ink mb-2">
+          Household Role
         </label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          required
-          autoComplete="email"
-          placeholder="you@example.com"
-          className={inputClasses}
-        />
+        <select id="relation" name="relation" defaultValue="head" className={inputClasses}>
+          <option value="head">Head of Household</option>
+          <option value="partner">Spouse / Partner</option>
+          <option value="child">Child</option>
+          <option value="father">Father</option>
+          <option value="mother">Mother</option>
+          <option value="sibling">Sibling</option>
+          <option value="other">Other</option>
+        </select>
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">

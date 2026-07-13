@@ -123,6 +123,22 @@ class LoginController extends Controller
             $user->password = bcrypt($request->password);
             $user->save();
 
+            // Fields createGuest() doesn't handle. relation and
+            // preferred_channel aren't in Userprofile::$fillable — assign
+            // as properties (same pattern as the household flow below).
+            if ($request->filled('relation') || $request->filled('preferred_channel')) {
+                $profile = Userprofile::where('user_id', $user->id)->first();
+                if ($profile) {
+                    if ($request->filled('relation')) {
+                        $profile->relation = $request->input('relation');
+                    }
+                    if ($request->filled('preferred_channel')) {
+                        $profile->preferred_channel = $request->input('preferred_channel');
+                    }
+                    $profile->save();
+                }
+            }
+
             $this->createHousehold($request, $user, $church->id);
 
             $message = 'Guest Added Successfully';

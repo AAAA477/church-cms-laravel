@@ -22,6 +22,15 @@ class UserObserver
         //
         try
         {
+            // With the log driver there is no real mailbox to verify —
+            // and rendering the mail synchronously has been observed to
+            // blow the 30s execution limit on some environments, which is
+            // a FATAL the catch below can never see (it rolls back the
+            // whole registration). Skip until a real mailer is configured.
+            if (config('mail.driver') === 'log') {
+                return;
+            }
+
             if($user->email != null)
             {
                 if(is_null($user->email_verified_at))

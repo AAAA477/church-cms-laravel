@@ -18,6 +18,20 @@ const columns: Column<AdminSubAdminSummary>[] = [
   { key: "name", label: "Name" },
   { key: "email", label: "Email" },
   { key: "mobile_no", label: "Mobile" },
+  {
+    key: "role",
+    label: "Role",
+    render: (row) => (
+      <span
+        className={
+          "inline-block text-xs px-2 py-0.5 rounded-full font-medium " +
+          (row.role === "admin" ? "bg-primary text-white" : "bg-warm text-primary")
+        }
+      >
+        {row.role === "admin" ? "Admin" : "Subadmin"}
+      </span>
+    ),
+  },
 ];
 
 export default async function SubAdminsPage({ searchParams }: Props) {
@@ -36,7 +50,7 @@ export default async function SubAdminsPage({ searchParams }: Props) {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-        <h1 className="font-display text-4xl text-ink">Sub-Admins</h1>
+        <h1 className="font-display text-4xl text-ink">Admins &amp; Sub-Admins</h1>
         <Button href="/console/subadmins/new">Add Sub-Admin</Button>
       </div>
 

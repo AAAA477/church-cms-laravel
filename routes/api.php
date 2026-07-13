@@ -277,6 +277,7 @@ Route::group(
 		Route::post('/members', 'MemberController@store');
 		Route::put('/members/{id}', 'MemberController@update');
 		Route::patch('/members/{id}/status', 'MemberController@status');
+		Route::post('/members/{id}/role', 'MemberController@role');
 		Route::delete('/members/{id}', 'MemberController@destroy');
 
 		Route::get('/guests', 'GuestController@index');

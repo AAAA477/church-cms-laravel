@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import Card from "@/components/ui/Card";
 import MemberEditForm from "@/components/admin/MemberEditForm";
 import PersonStatusActions from "@/components/admin/PersonStatusActions";
+import RoleButtons from "@/components/admin/RoleButtons";
 import { adminFetch, ApiError } from "@/lib/api";
 import type { AdminMemberDetail } from "@/lib/api-types";
 
@@ -27,9 +28,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function MemberDetailPage({ params }: Props) {
   const { id } = await params;
-  const member = await getMember(id);
+  const [member, me] = await Promise.all([
+    getMember(id),
+    adminFetch<{ id: number; is_admin: boolean }>("/me").catch(() => null),
+  ]);
 
   if (!member) notFound();
+
+  // Role controls: full admins only, and never for your own account.
+  const canChangeRole = Boolean(me?.is_admin) && me?.id !== member.id;
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -61,6 +68,23 @@ export default async function MemberDetailPage({ params }: Props) {
         </h2>
         <PersonStatusActions resource="members" personId={member.id} currentStatus={member.status} />
       </Card>
+
+      {canChangeRole && (
+        <Card className="p-6 mb-6" hover={false}>
+          <h2 className="text-xs font-medium uppercase tracking-wide text-ink-soft mb-1">
+            Role
+          </h2>
+          <p className="text-xs text-ink-soft mb-3">
+            Promote this member to church staff — they appear under Users → Subadmins and can sign in to this console.
+          </p>
+          <RoleButtons
+            userId={member.id}
+            name={`${member.firstname ?? ""} ${member.lastname ?? ""}`.trim() || undefined}
+            currentRole="member"
+            redirectTo="/console/subadmins"
+          />
+        </Card>
+      )}
 
       <Card className="p-8" hover={false}>
         <h2 className="font-display text-2xl text-ink mb-6">Edit Details</h2>
