@@ -3,38 +3,17 @@ import Link from "next/link";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import DataTable, { type Column } from "@/components/admin/DataTable";
+import RoleButtons from "@/components/admin/RoleButtons";
 import SearchBar from "@/components/admin/SearchBar";
 import Pagination from "@/components/admin/Pagination";
 import { adminFetch } from "@/lib/api";
-import type { AdminMemberSummary } from "@/lib/api-types";
+import type { AdminMe, AdminMemberSummary } from "@/lib/api-types";
 
 export const metadata: Metadata = { title: "Members" };
 
 type Props = {
   searchParams: Promise<{ search?: string; page?: string; status?: string }>;
 };
-
-const columns: Column<AdminMemberSummary>[] = [
-  { key: "name", label: "Name" },
-  { key: "email", label: "Email" },
-  { key: "mobile_no", label: "Mobile" },
-  {
-    key: "status",
-    label: "Status",
-    render: (row) => (
-      <span
-        className={
-          row.status === "active"
-            ? "text-green-700 bg-green-50 px-2 py-0.5 rounded-full text-xs font-medium uppercase"
-            : "text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full text-xs font-medium uppercase"
-        }
-      >
-        {row.status ?? "—"}
-      </span>
-    ),
-  },
-  { key: "city", label: "City" },
-];
 
 export default async function MembersPage({ searchParams }: Props) {
   const { search, page, status } = await searchParams;
@@ -45,10 +24,53 @@ export default async function MembersPage({ searchParams }: Props) {
   if (status) params.set("status", status);
   const qs = params.size > 0 ? `?${params}` : "";
 
-  const members = await adminFetch<{
-    data: AdminMemberSummary[];
-    meta: { current_page: number; last_page: number; total: number };
-  }>(`/members${qs}`);
+  const [members, me] = await Promise.all([
+    adminFetch<{
+      data: AdminMemberSummary[];
+      meta: { current_page: number; last_page: number; total: number };
+    }>(`/members${qs}`),
+    adminFetch<AdminMe>("/me").catch(() => null),
+  ]);
+
+  const columns: Column<AdminMemberSummary>[] = [
+    { key: "name", label: "Name" },
+    { key: "email", label: "Email" },
+    { key: "mobile_no", label: "Mobile" },
+    {
+      key: "status",
+      label: "Status",
+      render: (row) => (
+        <span
+          className={
+            row.status === "active"
+              ? "text-green-700 bg-green-50 px-2 py-0.5 rounded-full text-xs font-medium uppercase"
+              : "text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full text-xs font-medium uppercase"
+          }
+        >
+          {row.status ?? "—"}
+        </span>
+      ),
+    },
+    { key: "city", label: "City" },
+    // Full admins only — promotes straight from the list, same rules as
+    // the member detail page (self-change and last-admin guards apply).
+    ...(me?.is_admin
+      ? [
+          {
+            key: "role",
+            label: "Role",
+            render: (row: AdminMemberSummary) => (
+              <RoleButtons
+                userId={row.id}
+                name={row.name}
+                currentRole="member"
+                redirectTo="/console/subadmins"
+              />
+            ),
+          } satisfies Column<AdminMemberSummary>,
+        ]
+      : []),
+  ];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">

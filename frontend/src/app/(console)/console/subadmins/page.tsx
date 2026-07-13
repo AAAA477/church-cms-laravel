@@ -3,36 +3,17 @@ import Link from "next/link";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import DataTable, { type Column } from "@/components/admin/DataTable";
+import RoleButtons from "@/components/admin/RoleButtons";
 import SearchBar from "@/components/admin/SearchBar";
 import Pagination from "@/components/admin/Pagination";
 import { adminFetch } from "@/lib/api";
-import type { AdminSubAdminSummary } from "@/lib/api-types";
+import type { AdminMe, AdminSubAdminSummary } from "@/lib/api-types";
 
 export const metadata: Metadata = { title: "Sub-Admins" };
 
 type Props = {
   searchParams: Promise<{ search?: string; page?: string }>;
 };
-
-const columns: Column<AdminSubAdminSummary>[] = [
-  { key: "name", label: "Name" },
-  { key: "email", label: "Email" },
-  { key: "mobile_no", label: "Mobile" },
-  {
-    key: "role",
-    label: "Role",
-    render: (row) => (
-      <span
-        className={
-          "inline-block text-xs px-2 py-0.5 rounded-full font-medium " +
-          (row.role === "admin" ? "bg-primary text-white" : "bg-warm text-primary")
-        }
-      >
-        {row.role === "admin" ? "Admin" : "Subadmin"}
-      </span>
-    ),
-  },
-];
 
 export default async function SubAdminsPage({ searchParams }: Props) {
   const { search, page } = await searchParams;
@@ -42,10 +23,46 @@ export default async function SubAdminsPage({ searchParams }: Props) {
   if (page) params.set("page", page);
   const qs = params.size > 0 ? `?${params}` : "";
 
-  const subadmins = await adminFetch<{
-    data: AdminSubAdminSummary[];
-    meta: { current_page: number; last_page: number; total: number };
-  }>(`/subadmins${qs}`);
+  const [subadmins, me] = await Promise.all([
+    adminFetch<{
+      data: AdminSubAdminSummary[];
+      meta: { current_page: number; last_page: number; total: number };
+    }>(`/subadmins${qs}`),
+    adminFetch<AdminMe>("/me").catch(() => null),
+  ]);
+
+  const columns: Column<AdminSubAdminSummary>[] = [
+    { key: "name", label: "Name" },
+    { key: "email", label: "Email" },
+    { key: "mobile_no", label: "Mobile" },
+    {
+      key: "role",
+      label: "Role",
+      render: (row) => (
+        <span
+          className={
+            "inline-block text-xs px-2 py-0.5 rounded-full font-medium " +
+            (row.role === "admin" ? "bg-primary text-white" : "bg-warm text-primary")
+          }
+        >
+          {row.role === "admin" ? "Admin" : "Subadmin"}
+        </span>
+      ),
+    },
+    // Full admins only, and never on your own row (see RoleButtons/API rules).
+    ...(me?.is_admin
+      ? [
+          {
+            key: "role_actions",
+            label: "",
+            render: (row: AdminSubAdminSummary) =>
+              row.id === me.id ? null : (
+                <RoleButtons userId={row.id} name={row.name} currentRole={row.role} />
+              ),
+          } satisfies Column<AdminSubAdminSummary>,
+        ]
+      : []),
+  ];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
