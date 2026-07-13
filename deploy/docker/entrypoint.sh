@@ -11,7 +11,9 @@ mkdir -p storage/logs \
          storage/framework/cache/data \
          storage/framework/sessions \
          storage/framework/views
-chown -R www-data:www-data storage bootstrap/cache public/uploads
+# SMB/CIFS mounts (Azure Files on Container Apps) reject chown — ownership
+# there comes from the mount options (uid=33,gid=33) instead. Never fatal.
+chown -R www-data:www-data storage bootstrap/cache public/uploads 2>/dev/null || true
 
 # public/storage -> storage/app/public (media library URLs depend on it)
 php artisan storage:link --force
