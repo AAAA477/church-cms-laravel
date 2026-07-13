@@ -73,15 +73,17 @@ class GuestAddRequest extends FormRequest
             'email'             =>  'required|email|check_unique_email',
             'password'          =>  'required|string|min:8|confirmed',
 
-            // Extended registration fields (2026-07-12) — all optional at
-            // the API level so older clients keep working.
-            'profession'        =>  'nullable|string|max:30',
-            'preferred_channel' =>  'nullable|in:email,phone,sms,whatsapp',
-            'address'           =>  'nullable|string|max:255',
-            'city_id'           =>  'nullable|integer|exists:cities,id',
-            'state_id'          =>  'nullable|integer|exists:states,id',
-            'country_id'        =>  'nullable|integer|exists:countries,id',
-            'pincode'           =>  'nullable|string|max:10',
+            // Extended registration fields (2026-07-12/13) — mirrors the
+            // register form: preferred contact method and full address are
+            // required, matching the client-side `required` attributes.
+            // profession/"Office" was dropped from the public register
+            // form (still collected separately by admins via the console).
+            'preferred_channel' =>  'required|in:email,phone,sms,whatsapp',
+            'address'           =>  'required|string|max:255',
+            'city_id'           =>  'required|integer|exists:cities,id',
+            'state_id'          =>  'required|integer|exists:states,id',
+            'country_id'        =>  'required|integer|exists:countries,id',
+            'pincode'           =>  'required|string|max:10',
             'relation'          =>  'nullable|in:head,partner,child,father,mother,sibling,other',
         ];
     }

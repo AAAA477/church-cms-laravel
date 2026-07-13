@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PROFESSION_OPTIONS } from "@/lib/member-options";
 
 const inputClasses =
   "w-full rounded-sm border border-warm-deep bg-white px-4 py-3 text-ink placeholder:text-ink-soft/60 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
@@ -44,9 +43,6 @@ export default function RegisterForm() {
   // Household members registered along with the account holder. Controlled
   // inputs without name attributes, so FormData below skips them.
   const [household, setHousehold] = useState<HouseholdMember[]>([]);
-  // Profession/contact-preference/address are all optional — collapsed by
-  // default so the form doesn't open with 14 visible fields at once.
-  const [showMore, setShowMore] = useState(false);
 
   // Cascading address selects (controlled; ids submitted explicitly).
   const [countries, setCountries] = useState<GeoOption[]>([]);
@@ -300,145 +296,120 @@ export default function RegisterForm() {
         </div>
       </div>
 
-      <div className="pt-6 border-t border-warm-deep">
-        <button
-          type="button"
-          onClick={() => setShowMore((v) => !v)}
-          className="flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary-dark"
-          aria-expanded={showMore ? "true" : "false"}
-        >
-          <span className={`transition-transform ${showMore ? "rotate-90" : ""}`}>›</span>{" "}
-          {showMore ? "Hide" : "Add"} profession, contact preference &amp; address{" "}
-          <span className="font-normal text-ink-soft">(optional)</span>
-        </button>
+      <div className="pt-6 border-t border-warm-deep space-y-5">
+        <div>
+          <label htmlFor="preferred_channel" className="block text-sm font-medium text-ink mb-2">
+            Preferred Contact Method
+          </label>
+          <select id="preferred_channel" name="preferred_channel" required defaultValue="" className={inputClasses}>
+            <option value="" disabled>
+              Select…
+            </option>
+            <option value="email">Email</option>
+            <option value="phone">Phone Call</option>
+            <option value="sms">Text Message (SMS)</option>
+            <option value="whatsapp">WhatsApp</option>
+          </select>
+        </div>
 
-        {showMore && (
-          <div className="mt-6 space-y-5">
-            <div className="grid gap-5 sm:grid-cols-2">
-              <div>
-                <label htmlFor="profession" className="block text-sm font-medium text-ink mb-2">
-                  Office / Profession
-                </label>
-                <select id="profession" name="profession" className={inputClasses}>
-                  <option value="">Select…</option>
-                  {PROFESSION_OPTIONS.map((o) => (
-                    <option key={o.value} value={o.value}>
-                      {o.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label htmlFor="preferred_channel" className="block text-sm font-medium text-ink mb-2">
-                  Preferred Contact Method
-                </label>
-                <select id="preferred_channel" name="preferred_channel" className={inputClasses}>
-                  <option value="">Select…</option>
-                  <option value="email">Email</option>
-                  <option value="phone">Phone Call</option>
-                  <option value="sms">Text Message (SMS)</option>
-                  <option value="whatsapp">WhatsApp</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="grid gap-5 sm:grid-cols-2">
-              <div>
-                <label htmlFor="address" className="block text-sm font-medium text-ink mb-2">
-                  Street Address
-                </label>
-                <input
-                  id="address"
-                  name="address"
-                  maxLength={255}
-                  placeholder="123 Main St"
-                  className={inputClasses}
-                />
-              </div>
-              <div>
-                <label htmlFor="pincode" className="block text-sm font-medium text-ink mb-2">
-                  Postal Code
-                </label>
-                <input
-                  id="pincode"
-                  name="pincode"
-                  maxLength={10}
-                  placeholder="A1A 1A1"
-                  className={inputClasses}
-                />
-              </div>
-            </div>
-
-            {/* Stacked, not side-by-side — three selects don't fit this
-                card's width without truncating (e.g. "Pick a country…"). */}
-            <div className="space-y-5">
-              <div>
-                <label htmlFor="country" className="block text-sm font-medium text-ink mb-2">
-                  Country
-                </label>
-                <select
-                  id="country"
-                  value={countryId}
-                  onChange={(e) => setCountryId(e.target.value)}
-                  className={inputClasses}
-                >
-                  <option value="">Select…</option>
-                  {countries.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label htmlFor="province" className="block text-sm font-medium text-ink mb-2">
-                  Province / State
-                </label>
-                <select
-                  id="province"
-                  value={stateId}
-                  onChange={(e) => setStateId(e.target.value)}
-                  disabled={!countryId}
-                  className={inputClasses}
-                >
-                  <option value="">{countryId ? "Select…" : "Pick a country first"}</option>
-                  {states.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label htmlFor="city" className="block text-sm font-medium text-ink mb-2">
-                  City
-                </label>
-                <select
-                  id="city"
-                  value={cityId}
-                  onChange={(e) => setCityId(e.target.value)}
-                  disabled={!stateId}
-                  className={inputClasses}
-                >
-                  <option value="">{stateId ? "Select…" : "Pick a province first"}</option>
-                  {cities.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div>
+            <label htmlFor="address" className="block text-sm font-medium text-ink mb-2">
+              Street Address
+            </label>
+            <input
+              id="address"
+              name="address"
+              required
+              maxLength={255}
+              placeholder="123 Main St"
+              className={inputClasses}
+            />
           </div>
-        )}
-      </div>
+          <div>
+            <label htmlFor="pincode" className="block text-sm font-medium text-ink mb-2">
+              Postal Code
+            </label>
+            <input
+              id="pincode"
+              name="pincode"
+              required
+              maxLength={10}
+              placeholder="A1A 1A1"
+              className={inputClasses}
+            />
+          </div>
+        </div>
 
-      <div className="pt-6 border-t border-warm-deep">
+        {/* Stacked, not side-by-side — three selects don't fit this card's
+            width without truncating (e.g. "Pick a country…"). */}
+        <div className="space-y-5">
+          <div>
+            <label htmlFor="country" className="block text-sm font-medium text-ink mb-2">
+              Country
+            </label>
+            <select
+              id="country"
+              required
+              value={countryId}
+              onChange={(e) => setCountryId(e.target.value)}
+              className={inputClasses}
+            >
+              <option value="">Select…</option>
+              {countries.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="province" className="block text-sm font-medium text-ink mb-2">
+              Province / State
+            </label>
+            <select
+              id="province"
+              required
+              value={stateId}
+              onChange={(e) => setStateId(e.target.value)}
+              disabled={!countryId}
+              className={inputClasses}
+            >
+              <option value="">{countryId ? "Select…" : "Pick a country first"}</option>
+              {states.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="city" className="block text-sm font-medium text-ink mb-2">
+              City
+            </label>
+            <select
+              id="city"
+              required
+              value={cityId}
+              onChange={(e) => setCityId(e.target.value)}
+              disabled={!stateId}
+              className={inputClasses}
+            >
+              <option value="">{stateId ? "Select…" : "Pick a province first"}</option>
+              {cities.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
         <div>
           <label htmlFor="relation" className="block text-sm font-medium text-ink mb-2">
             Household Role
           </label>
-          <select id="relation" name="relation" defaultValue="head" className={inputClasses}>
+          <select id="relation" name="relation" required defaultValue="head" className={inputClasses}>
             <option value="head">Head of Household</option>
             <option value="partner">Spouse / Partner</option>
             <option value="child">Child</option>
