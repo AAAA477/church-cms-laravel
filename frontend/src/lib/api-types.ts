@@ -262,6 +262,8 @@ export interface AdminMemberDetail {
   pincode: string | null;
   family: string | null;
   marriage_status: string | null;
+  preferred_channel: string | null;
+  relation: string | null;
   status: string | null;
   membership_type: string | null;
   avatar: string | null;

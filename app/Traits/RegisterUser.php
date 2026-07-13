@@ -72,8 +72,18 @@ trait RegisterUser
 
             $userprofile = new Userprofile;
 
-            if (!is_null($data->ref_name)) {
+            // relation (household role) and preferred_channel aren't in
+            // Userprofile::$fillable — assigned as raw properties, same
+            // pattern MemberEditController and the guest-registration flow
+            // already use. Independent of ref_name (a separate concept:
+            // linking to a referring user), so this fires whenever a
+            // caller passes a relation — e.g. the console's standalone
+            // Add Member form, which has no referrer to link.
+            if (!is_null($data->relation)) {
                 $userprofile->relation = $data->relation;
+            }
+            if (!is_null($data->preferred_channel)) {
+                $userprofile->preferred_channel = $data->preferred_channel;
             }
 
             $userprofile->church_id = $church_id;

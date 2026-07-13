@@ -165,11 +165,46 @@ export default function MemberEditForm({ member }: { member: AdminMemberDetail }
         </div>
       </div>
 
+      <div className="grid gap-5 sm:grid-cols-2">
+        <div>
+          <label htmlFor="family" className={labelClasses}>
+            Family
+          </label>
+          <input id="family" name="family" defaultValue={member.family ?? ""} className={inputClasses} />
+        </div>
+        <div>
+          <label htmlFor="relation" className={labelClasses}>
+            Household Role
+          </label>
+          <select id="relation" name="relation" defaultValue={member.relation ?? ""} className={inputClasses}>
+            <option value="">—</option>
+            <option value="head">Head of Household</option>
+            <option value="partner">Spouse / Partner</option>
+            <option value="child">Child</option>
+            <option value="father">Father</option>
+            <option value="mother">Mother</option>
+            <option value="sibling">Sibling</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+
       <div>
-        <label htmlFor="family" className={labelClasses}>
-          Family
+        <label htmlFor="preferred_channel" className={labelClasses}>
+          Preferred Contact Method
         </label>
-        <input id="family" name="family" defaultValue={member.family ?? ""} className={inputClasses} />
+        <select
+          id="preferred_channel"
+          name="preferred_channel"
+          defaultValue={member.preferred_channel ?? ""}
+          className={inputClasses}
+        >
+          <option value="">—</option>
+          <option value="email">Email</option>
+          <option value="phone">Phone Call</option>
+          <option value="sms">Text Message (SMS)</option>
+          <option value="whatsapp">WhatsApp</option>
+        </select>
       </div>
 
       <LocationPicker

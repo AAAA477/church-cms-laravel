@@ -90,6 +90,8 @@ class MemberController extends Controller
             'pincode'         => optional($p)->pincode,
             'family'          => optional($p)->family,
             'marriage_status' => optional($p)->marriage_status,
+            'preferred_channel' => optional($p)->preferred_channel,
+            'relation'        => optional($p)->relation,
             'status'          => optional($p)->status,
             'membership_type' => optional($p)->membership_type,
             'avatar'          => optional($p)->AvatarPath,
@@ -113,6 +115,8 @@ class MemberController extends Controller
             'email'           => 'nullable|email|unique:users,email',
             'family'          => 'nullable|string|max:15',
             'marriage_status' => 'nullable|in:single,married,ended_by_death,ended_by_divorce,separated',
+            'preferred_channel' => 'nullable|in:email,phone,sms,whatsapp',
+            'relation'        => 'nullable|in:head,partner,child,father,mother,sibling,other',
             'avatar'          => 'nullable|image|mimes:jpg,jpeg,png,webp',
         ]);
 
@@ -174,13 +178,24 @@ class MemberController extends Controller
             'email'           => 'nullable|email|unique:users,email,' . $user->id,
             'family'          => 'nullable|string|max:15',
             'marriage_status' => 'nullable|in:single,married,ended_by_death,ended_by_divorce,separated',
+            'preferred_channel' => 'nullable|in:email,phone,sms,whatsapp',
+            'relation'        => 'nullable|in:head,partner,child,father,mother,sibling,other',
         ]);
 
         $user->fill(array_intersect_key($data, array_flip(['mobile_no', 'email'])));
         $user->save();
 
         $profile = Userprofile::where('user_id', $user->id)->first();
-        $profile->fill(array_diff_key($data, array_flip(['mobile_no', 'email'])));
+        // preferred_channel and relation aren't in Userprofile::$fillable
+        // (see RegisterUser::CreateUser) — fill() silently drops them, so
+        // assign as raw properties like the rest of this codebase does.
+        $profile->fill(array_diff_key($data, array_flip(['mobile_no', 'email', 'preferred_channel', 'relation'])));
+        if (array_key_exists('preferred_channel', $data)) {
+            $profile->preferred_channel = $data['preferred_channel'];
+        }
+        if (array_key_exists('relation', $data)) {
+            $profile->relation = $data['relation'];
+        }
         $profile->save();
 
         $this->doActivityLog(
