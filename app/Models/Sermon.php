@@ -188,18 +188,21 @@ class Sermon extends Model
         return $this->getFilePath($this->cover_image);
     }
 
+    // The sermons_links table stores video_link/audio_link/pdf_link
+    // directly (one row can carry all three) — there is no type/url
+    // column, so counting by those never matched any row.
     public function getAudioCountAttribute()
     {
-        return $this->sermonlinks->where('type', 'audio')->count();
+        return $this->sermonlinks->whereNotNull('audio_link')->count();
     }
 
     public function getVideoCountAttribute()
     {
-        return $this->sermonlinks->where('type', 'video')->count();
+        return $this->sermonlinks->whereNotNull('video_link')->count();
     }
 
     public function getFileCountAttribute()
     {
-        return $this->sermonlinks->where('type', 'document')->count();
+        return $this->sermonlinks->whereNotNull('pdf_link')->count();
     }
 }

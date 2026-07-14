@@ -3,8 +3,16 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import Breadcrumbs from "@/components/site/Breadcrumbs";
 import Button from "@/components/ui/Button";
+import YouTubeEmbed from "@/components/site/YouTubeEmbed";
 import { guestGet } from "@/lib/api";
+import { youtubeId } from "@/lib/youtube";
 import type { Paginated, Sermon, SermonLink } from "@/lib/api-types";
+
+const TYPE_LABELS: Record<string, string> = {
+  video: "Video",
+  audio: "Audio",
+  document: "Document",
+};
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -31,6 +39,12 @@ export default async function SermonDetailPage({ params }: Props) {
 
   const media = links.data;
 
+  // The first YouTube video becomes the featured embed (replacing the
+  // static cover image, which would otherwise be redundant); everything
+  // else — additional videos, audio, documents — lists below it.
+  const featuredVideo = media.find((m) => m.type === "video" && youtubeId(m.url));
+  const rest = media.filter((m) => m !== featuredVideo);
+
   return (
     <>
       <article>
@@ -55,37 +69,43 @@ export default async function SermonDetailPage({ params }: Props) {
         </header>
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          {sermon.cover_image && (
-            <div className="relative h-72 sm:h-96 mb-12 rounded-sm overflow-hidden shadow-sm">
-              <Image
-                src={sermon.cover_image}
-                alt={sermon.title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 896px) 100vw, 896px"
-                preload
-              />
+          {featuredVideo ? (
+            <div className="mb-12">
+              <YouTubeEmbed url={featuredVideo.url} title={sermon.title} />
             </div>
+          ) : (
+            sermon.cover_image && (
+              <div className="relative h-72 sm:h-96 mb-12 rounded-sm overflow-hidden shadow-sm">
+                <Image
+                  src={sermon.cover_image}
+                  alt={sermon.title}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 896px) 100vw, 896px"
+                  preload
+                />
+              </div>
+            )
           )}
 
           <div className="prose max-w-none text-ink-soft leading-relaxed whitespace-pre-line">
             {sermon.description}
           </div>
 
-          {media.length > 0 && (
+          {rest.length > 0 && (
             <section className="mt-12">
               <h2 className="ornament ornament-left font-display text-3xl text-ink mb-8 pt-8">
-                Watch &amp; Listen
+                {featuredVideo ? "More" : "Watch & Listen"}
               </h2>
               <ul className="space-y-4">
-                {media.map((link, i) => (
+                {rest.map((link, i) => (
                   <li
                     key={i}
                     className="flex items-center justify-between gap-4 bg-white rounded-sm shadow-sm px-6 py-4"
                   >
                     <div>
                       <p className="text-xs uppercase tracking-wide text-primary mb-1">
-                        {link.type}
+                        {TYPE_LABELS[link.type] ?? link.type}
                       </p>
                       <p className="text-ink">{link.title}</p>
                     </div>
