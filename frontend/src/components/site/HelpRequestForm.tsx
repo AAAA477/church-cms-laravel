@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import Button from "@/components/ui/Button";
 
-type Status = "idle" | "submitting" | "success" | "error";
+type Status = "idle" | "submitting" | "success" | "error" | "signin-required";
 
 const inputClasses =
   "w-full rounded-sm border border-warm-deep bg-white px-4 py-3 text-ink placeholder:text-ink-soft/60 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
@@ -26,6 +27,11 @@ export default function HelpRequestForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
+
+      if (res.status === 401) {
+        setStatus("signin-required");
+        return;
+      }
 
       if (res.status === 422) {
         const body = await res.json();
@@ -61,6 +67,24 @@ export default function HelpRequestForm() {
         <h3 className="font-display text-2xl text-ink mb-2">Thank you</h3>
         <p className="text-ink-soft">
           Your help request has been submitted and is awaiting review.
+        </p>
+      </div>
+    );
+  }
+
+  if (status === "signin-required") {
+    return (
+      <div className="rounded-sm bg-warm px-8 py-12 text-center" role="status">
+        <h3 className="font-display text-2xl text-ink mb-2">Sign In Required</h3>
+        <p className="text-ink-soft mb-6">
+          Please sign in to submit a help request — this helps us follow up with you.
+        </p>
+        <Button href="/member/login?next=/contact">Sign In</Button>
+        <p className="mt-4 text-sm text-ink-soft">
+          New here?{" "}
+          <Link href="/member/register" className="text-primary hover:underline">
+            Create an account
+          </Link>
         </p>
       </div>
     );
