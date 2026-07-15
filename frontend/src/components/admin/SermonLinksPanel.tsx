@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import type { AdminSermonLink } from "@/lib/api-types";
 import DeleteButton from "@/components/admin/DeleteButton";
+import { youtubeId } from "@/lib/youtube";
 
 const inputClasses =
   "w-full rounded-sm border border-warm-deep bg-white px-3 py-2 text-sm text-ink focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary";
@@ -13,6 +14,8 @@ export default function SermonLinksPanel({ sermonId, links }: { sermonId: number
   const formRef = useRef<HTMLFormElement>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [videoLink, setVideoLink] = useState("");
+  const previewId = youtubeId(videoLink);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -28,6 +31,7 @@ export default function SermonLinksPanel({ sermonId, links }: { sermonId: number
         return;
       }
       formRef.current?.reset();
+      setVideoLink("");
       router.refresh();
     } finally {
       setBusy(false);
@@ -39,7 +43,26 @@ export default function SermonLinksPanel({ sermonId, links }: { sermonId: number
       <form ref={formRef} onSubmit={handleSubmit} className="grid gap-3 sm:grid-cols-2">
         <input name="title" placeholder="Title (optional)" className={inputClasses} />
         <input name="date" type="date" required className={inputClasses} />
-        <input name="video_link" placeholder="Video URL" className={inputClasses} />
+        <input
+          name="video_link"
+          placeholder="Video URL (paste a YouTube link to embed it)"
+          value={videoLink}
+          onChange={(e) => setVideoLink(e.target.value)}
+          className={`${inputClasses} sm:col-span-2`}
+        />
+        {previewId && (
+          <div className="sm:col-span-2 relative aspect-video w-full max-w-sm overflow-hidden rounded-sm bg-ink">
+            {/* eslint-disable-next-line @next/next/no-img-element -- admin-only preview thumbnail */}
+            <img
+              src={`https://i.ytimg.com/vi/${previewId}/hqdefault.jpg`}
+              alt="YouTube preview"
+              className="h-full w-full object-cover"
+            />
+            <span className="absolute bottom-1.5 left-1.5 text-[10px] font-medium uppercase tracking-wide bg-black/70 text-white px-1.5 py-0.5 rounded-sm">
+              Will embed on the site
+            </span>
+          </div>
+        )}
         <input name="audio_link" placeholder="Audio URL" className={inputClasses} />
         <input name="pdf_link" type="file" accept="application/pdf" className={`${inputClasses} sm:col-span-2`} />
         <button
