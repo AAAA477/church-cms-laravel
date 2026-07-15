@@ -6,18 +6,19 @@ import { usePathname, useRouter } from "next/navigation";
 import clsx from "clsx";
 import AdminConsoleLink from "@/components/site/AdminConsoleLink";
 
-// Slimmed-down nav (2026-07-09, per admin request): About lives on the
-// homepage as the About Us carousel; FAQ and Gallery were removed from the
-// public site; Contact is the single entry point for prayers and help
-// (tabbed forms — the community Prayer Board stays reachable via the footer
-// and the Contact page's prayer tab); sermons + bulletins merged into the
-// tabbed /resources page (sermon detail pages keep /sermons/:id).
+// Slimmed-down nav (2026-07-09, per admin request): FAQ and Gallery were
+// removed from the public site; Contact is the single entry point for
+// prayers and help (tabbed forms — the community Prayer Board stays
+// reachable via the footer and the Contact page's prayer tab); sermons +
+// bulletins merged into the tabbed /resources page (sermon detail pages
+// keep /sermons/:id). Contact is rendered as a secondary CTA button (not a
+// plain link) so it stands out next to Give; About's visibility is an
+// admin toggle (Settings > Appearance), defaulting to shown.
 const links = [
   { href: "/", label: "Home" },
   { href: "/devotions", label: "Devotions" },
   { href: "/events", label: "Events" },
   { href: "/resources", label: "Resources" },
-  { href: "/contact", label: "Contact" },
 ];
 
 const memberLinks = [
@@ -42,14 +43,19 @@ type NavBarProps = {
   churchLogo?: string | null;
   tagline?: string;
   member?: NavMember | null;
+  showAboutNav?: boolean;
 };
 
-export default function NavBar({ churchName, churchLogo, tagline, member }: NavBarProps) {
+export default function NavBar({ churchName, churchLogo, tagline, member, showAboutNav = true }: NavBarProps) {
   const [open, setOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const router = useRouter();
+
+  const navLinks = showAboutNav
+    ? [links[0], { href: "/about", label: "About" }, ...links.slice(1)]
+    : links;
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -103,7 +109,7 @@ export default function NavBar({ churchName, churchLogo, tagline, member }: NavB
 
           {/* Desktop links */}
           <div className="hidden xl:flex items-center gap-5">
-            {links.map((link) => (
+            {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -225,6 +231,13 @@ export default function NavBar({ churchName, churchLogo, tagline, member }: NavB
             )}
 
             <Link
+              href="/contact"
+              className="hidden xl:inline-block border-2 border-primary text-primary text-sm font-medium uppercase tracking-wider px-5 py-2 rounded-sm transition-all hover:bg-primary hover:text-white"
+            >
+              Contact
+            </Link>
+
+            <Link
               href="/member/give"
               className="hidden xl:inline-block bg-primary border-2 border-primary text-white text-sm font-medium uppercase tracking-wider px-5 py-2 rounded-sm transition-all hover:bg-primary-dark hover:border-primary-dark"
             >
@@ -259,7 +272,7 @@ export default function NavBar({ churchName, churchLogo, tagline, member }: NavB
         {/* Mobile menu */}
         {open && (
           <div className="xl:hidden pb-4 flex flex-col space-y-1">
-            {links.map((link) => (
+            {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -272,6 +285,13 @@ export default function NavBar({ churchName, churchLogo, tagline, member }: NavB
                 {link.label}
               </Link>
             ))}
+            <Link
+              href="/contact"
+              onClick={() => setOpen(false)}
+              className="mx-4 mt-2 border-2 border-primary text-primary text-center text-sm font-medium uppercase tracking-wider px-6 py-2.5 rounded-sm"
+            >
+              Contact
+            </Link>
             <Link
               href="/member/give"
               onClick={() => setOpen(false)}

@@ -27,6 +27,8 @@ export interface ChurchDetails {
   /** Blur radius in px applied to the homepage hero background image. */
   hero_blur: number;
   about_carousel: AboutSlide[];
+  /** Whether the "About" link should appear in the site navigation. */
+  show_about_nav: boolean;
 }
 
 export interface AboutSlide {

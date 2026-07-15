@@ -56,6 +56,9 @@ class ChurchDetailsController extends Controller
         $heroBlur = $plucked['hero_blur'] ?? '-';
         $churchdetail['hero_blur']       = $heroBlur === '-' ? 8 : (int) $heroBlur;
         $churchdetail['about_carousel']  = $this->decodeAboutCarousel($plucked['about_carousel'] ?? null);
+        // Defaults to shown — only an explicit "0" (unchecked in Settings)
+        // hides the About link from the nav.
+        $churchdetail['show_about_nav']  = ($plucked['show_about_nav'] ?? '1') !== '0';
 
         /* $churchdetail['seo_basic']['sitetitle']                = \config::get('settings.sitetitle');
         $churchdetail['seo_basic']['site_description']         = \config::get('settings.site_description');

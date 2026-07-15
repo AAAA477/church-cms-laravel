@@ -57,6 +57,7 @@ export default async function PublicLayout({
         churchLogo={church.church_logo}
         tagline="Faith • Hope • Love"
         member={member}
+        showAboutNav={church.show_about_nav}
       />
       <main className="flex-1">{children}</main>
       <Footer church={church} isSignedIn={Boolean(member)} />

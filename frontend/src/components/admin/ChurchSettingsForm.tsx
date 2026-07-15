@@ -147,6 +147,7 @@ export default function ChurchSettingsForm({ settings }: { settings: AdminChurch
       "guest_registration",
       "member_web_login",
       "hide_birth_year",
+      "show_about_nav",
     ]) {
       if (!formData.has(key)) formData.set(key, "0");
     }
@@ -581,6 +582,24 @@ export default function ChurchSettingsForm({ settings }: { settings: AdminChurch
               </div>
             )}
           </div>
+        </div>
+
+        <div className="sm:col-span-2 pt-6 border-t border-warm-deep">
+          <label className="flex items-start gap-2 text-sm text-ink cursor-pointer">
+            <input
+              type="checkbox"
+              name="show_about_nav"
+              value="1"
+              defaultChecked={settings.show_about_nav !== "0"}
+              className="mt-0.5"
+            />
+            <span>
+              Show &ldquo;About&rdquo; in the navigation
+              <span className="block text-xs text-ink-soft">
+                Links visitors to your About Us page (edited in the About tab). Turn this off to hide it from the menu.
+              </span>
+            </span>
+          </label>
         </div>
       </Section>
 
