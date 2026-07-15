@@ -15,13 +15,38 @@ export default async function HomePage() {
   const upcomingEvents = events.data.slice(0, 3);
   const recentSermons = sermons.data.slice(0, 3);
 
+  // The hero background photo is blurred via a CSS filter at an
+  // admin-chosen radius (Settings > Appearance) — the layer is inset
+  // negatively by more than the blur radius so the blur's own soft edge
+  // never peeks past the section boundary as a hard, unblurred sliver.
+  const heroBlur = church.hero_image ? church.hero_blur : 0;
+  const heroInset = Math.round(heroBlur * 1.5) + 12;
+
   return (
     <>
       {/* Hero */}
-      <section className="hero-gradient texture-overlay">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 sm:py-36 text-center">
+      <section className="relative hero-gradient texture-overlay">
+        {church.hero_image && (
+          <div
+            className="absolute overflow-hidden"
+            style={{ inset: `-${heroInset}px` }}
+            aria-hidden
+          >
+            <Image
+              src={church.hero_image}
+              alt=""
+              fill
+              priority
+              className="object-cover"
+              style={{ filter: `blur(${heroBlur}px)` }}
+              sizes="100vw"
+            />
+            <div className="absolute inset-0 bg-cream/60" />
+          </div>
+        )}
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 sm:py-36 text-center">
           <p className="animate-fade-in-up text-sm font-medium uppercase tracking-[0.3em] text-primary mb-6">
-            Welcome Home
+            Welcome to
           </p>
           <h1 className="animate-fade-in-up delay-100 font-display text-5xl sm:text-6xl lg:text-7xl text-ink leading-tight">
             {church.church_name}

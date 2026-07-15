@@ -91,6 +91,14 @@ export default function ChurchSettingsForm({ settings }: { settings: AdminChurch
     return { primary: d.primary, accent: d.accent, background: d.cream, text: d.ink };
   });
 
+  // Homepage hero background image + blur radius, with a live preview that
+  // updates as the admin picks a file or drags the slider, before saving.
+  const [heroBlur, setHeroBlur] = useState(() => {
+    const n = Number(settings.hero_blur);
+    return Number.isFinite(n) ? n : 8;
+  });
+  const [heroImagePreview, setHeroImagePreview] = useState<string | null>(settings.hero_image || null);
+
   // Homepage About carousel slides. Same unnamed-inputs pattern as
   // extraLinks: serialized to the about_carousel JSON on submit, with newly
   // chosen images appended as about_carousel_image_{i} files.
@@ -510,6 +518,69 @@ export default function ChurchSettingsForm({ settings }: { settings: AdminChurch
               )}
             </div>
           )}
+        </div>
+
+        <div className="sm:col-span-2 pt-6 border-t border-warm-deep">
+          <p className={labelClasses}>Homepage Background Image</p>
+          <p className="text-xs text-ink-soft mb-3">
+            Shown behind the "Welcome to {"{Church Name}"}" hero text, blurred so the text stays readable.
+          </p>
+
+          <input
+            id="hero_image"
+            name="hero_image"
+            type="file"
+            accept="image/*"
+            className={inputClasses}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) setHeroImagePreview(URL.createObjectURL(file));
+            }}
+          />
+
+          <div className="mt-4">
+            <label htmlFor="hero_blur" className={labelClasses}>
+              Blur amount — {heroBlur}px
+            </label>
+            <input
+              id="hero_blur"
+              name="hero_blur"
+              type="range"
+              min={0}
+              max={40}
+              value={heroBlur}
+              onChange={(e) => setHeroBlur(Number(e.target.value))}
+              className="w-full accent-[var(--color-primary)]"
+            />
+          </div>
+
+          <div className="mt-4">
+            <p className={labelClasses}>Preview</p>
+            {heroImagePreview ? (
+              <div className="relative h-40 rounded-sm overflow-hidden border border-warm-deep">
+                <div
+                  className="absolute overflow-hidden"
+                  style={{ inset: `-${Math.round(heroBlur * 1.5) + 12}px` }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary blur radius, no need for next/image here */}
+                  <img
+                    src={heroImagePreview}
+                    alt=""
+                    className="h-full w-full object-cover"
+                    style={{ filter: `blur(${heroBlur}px)` }}
+                  />
+                  <div className="absolute inset-0 bg-cream/60" />
+                </div>
+                <div className="relative h-full flex items-center justify-center">
+                  <p className="font-display text-2xl text-ink">{"Welcome to Your Church"}</p>
+                </div>
+              </div>
+            ) : (
+              <div className="h-40 rounded-sm border border-dashed border-warm-deep flex items-center justify-center text-xs text-ink-soft">
+                No background image set
+              </div>
+            )}
+          </div>
         </div>
       </Section>
 

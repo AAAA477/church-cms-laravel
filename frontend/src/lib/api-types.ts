@@ -23,6 +23,9 @@ export interface ChurchDetails {
   extra_links: { label: string; url: string }[];
   theme_palette: string;
   theme_custom_colors: { primary: string; accent: string; background: string; text: string } | null;
+  hero_image: string | null;
+  /** Blur radius in px applied to the homepage hero background image. */
+  hero_blur: number;
   about_carousel: AboutSlide[];
 }
 

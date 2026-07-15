@@ -25,7 +25,7 @@ class ChurchSettingsController extends Controller
 {
     use Common, LogActivity;
 
-    private const IMAGE_KEYS = ['church_logo', 'favicon', 'facebook_image', 'twitter_image'];
+    private const IMAGE_KEYS = ['church_logo', 'favicon', 'facebook_image', 'twitter_image', 'hero_image'];
 
     public function index(Request $request)
     {

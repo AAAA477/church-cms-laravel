@@ -51,6 +51,10 @@ class ChurchDetailsController extends Controller
         $palette = $plucked['theme_palette'] ?? '-';
         $churchdetail['theme_palette']   = $palette === '-' ? '' : $palette;
         $churchdetail['theme_custom_colors'] = $this->decodeCustomColors($plucked['theme_custom_colors'] ?? null);
+        $heroImage = $plucked['hero_image'] ?? '-';
+        $churchdetail['hero_image']      = $heroImage === '-' ? '' : $this->getFilePath($heroImage);
+        $heroBlur = $plucked['hero_blur'] ?? '-';
+        $churchdetail['hero_blur']       = $heroBlur === '-' ? 8 : (int) $heroBlur;
         $churchdetail['about_carousel']  = $this->decodeAboutCarousel($plucked['about_carousel'] ?? null);
 
         /* $churchdetail['seo_basic']['sitetitle']                = \config::get('settings.sitetitle');
