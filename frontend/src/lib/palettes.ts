@@ -111,6 +111,21 @@ export const PALETTES: Palette[] = [
       warmDeep: "#e7dcea",
     },
   },
+  {
+    // Derived from The Church of Pentecost logo (navy blue rings/map, gold banner).
+    key: "pentecost-blue-gold",
+    name: "Pentecost Blue & Gold",
+    colors: {
+      primary: "#1b3a6b",
+      primaryDark: "#142c50",
+      accent: "#f0b429",
+      ink: "#16202e",
+      inkSoft: "#666d76",
+      cream: "#fafbfc",
+      warm: "#eff1f5",
+      warmDeep: "#dde2e9",
+    },
+  },
 ];
 
 export function getPalette(key: string | null | undefined): Palette {
