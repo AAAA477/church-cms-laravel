@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import clsx from "clsx";
+import AdminConsoleLink from "@/components/site/AdminConsoleLink";
 
 // Slimmed-down nav (2026-07-09, per admin request): About lives on the
 // homepage as the About Us carousel; FAQ and Gallery were removed from the
@@ -177,14 +178,10 @@ export default function NavBar({ churchName, churchLogo, tagline, member }: NavB
                       )}
                     </div>
                     {member.isAdmin && (
-                      <Link
-                        href="/console"
-                        role="menuitem"
-                        onClick={() => setProfileOpen(false)}
-                        className="block px-4 py-2 text-sm font-medium text-primary hover:bg-warm transition-colors border-b border-warm-deep"
-                      >
-                        Admin Console →
-                      </Link>
+                      <AdminConsoleLink
+                        onNavigate={() => setProfileOpen(false)}
+                        className="block w-full text-left px-4 py-2 text-sm font-medium text-primary hover:bg-warm transition-colors border-b border-warm-deep disabled:opacity-60"
+                      />
                     )}
                     {!member.isGuest &&
                       memberLinks.map((link) => (
@@ -303,13 +300,10 @@ export default function NavBar({ churchName, churchLogo, tagline, member }: NavB
                     )}
                   </div>
                   {member.isAdmin && (
-                    <Link
-                      href="/console"
-                      onClick={() => setOpen(false)}
-                      className="block px-4 py-2 text-sm font-medium rounded transition-colors text-primary hover:bg-warm"
-                    >
-                      Admin Console →
-                    </Link>
+                    <AdminConsoleLink
+                      onNavigate={() => setOpen(false)}
+                      className="block w-full text-left px-4 py-2 text-sm font-medium rounded transition-colors text-primary hover:bg-warm disabled:opacity-60"
+                    />
                   )}
                   {!member.isGuest &&
                     memberLinks.map((link) => (

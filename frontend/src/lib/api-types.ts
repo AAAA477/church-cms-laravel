@@ -130,6 +130,7 @@ export interface SermonLink {
 export interface MemberProfile {
   church_name: string;
   user_id: number;
+  usergroup_id: number;
   firstname: string;
   lastname: string;
   gender: string;

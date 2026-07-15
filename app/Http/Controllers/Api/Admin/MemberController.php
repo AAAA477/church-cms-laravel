@@ -316,6 +316,17 @@ class MemberController extends Controller
         $user->usergroup_id = $target;
         $user->save();
 
+        // Api\Admin\AuthController@login (and the matching upgrade-admin
+        // endpoint) require membership_type === 'member' for usergroup 3 —
+        // subadmins created via "Add Sub-Admin" never get membership_type
+        // set at all, so promoting one straight to admin without this
+        // would silently lock them out of the console with no visible
+        // error until they specifically try to log in there.
+        if ($target === 3 && optional($user->userprofile)->membership_type !== 'member') {
+            $user->userprofile->membership_type = 'member';
+            $user->userprofile->save();
+        }
+
         $this->doActivityLog(
             $user,
             $request->user(),

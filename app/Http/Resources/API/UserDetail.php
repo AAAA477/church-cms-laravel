@@ -25,6 +25,8 @@ class UserDetail extends JsonResource
 
             'user_id'               => $this->id,
 
+            'usergroup_id'          => $this->usergroup_id,
+
             'firstname'             => $this->userprofile->firstname ?? '',
 
             'lastname'              => optional($this->userprofile)->lastname ?? '',

@@ -52,6 +52,7 @@ Route::post('/login', 'Api\LoginController@login');
 Route::post('/member/login', 'Api\MemberAuthController@login');
 
 Route::post('/member/logout', 'Api\MemberAuthController@logout')->middleware('auth:sanctum');
+Route::post('/member/upgrade-admin', 'Api\MemberAuthController@upgradeToAdmin')->middleware('auth:sanctum');
 
 //admin console login (email-based; separate "admin-portal" token namespace
 //so signing into the console never disturbs a member-portal or mobile-app

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Church;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -71,5 +72,60 @@ class MemberAuthController extends Controller
         $request->user()->currentAccessToken()?->delete();
 
         return response()->json(['success' => true, 'message' => 'Logged out']);
+    }
+
+    /**
+     * Mints an admin-portal session for a member-portal session belonging
+     * to an account that IS a church admin/subadmin right now, without
+     * requiring the password again — identity is already proven by the
+     * member_token bearer. Exists because being promoted to admin/subadmin
+     * doesn't retroactively touch an already-open member session (the
+     * admin_token cookie is normally only set at login time); the "Admin
+     * Console" link calls this first so it always works on the first
+     * click, whether the account was promoted before or after this login.
+     *
+     * Mirrors Api\Admin\AuthController@login's eligibility checks exactly
+     * (minus the password, and using the live usergroup_id/status instead
+     * of re-querying by email) so this can never grant access login itself
+     * would refuse.
+     */
+    public function upgradeToAdmin(Request $request)
+    {
+        $user = $request->user()->load('userprofile');
+
+        if (! in_array($user->usergroup_id, [3, 4], true)) {
+            return response()->json(['success' => false, 'message' => 'Not an admin account'], 403);
+        }
+
+        if (! Church::IsActive($user->church_id)->exists()) {
+            return response()->json(['success' => false, 'message' => 'Contact Church Admin for more details'], 403);
+        }
+
+        $status = optional($user->userprofile)->status;
+
+        if ($status === 'inactive') {
+            return response()->json(['success' => false, 'message' => 'You are suspended by site admin'], 403);
+        }
+
+        if ($status === 'exit') {
+            return response()->json(['success' => false, 'message' => 'You have exited this church'], 403);
+        }
+
+        if ($user->usergroup_id == 3 && $status !== null && optional($user->userprofile)->membership_type !== 'member') {
+            return response()->json(['success' => false, 'message' => 'Invalid Credentials. This account is not allowed to login.'], 403);
+        }
+
+        $user->tokens()->where('name', 'admin-portal')->delete();
+        $token = $user->createToken('admin-portal')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'token'   => $token,
+            'user'    => [
+                'id'    => $user->id,
+                'name'  => $user->name,
+                'email' => $user->email,
+            ],
+        ]);
     }
 }
