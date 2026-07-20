@@ -12,6 +12,7 @@ import {
   PALETTES,
   type CustomColors,
 } from "@/lib/palettes";
+import { TENETS, TENETS_INTRO, TENETS_OUTRO, type Tenet } from "@/lib/tenets";
 
 const inputClasses =
   "w-full rounded-sm border border-warm-deep bg-white px-4 py-2.5 text-sm text-ink placeholder:text-ink-soft/60 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
@@ -131,6 +132,35 @@ export default function ChurchSettingsForm({ settings }: { settings: AdminChurch
     });
   }
 
+  // Doctrinal tenets (About > Our Tenets). Seeded from saved settings if
+  // present, otherwise from the site's current built-in defaults so the
+  // admin edits what's actually live rather than a blank form.
+  const [tenetsIntro, setTenetsIntro] = useState(settings.tenets_intro || TENETS_INTRO);
+  const [tenetsOutro, setTenetsOutro] = useState(settings.tenets_outro || TENETS_OUTRO);
+  const [tenets, setTenets] = useState<Tenet[]>(() => {
+    try {
+      const parsed = JSON.parse(settings.tenets ?? "null");
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    } catch {
+      // fall through to defaults
+    }
+    return TENETS;
+  });
+
+  function updateTenet(i: number, patch: Partial<Tenet>) {
+    setTenets((prev) => prev.map((t, j) => (j === i ? { ...t, ...patch } : t)));
+  }
+
+  function moveTenet(i: number, dir: -1 | 1) {
+    setTenets((prev) => {
+      const next = [...prev];
+      const j = i + dir;
+      if (j < 0 || j >= next.length) return prev;
+      [next[i], next[j]] = [next[j], next[i]];
+      return next;
+    });
+  }
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setStatus("submitting");
@@ -175,6 +205,13 @@ export default function ChurchSettingsForm({ settings }: { settings: AdminChurch
     });
     formData.set("about_carousel", JSON.stringify(slidePayload));
     formData.set("theme_custom_colors", JSON.stringify(customColors));
+
+    formData.set("tenets_intro", tenetsIntro);
+    formData.set("tenets_outro", tenetsOutro);
+    formData.set(
+      "tenets",
+      JSON.stringify(tenets.filter((t) => t.title.trim() && t.body.trim())),
+    );
 
     try {
       const res = await fetch("/bff/admin/church-settings", { method: "POST", body: formData });
@@ -403,6 +440,94 @@ export default function ChurchSettingsForm({ settings }: { settings: AdminChurch
           >
             + Add Slide
           </button>
+        </div>
+
+        <div className="sm:col-span-2 pt-6 border-t border-warm-deep">
+          <p className={labelClasses}>Our Tenets</p>
+          <p className="text-xs text-ink-soft mb-3">
+            Shown on the About page under &ldquo;What We Believe&rdquo;. Intro text, then each doctrine as a
+            title and a short statement.
+          </p>
+
+          <label htmlFor="tenets_intro_field" className={labelClasses}>
+            Intro
+          </label>
+          <textarea
+            id="tenets_intro_field"
+            rows={4}
+            value={tenetsIntro}
+            onChange={(e) => setTenetsIntro(e.target.value)}
+            className={`${inputClasses} mb-4`}
+            placeholder="Separate paragraphs with a blank line."
+          />
+
+          <div className="space-y-3">
+            {tenets.map((tenet, i) => (
+              <div key={i} className="rounded-sm border border-warm-deep p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="flex-none text-xs font-semibold text-primary">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <input
+                    placeholder="Tenet title"
+                    value={tenet.title}
+                    onChange={(e) => updateTenet(i, { title: e.target.value })}
+                    className={inputClasses}
+                  />
+                </div>
+                <textarea
+                  placeholder="Statement of belief"
+                  rows={2}
+                  value={tenet.body}
+                  onChange={(e) => updateTenet(i, { body: e.target.value })}
+                  className={inputClasses}
+                />
+                <div className="flex gap-2 mt-3">
+                  <button
+                    type="button"
+                    disabled={i === 0}
+                    onClick={() => moveTenet(i, -1)}
+                    className="text-xs font-medium uppercase tracking-wider px-3 py-1.5 rounded-sm border border-warm-deep text-ink-soft hover:bg-warm disabled:opacity-40"
+                  >
+                    ↑ Up
+                  </button>
+                  <button
+                    type="button"
+                    disabled={i === tenets.length - 1}
+                    onClick={() => moveTenet(i, 1)}
+                    className="text-xs font-medium uppercase tracking-wider px-3 py-1.5 rounded-sm border border-warm-deep text-ink-soft hover:bg-warm disabled:opacity-40"
+                  >
+                    ↓ Down
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTenets((prev) => prev.filter((_, j) => j !== i))}
+                    className="ml-auto text-xs font-medium uppercase tracking-wider px-3 py-1.5 rounded-sm border border-red-600 text-red-700 hover:bg-red-50"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => setTenets((prev) => [...prev, { title: "", body: "" }])}
+            className="mt-3 text-xs font-medium uppercase tracking-wider px-3 py-2 rounded-sm border border-primary text-primary hover:bg-warm"
+          >
+            + Add Tenet
+          </button>
+
+          <label htmlFor="tenets_outro_field" className={`${labelClasses} mt-5 block`}>
+            Closing Note
+          </label>
+          <textarea
+            id="tenets_outro_field"
+            rows={2}
+            value={tenetsOutro}
+            onChange={(e) => setTenetsOutro(e.target.value)}
+            className={inputClasses}
+          />
         </div>
       </Section>
 

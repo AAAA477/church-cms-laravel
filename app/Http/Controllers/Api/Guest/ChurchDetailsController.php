@@ -60,6 +60,14 @@ class ChurchDetailsController extends Controller
         // hides the About link from the nav.
         $churchdetail['show_about_nav']  = ($plucked['show_about_nav'] ?? '1') !== '0';
 
+        // Doctrinal tenets (Settings > About > Our Tenets). Empty until an
+        // admin edits them — the frontend falls back to built-in defaults.
+        $tenetsIntro = $plucked['tenets_intro'] ?? '-';
+        $churchdetail['tenets_intro']    = $tenetsIntro === '-' ? '' : $tenetsIntro;
+        $churchdetail['tenets']          = $this->decodeTenets($plucked['tenets'] ?? null);
+        $tenetsOutro = $plucked['tenets_outro'] ?? '-';
+        $churchdetail['tenets_outro']    = $tenetsOutro === '-' ? '' : $tenetsOutro;
+
         /* $churchdetail['seo_basic']['sitetitle']                = \config::get('settings.sitetitle');
         $churchdetail['seo_basic']['site_description']         = \config::get('settings.site_description');
         $churchdetail['seo_basic']['site_keyword']             = \config::get('settings.site_keyword');
@@ -155,6 +163,30 @@ class ChurchDetailsController extends Controller
             'title' => $s['title'] ?? '',
             'text'  => $s['text'] ?? '',
         ], $slides));
+    }
+
+    /**
+     * Doctrinal tenets, stored as a JSON array of {title, body} in the
+     * tenets setting.
+     */
+    private function decodeTenets($raw): array
+    {
+        if (! $raw || $raw === '-') {
+            return [];
+        }
+
+        $tenets = json_decode($raw, true);
+
+        if (! is_array($tenets)) {
+            return [];
+        }
+
+        $tenets = array_filter($tenets, fn ($t) => is_array($t) && ! empty($t['title']) && ! empty($t['body']));
+
+        return array_values(array_map(fn ($t) => [
+            'title' => $t['title'],
+            'body'  => $t['body'],
+        ], $tenets));
     }
 
     /**

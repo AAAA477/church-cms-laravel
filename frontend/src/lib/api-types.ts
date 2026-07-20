@@ -29,6 +29,15 @@ export interface ChurchDetails {
   about_carousel: AboutSlide[];
   /** Whether the "About" link should appear in the site navigation. */
   show_about_nav: boolean;
+  /** Doctrinal tenets (Settings > About > Our Tenets). Empty until an admin sets them. */
+  tenets_intro: string | null;
+  tenets: TenetItem[];
+  tenets_outro: string | null;
+}
+
+export interface TenetItem {
+  title: string;
+  body: string;
 }
 
 export interface AboutSlide {
