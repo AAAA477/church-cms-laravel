@@ -17,9 +17,12 @@ export default async function AboutPage() {
   const hasCarousel = church.about_carousel.length > 0;
 
   // Admin-set tenets (Settings > About > Our Tenets) win when present;
-  // otherwise fall back to the built-in defaults.
+  // otherwise fall back to the built-in defaults. Optional chaining here
+  // isn't just defensive — the backend may not have deployed the
+  // tenets_intro/tenets/tenets_outro fields yet, in which case they're
+  // simply absent from the API response rather than null.
   const tenetsIntro = church.tenets_intro || TENETS_INTRO;
-  const tenets = church.tenets.length > 0 ? church.tenets : TENETS;
+  const tenets = church.tenets?.length ? church.tenets : TENETS;
   const tenetsOutro = church.tenets_outro || TENETS_OUTRO;
   const [introLead, ...introRest] = tenetsIntro.split(/\n{2,}/).filter(Boolean);
 
