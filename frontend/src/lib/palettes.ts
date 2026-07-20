@@ -112,18 +112,21 @@ export const PALETTES: Palette[] = [
     },
   },
   {
-    // Derived from The Church of Pentecost logo (navy blue rings/map, gold banner).
+    // Matched to The Church of Pentecost Canada Inc. logo (royal-blue rings
+    // + world map, gold banner). The logo's third color, the red dashed
+    // ring around the dove emblem, isn't represented — this two-tone
+    // palette system has no slot for a tertiary accent.
     key: "pentecost-blue-gold",
     name: "Pentecost Blue & Gold",
     colors: {
-      primary: "#1b3a6b",
-      primaryDark: "#142c50",
-      accent: "#f0b429",
+      primary: "#1d4f96",
+      primaryDark: "#153a72",
+      accent: "#f4c430",
       ink: "#16202e",
-      inkSoft: "#666d76",
-      cream: "#fafbfc",
-      warm: "#eff1f5",
-      warmDeep: "#dde2e9",
+      inkSoft: "#5b6472",
+      cream: "#f7f9fc",
+      warm: "#eef2f8",
+      warmDeep: "#dde5f0",
     },
   },
 ];
