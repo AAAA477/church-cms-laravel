@@ -54,7 +54,7 @@ export default function NavBar({ churchName, churchLogo, tagline, member, showAb
   const router = useRouter();
 
   const navLinks = showAboutNav
-    ? [links[0], { href: "/about", label: "About" }, ...links.slice(1)]
+    ? [links[0], { href: "/about", label: "Who We Are" }, ...links.slice(1)]
     : links;
 
   const isActive = (href: string) =>

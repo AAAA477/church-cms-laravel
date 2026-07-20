@@ -8,13 +8,34 @@ import type { ChurchDetails } from "@/lib/api-types";
 import { TENETS, TENETS_INTRO, TENETS_OUTRO } from "@/lib/tenets";
 
 export const metadata: Metadata = {
-  title: "About",
+  title: "Who We Are",
   description: "Who we are, what we believe, and what brings us together.",
 };
+
+// Normalize for de-duplication: churches often paste the same sentence into
+// short_summary, quotes AND long_summary, which would otherwise render the
+// motto two or three times down the page.
+const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 
 export default async function AboutPage() {
   const church = await guestGet<ChurchDetails>("/church/details", 600);
   const hasCarousel = church.about_carousel.length > 0;
+
+  const shortSummary = (church.short_summary ?? "").trim();
+  const quote = (church.quotes ?? "").trim();
+  const longSummary = (church.long_summary ?? "").trim();
+
+  // Show the short summary as the header subtitle only when it isn't just
+  // repeating the motto or the longer story shown further down.
+  const headerSubtitle =
+    shortSummary && norm(shortSummary) !== norm(quote) && norm(shortSummary) !== norm(longSummary)
+      ? shortSummary
+      : undefined;
+
+  // The long story only earns its own block when it says something the motto
+  // doesn't already say.
+  const showQuote = quote.length > 0;
+  const showSummary = longSummary.length > 0 && norm(longSummary) !== norm(quote);
 
   // Admin-set tenets (Settings > About > Our Tenets) win when present;
   // otherwise fall back to the built-in defaults. Optional chaining here
@@ -30,34 +51,37 @@ export default async function AboutPage() {
     <>
       <PageHeader
         overline="Who We Are"
-        title={`About ${church.church_name}`}
-        subtitle={church.short_summary || undefined}
+        title={church.church_name}
+        subtitle={headerSubtitle}
       />
 
       {hasCarousel && (
-        <section className="py-24">
+        <section className="py-16 sm:py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <AboutCarousel slides={church.about_carousel} />
           </div>
         </section>
       )}
 
-      {church.quotes && (
-        <section className="bg-primary text-white">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-14 text-center">
-            <p className="font-display text-2xl sm:text-3xl italic leading-relaxed">
-              “{church.quotes}”
-            </p>
+      {showSummary && (
+        <section className={`py-16 sm:py-20 ${hasCarousel ? "bg-warm" : ""}`}>
+          <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="mb-6 h-[3px] w-[60px] bg-primary" aria-hidden />
+            <div className="space-y-4 text-lg text-ink-soft leading-relaxed whitespace-pre-line">
+              {longSummary.split(/\n{2,}/).map((para, i) => (
+                <p key={i}>{para}</p>
+              ))}
+            </div>
           </div>
         </section>
       )}
 
-      {church.long_summary && (
-        <section className={`py-24 ${hasCarousel ? "bg-warm" : ""}`}>
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <div className="mx-auto mb-6 h-[3px] w-[60px] bg-primary" aria-hidden />
-            <p className="font-display text-xl sm:text-2xl text-ink leading-relaxed whitespace-pre-line">
-              {church.long_summary}
+      {showQuote && (
+        <section className="bg-primary text-white">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+            <span className="mx-auto mb-6 block h-[3px] w-[60px] bg-accent" aria-hidden />
+            <p className="font-display text-2xl sm:text-3xl italic leading-relaxed">
+              {quote}
             </p>
           </div>
         </section>
@@ -66,7 +90,7 @@ export default async function AboutPage() {
       {/* What We Believe — an editorial "doctrinal statement" treatment
           (ghost numerals, two-column reading grid, no cards/accordion)
           deliberately unlike the rest of the site's card-based sections. */}
-      <section className={`py-24 border-t border-warm-deep ${hasCarousel ? "" : "bg-warm"}`}>
+      <section className={`py-20 sm:py-24 border-t border-warm-deep ${hasCarousel ? "" : "bg-warm"}`}>
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl mb-16">
             <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary mb-4">

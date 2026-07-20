@@ -6,7 +6,7 @@ import type { ChurchDetails } from "@/lib/api-types";
 // Get in Touch — new palette kept.
 const exploreLinks = [
   { href: "/", label: "Home" },
-  { href: "/#about", label: "About Us" },
+  { href: "/#about", label: "Who We Are" },
   { href: "/devotions", label: "Devotions" },
   { href: "/resources", label: "Resources" },
 ];
