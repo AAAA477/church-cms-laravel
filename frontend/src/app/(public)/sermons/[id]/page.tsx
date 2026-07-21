@@ -3,7 +3,6 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import Breadcrumbs from "@/components/site/Breadcrumbs";
 import Button from "@/components/ui/Button";
-import YouTubeEmbed from "@/components/site/YouTubeEmbed";
 import { guestGet } from "@/lib/api";
 import { youtubeId } from "@/lib/youtube";
 import type { Paginated, Sermon, SermonLink } from "@/lib/api-types";
@@ -39,10 +38,12 @@ export default async function SermonDetailPage({ params }: Props) {
 
   const media = links.data;
 
-  // The first YouTube video becomes the featured embed (replacing the
-  // static cover image, which would otherwise be redundant); everything
-  // else — additional videos, audio, documents — lists below it.
+  // The first YouTube video becomes the featured thumbnail; everything
+  // else — additional videos, audio, documents — lists below it. Clicking
+  // opens the video directly on YouTube (a direct link, not an inline
+  // embedded player).
   const featuredVideo = media.find((m) => m.type === "video" && youtubeId(m.url));
+  const featuredVideoId = featuredVideo ? youtubeId(featuredVideo.url) : null;
   const rest = media.filter((m) => m !== featuredVideo);
 
   return (
@@ -69,10 +70,34 @@ export default async function SermonDetailPage({ params }: Props) {
         </header>
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          {featuredVideo ? (
-            <div className="mb-12">
-              <YouTubeEmbed url={featuredVideo.url} title={sermon.title} />
-            </div>
+          {featuredVideo && featuredVideoId ? (
+            <a
+              href={featuredVideo.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Watch "${sermon.title}" on YouTube`}
+              className="group relative block aspect-video w-full overflow-hidden rounded-sm shadow-sm bg-ink mb-12"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`https://i.ytimg.com/vi/${featuredVideoId}/hqdefault.jpg`}
+                alt=""
+                className="h-full w-full object-cover transition-opacity group-hover:opacity-80"
+              />
+              <span className="absolute inset-0 flex items-center justify-center">
+                <span className="flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-white/90 shadow-lg transition-transform group-hover:scale-110">
+                  <svg viewBox="0 0 24 24" className="h-7 w-7 sm:h-8 sm:w-8 text-primary translate-x-0.5" fill="currentColor">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </span>
+              </span>
+              <span className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-sm bg-ink/75 px-2.5 py-1 text-xs font-medium text-white">
+                Watch on YouTube
+                <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M17 7H9M17 7v8" />
+                </svg>
+              </span>
+            </a>
           ) : (
             sermon.cover_image && (
               <div className="relative h-72 sm:h-96 mb-12 rounded-sm overflow-hidden shadow-sm">
